@@ -1,6 +1,11 @@
+import fs from "node:fs"; // Importe o fs com node:
+import { pipeline } from "node:stream";
+import { promisify } from "node:util";
 import * as Yup from "yup";
-import Cursos from "../models/Cursos";
+import minioClient from "../../config/minioClient";
+import Curso from "../models/Cursos";
 
+const pump = promisify(pipeline);
 /**
  * @swagger
  * components:
@@ -64,7 +69,7 @@ class CursoController {
 	 */
 	async index(req, res) {
 		try {
-			const cursos = await Cursos.findAll();
+			const cursos = await Curso.findAll(); // Use o nome do model corrigido
 			return res.json(cursos);
 		} catch (error) {
 			console.error(error);
@@ -150,7 +155,7 @@ class CursoController {
 
 			const { title, description } = req.body;
 
-			const cursoExists = await Cursos.findOne({ where: { title } }); // Verifica se já existe um curso com o mesmo título
+			const cursoExists = await Curso.findOne({ where: { title } });
 
 			if (cursoExists) {
 				return res
@@ -158,9 +163,33 @@ class CursoController {
 					.json({ error: "Já existe um curso com este título" });
 			}
 
-			const cursos = await Cursos.create({ title, description });
+			if (req.file) {
+				const { originalname: name, mimetype, filename, path } = req.file;
 
-			return res.status(201).json(cursos);
+				const bucketName = "curso";
+
+				const bucketExists = await minioClient.bucketExists(bucketName);
+				if (!bucketExists) {
+					await minioClient.makeBucket(bucketName, "eu-south");
+				}
+
+				await minioClient.fPutObject(bucketName, filename, path, {
+					"Content-Type": mimetype,
+				});
+
+				await fs.promises.unlink(req.file.path);
+
+				const cursos = await Curso.create({
+					title,
+					description,
+					path: `${process.env.MINIO_SERVER_URL}/${bucketName}/${filename}`,
+				});
+				return res.status(201).json(cursos);
+				// biome-ignore lint/style/noUselessElse: <explanation>
+			} else {
+				const cursos = await Curso.create({ title, description });
+				return res.status(201).json(cursos);
+			}
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
@@ -180,17 +209,18 @@ class CursoController {
 			await schema.validate(req.body, { abortEarly: false });
 
 			const { id } = req.params;
-			const cursos = await Cursos.findByPk(id);
+			const curso = await Curso.findByPk(id); // Nome do model corrigido
 
-			if (!cursos) {
+			if (!curso) {
 				return res.status(404).json({ error: "Curso não encontrado" });
 			}
 
 			const { title, description } = req.body;
 
 			// Verifica se o novo título já existe em outro curso
-			if (title && title !== cursos.title) {
-				const cursoExists = await Cursos.findOne({ where: { title } });
+			if (title && title !== curso.title) {
+				// Use o nome do model corrigido
+				const cursoExists = await Curso.findOne({ where: { title } }); // Use o nome do model corrigido
 				if (cursoExists) {
 					return res
 						.status(400)
@@ -198,9 +228,34 @@ class CursoController {
 				}
 			}
 
-			await cursos.update({ title, description });
+			if (req.file) {
+				const { filename, path, mimetype } = req.file;
 
-			return res.status(200).json(cursos);
+				const bucketName = "curso";
+
+				const bucketExists = await minioClient.bucketExists(bucketName);
+				if (!bucketExists) {
+					await minioClient.makeBucket(bucketName, "eu-south");
+				}
+
+				await minioClient.fPutObject(bucketName, filename, path, {
+					"Content-Type": mimetype,
+				});
+
+				await fs.promises.unlink(req.file.path);
+
+				await curso.update({
+					// Use o nome do model corrigido
+					title,
+					description,
+					path: `${process.env.MINIO_SERVER_URL}/${bucketName}/${filename}`,
+				});
+				return res.status(200).json(curso);
+				// biome-ignore lint/style/noUselessElse: <explanation>
+			} else {
+				await curso.update({ title, description });
+				return res.status(200).json(curso);
+			}
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
@@ -209,7 +264,6 @@ class CursoController {
 			return res.status(500).json({ error: "Erro ao atualizar curso" });
 		}
 	}
-
 	/**
 	 * @swagger
 	 * /cursos/{id}:

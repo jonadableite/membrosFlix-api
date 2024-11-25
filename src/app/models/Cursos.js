@@ -9,6 +9,7 @@ class Curso extends Model {
 			{
 				title: DataTypes.STRING,
 				description: DataTypes.TEXT,
+				path: DataTypes.STRING,
 			},
 			{
 				sequelize,

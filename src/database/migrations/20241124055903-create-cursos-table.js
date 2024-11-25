@@ -16,15 +16,20 @@ module.exports = {
 				type: Sequelize.TEXT,
 				allowNull: true,
 			},
+			path: {
+				// Novo campo para o caminho da imagem
+				type: Sequelize.STRING,
+				allowNull: true,
+			},
 			created_at: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				defaultValue: Sequelize.NOW, // Adicione defaultValue aqui
+				defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"), // Melhor prática para timestamps
 			},
 			updated_at: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				defaultValue: Sequelize.NOW, // Adicione defaultValue aqui
+				defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"), // Melhor prática para timestamps
 			},
 		});
 	},
