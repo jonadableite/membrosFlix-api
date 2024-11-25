@@ -58,7 +58,7 @@ A API estará disponível em http://localhost:3001.
 Documentação
 A documentação da API, gerada com Swagger, está disponível em http://localhost:3001/api-docs.
 
-Rotas
+# Rotas
 
 Usuários:
 
@@ -121,7 +121,7 @@ PUT /users/:userId/courses/:courseId/progress: Atualiza o progresso do usuário 
 GET /users/:userId/courses/:courseId/progress: Exibe o progresso do usuário em um curso (requer autenticação).
 
 
-Tecnologias
+# Tecnologias
 
 Node.js
 
@@ -139,6 +139,7 @@ JWT (JSON Web Token)
 
 MinIO
 
-Autor
+# Autor
+
 Jonadab Leite
 
