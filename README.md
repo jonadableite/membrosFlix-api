@@ -12,7 +12,7 @@ Esta API permite criar, listar, visualizar, atualizar e excluir cursos, aulas e 
 
 ```bash
 git clone https://github.com/jonadableite/membrosFlix-api.git
-
+```bash
 2. Instale as dependências:
 
 cd membrosFlix-api
