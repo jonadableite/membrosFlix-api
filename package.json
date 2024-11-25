@@ -1,0 +1,42 @@
+{
+	"name": "membrosfilix-api",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/server.js",
+	"scripts": {
+		"dev": "nodemon",
+		"migrate": "sequelize-cli db:migrate --config src/config/database.js --migrations-path src/database/migrations",
+		"migrate:undo": "sequelize-cli db:migrate:undo --config src/config/database.js --migrations-path src/database/migrations"
+	},
+	"author": {
+		"name": "Jonadab Leite",
+		"email": "jonadab.leite@gmail.com",
+		"url": "https://github.com/jonadableite"
+	},
+	"license": "ISC",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express": "^4.21.1",
+		"jsonwebtoken": "^9.0.2",
+		"minio": "^8.0.2",
+		"multer": "^1.4.5-lts.1",
+		"pg": "^8.13.1",
+		"pg-hstore": "^2.3.4",
+		"sequelize": "^6.37.5",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-express": "^5.0.1",
+		"uuid": "^11.0.3",
+		"yuo": "^0.0.1",
+		"yup": "^1.4.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"globals": "^15.12.0",
+		"nodemon": "^3.1.7",
+		"prettier": "^3.3.3",
+		"sequelize-cli": "^6.6.2",
+		"sucrase": "^3.35.0"
+	}
+}
