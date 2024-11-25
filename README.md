@@ -121,25 +121,19 @@ PUT /users/:userId/courses/:courseId/progress: Atualiza o progresso do usuário 
 GET /users/:userId/courses/:courseId/progress: Exibe o progresso do usuário em um curso (requer autenticação).
 
 
-# Tecnologias
+## Tecnologias
 
-Node.js
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/en/)
+[![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white)](https://sequelize.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Multer](https://img.shields.io/badge/Multer-FF5722?style=for-the-badge&logo=multer&logoColor=white)](https://github.com/expressjs/multer)
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)](https://swagger.io/)
+[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
+[![MinIO](https://img.shields.io/badge/MinIO-000000?style=for-the-badge&logo=minio&logoColor=white)](https://min.io/)
 
-Express
 
-Sequelize
-
-PostgreSQL (ou outro banco de dados compatível com Sequelize)
-
-Multer
-
-Swagger
-
-JWT (JSON Web Token)
-
-MinIO
-
-# Autor
+## Autor
 
 Jonadab Leite
-
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-JonadabLeite-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/jonadableite/)
