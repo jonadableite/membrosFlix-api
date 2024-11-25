@@ -12,35 +12,46 @@ Esta API permite criar, listar, visualizar, atualizar e excluir cursos, aulas e 
 
 ```bash
 git clone https://github.com/jonadableite/membrosFlix-api.git
-```bash
+```
 2. Instale as dependências:
 
+```bash
 cd membrosFlix-api
 yarn install
+```
 # ou
+```bash
 npm install
+```
 
 3. Configure as variáveis de ambiente:
 
 Crie um arquivo .env na raiz do projeto e configure as seguintes variáveis:
-
+```bash
 DATABASE_URL=<sua_url_de_conexao_com_o_banco_de_dados>
 APP_SECRET=<sua_chave_secreta_para_jwt>
 MINIO_ROOT_USER=<seu_minio_root_user>
 MINIO_ROOT_PASSWORD=<seu_minio_root_password>
 MINIO_SERVER_URL=<sua_minio_server_url>
+```
 
 4. Execute as migrações:
-
+```bash
 yarn sequelize db:migrate
+```
 # ou
+```bash
 npx sequelize-cli db:migrate
+```
 
 Execução
-
+```bash
 yarn dev
+```
 # ou
+```bash
 npm run dev
+```
 
 A API estará disponível em http://localhost:3001.
 
