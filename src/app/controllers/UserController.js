@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
+import logger from "../../../utils/logger";
 
 import User from "../models/User";
 
@@ -119,7 +120,7 @@ class UserController {
 					errors: error.errors,
 				});
 			}
-			console.error("Erro ao criar usuário:", error);
+			logger.error("Erro ao criar usuário:", error);
 			return res.status(500).json({ message: "Erro interno do servidor" });
 		}
 	}
@@ -164,7 +165,7 @@ class UserController {
 			});
 			return res.json(users);
 		} catch (error) {
-			console.error("Erro ao listar usuários:", error);
+			logger.error("Erro ao listar usuários:", error);
 			return res.status(500).json({ error: "Erro ao listar usuários" });
 		}
 	}
@@ -223,7 +224,7 @@ class UserController {
 
 			return res.json(user);
 		} catch (error) {
-			console.error("Erro ao exibir usuário:", error);
+			logger.error("Erro ao exibir usuário:", error);
 			return res.status(500).json({ error: "Erro ao exibir usuário" });
 		}
 	}
@@ -271,7 +272,7 @@ class UserController {
 
 			return res.status(204).send();
 		} catch (error) {
-			console.error("Erro ao excluir usuário:", error);
+			logger.error("Erro ao excluir usuário:", error);
 			return res.status(500).json({ error: "Erro ao excluir usuário" });
 		}
 	}
@@ -329,7 +330,7 @@ class UserController {
 				return res.status(400).json({ errors: error.errors });
 			}
 
-			console.error("Erro ao atualizar usuário:", error);
+			logger.error("Erro ao atualizar usuário:", error);
 			return res.status(500).json({ error: "Erro ao atualizar usuário" });
 		}
 	}

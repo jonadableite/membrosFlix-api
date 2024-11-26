@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import * as Yup from "yup";
 import User from "../models/User";
+import logger from "../../../utils/logger";
 
 /**
  * @swagger
@@ -96,7 +97,7 @@ class SessionController {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
 			}
-			console.error("Erro na autenticação:", error);
+			logger.error("Erro na autenticação:", error);
 			return res.status(500).json({ error: "Erro interno do servidor" });
 		}
 	}

@@ -1,6 +1,7 @@
 // biome-ignore lint/style/useNodejsImportProtocol: <explanation>
 import fs from "fs";
 import * as Yup from "yup";
+import logger from "../../../utils/logger";
 import Aulas from "../models/Aulas";
 const Minio = require("minio");
 
@@ -96,7 +97,7 @@ class AulasController {
 			const aulas = await Aulas.findAll({ where: { courseId } });
 			return res.json(aulas);
 		} catch (error) {
-			console.error("Erro ao listar aulas:", error); // Mensagem de erro mais descritiva
+			logger.error("Erro ao listar aulas:", error); // Mensagem de erro mais descritiva
 			return res.status(500).json({ error: "Erro ao listar aulas" });
 		}
 	}
@@ -153,7 +154,7 @@ class AulasController {
 
 			return res.json(aulas);
 		} catch (error) {
-			console.error("Erro ao exibir aula:", error);
+			logger.error("Erro ao exibir aula:", error);
 			return res.status(500).json({ error: "Erro ao exibir aula" });
 		}
 	}
@@ -266,10 +267,10 @@ class AulasController {
 				.json({ message: "Aula criada com sucesso", aula: aulas }); // Retorna o objeto aula
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
-				console.error("Erro de validação:", error.errors);
+				logger.error("Erro de validação:", error.errors);
 				return res.status(400).json({ errors: error.errors });
 			}
-			console.error("Erro inesperado ao criar aula:", error); // Mensagem de erro mais descritiva
+			logger.error("Erro inesperado ao criar aula:", error); // Mensagem de erro mais descritiva
 			return res.status(500).json({ error: "Erro ao criar aula" });
 		}
 	}
@@ -301,7 +302,7 @@ class AulasController {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
 			}
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao atualizar aula" });
 		}
 	}
@@ -347,7 +348,7 @@ class AulasController {
 
 			return res.status(204).send(); // Retorna 204 No Content
 		} catch (error) {
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao excluir aula" });
 		}
 	}

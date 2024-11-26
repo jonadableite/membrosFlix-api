@@ -1,5 +1,6 @@
 // src/app/controllers/UserProgressController.js
 import * as Yup from "yup";
+import logger from "../../../utils/logger";
 import UserProgress from "../models/UserProgress";
 
 /**
@@ -119,7 +120,7 @@ class UserProgressController {
 			if (err instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: err.errors });
 			}
-			console.error("Erro ao atualizar progresso:", err);
+			logger.error("Erro ao atualizar progresso:", err);
 			return res.status(500).json({ error: "Erro ao atualizar progresso" });
 		}
 	}
@@ -177,7 +178,7 @@ class UserProgressController {
 
 			return res.json(progress);
 		} catch (error) {
-			console.error("Erro ao obter progresso:", error);
+			logger.error("Erro ao obter progresso:", error);
 			return res.status(500).json({ error: "Erro ao obter progresso" });
 		}
 	}

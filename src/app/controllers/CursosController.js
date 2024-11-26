@@ -2,6 +2,7 @@ import fs from "node:fs"; // Importe o fs com node:
 import { pipeline } from "node:stream";
 import { promisify } from "node:util";
 import * as Yup from "yup";
+import logger from "../../../utils/logger";
 import minioClient from "../../config/minioClient";
 import Curso from "../models/Cursos";
 
@@ -72,7 +73,7 @@ class CursoController {
 			const cursos = await Curso.findAll(); // Use o nome do model corrigido
 			return res.json(cursos);
 		} catch (error) {
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao listar cursos" });
 		}
 	}
@@ -114,7 +115,7 @@ class CursoController {
 
 			return res.json(cursos);
 		} catch (error) {
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao exibir curso" });
 		}
 	}
@@ -194,7 +195,7 @@ class CursoController {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
 			}
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao criar curso" });
 		}
 	}
@@ -260,7 +261,7 @@ class CursoController {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
 			}
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao atualizar curso" });
 		}
 	}
@@ -299,7 +300,7 @@ class CursoController {
 
 			return res.status(204).send();
 		} catch (error) {
-			console.error(error);
+			logger.error(error);
 			return res.status(500).json({ error: "Erro ao excluir curso" });
 		}
 	}
