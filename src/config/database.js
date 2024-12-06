@@ -1,3 +1,4 @@
+// src/config/database.js
 module.exports = {
 	dialect: "postgres",
 	host: "localhost",

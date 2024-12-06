@@ -1,8 +1,11 @@
 // src/app/middlewares/auth.js
+
 import jwt from "jsonwebtoken";
 import { promisify } from "node:util";
 import authConfig from "../../config/auth";
-import User from "../models/User"; // Importe o model User
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 /**
  * Middleware de autenticação JWT.
@@ -21,8 +24,10 @@ export default async (req, res, next) => {
 		const decoded = await promisify(jwt.verify)(token, authConfig.secret);
 		req.userId = decoded.id;
 
-		// Busque o usuário no banco de dados
-		const user = await User.findByPk(req.userId);
+		// Busque o usuário no banco de dados usando Prisma
+		const user = await prisma.user.findUnique({
+			where: { id: req.userId },
+		});
 
 		if (!user) {
 			return res.status(401).json({ error: "Usuário não encontrado" });

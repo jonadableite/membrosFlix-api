@@ -1,5 +1,6 @@
+// src/config/multer.js
 import { extname, resolve } from "node:path";
-// src/database/multer.js
+
 import multer from "multer";
 import { v4 } from "uuid";
 

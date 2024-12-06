@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SequelizeMeta {
+  name String @id @db.VarChar(255)
+}
+
+model Aula {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  description String?
+  duration    Int
+  path        String       @db.VarChar(255)
+  courseId    Int?
+  curso       Curso?       @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  progress    UserProgress[]
+  comments    Comment[]
+  likes       Like[]
+
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
+
+  @@map("aulas")
+}
+
+model Curso {
+  id          Int          @id @default(autoincrement())
+  title       String       @db.VarChar(255)
+  description String?
+  path        String?      @db.VarChar(255)
+  aulas       Aula[]
+  progress    UserProgress[]
+  comments    Comment[]
+  likes       Like[]
+
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
+
+  @@map("cursos")
+}
+
+model User {
+  id            String       @id @default(uuid()) @db.Uuid
+  name          String       @db.VarChar(255)
+  email         String       @unique @db.VarChar(255)
+  passwordHash  String       @db.VarChar(255)
+  admin         Boolean?     @default(false)
+  status        Boolean?     @default(true)
+  progress      UserProgress[]
+  comments      Comment[]
+  likes         Like[]
+
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model UserProgress {
+  id            Int      @id @default(autoincrement())
+  userId        String   @db.Uuid
+  courseId      Int
+  aulaId        Int?
+  progressoAula Int?     @default(0)
+  progressoCurso Int?    @default(0)
+  concluido     Boolean? @default(false)
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  curso         Curso    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  aula          Aula?    @relation(fields: [aulaId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("users_progress")
+}
+
+model Comment {
+  id          Int          @id @default(autoincrement())
+  content     String
+  userId      String   @db.Uuid
+  aulaId      Int?
+  cursoId     Int?
+  parentId    Int?
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aula        Aula?        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  curso       Curso?       @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  parent      Comment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]    @relation("CommentReplies")
+  likes       Like[]
+
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
+
+  @@map("comments")
+}
+
+model Like {
+  id          Int          @id @default(autoincrement())
+  userId      String   @db.Uuid
+  aulaId      Int?
+  cursoId     Int?
+  commentId   Int?
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aula        Aula?        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  curso       Curso?       @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  comment     Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
+
+  @@map("likes")
+}

@@ -1,60 +1,14 @@
-import jwt from "jsonwebtoken";
-import * as Yup from "yup";
-import User from "../models/User";
-import logger from "../../../utils/logger";
+// src/app/controllers/SessionController.js
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Session:
- *       type: object
- *       properties:
- *         user:
- *           $ref: '#/components/schemas/User'
- *         token:
- *           type: string
- *     SessionInput:
- *       type: object
- *       properties:
- *         email:
- *           type: string
- *           format: email
- *         password:
- *           type: string
- */
+import * as Yup from "yup";
+import logger from "../../../utils/logger";
+import * as sessionService from "../services/sessionService";
 
 class SessionController {
-	/**
-	 * @swagger
-	 * /sessions:
-	 *   post:
-	 *     summary: Autentica um usuário
-	 *     tags: [Sessões]
-	 *     requestBody:
-	 *       required: true
-	 *       content:
-	 *         application/json:
-	 *           schema:
-	 *             $ref: '#/components/schemas/SessionInput'
-	 *     responses:
-	 *       200:
-	 *         description: Usuário autenticado com sucesso
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               $ref: '#/components/schemas/Session'
-	 *       400:
-	 *         description: Erro de validação
-	 *       401:
-	 *         description: Usuário não encontrado ou senha incorreta
-	 *       500:
-	 *         description: Erro interno do servidor
-	 */
 	async store(req, res) {
 		const schema = Yup.object().shape({
-			email: Yup.string().email().required(),
-			password: Yup.string().required(),
+			email: Yup.string().email().required("E-mail é obrigatório"),
+			password: Yup.string().required("Senha é obrigatória"),
 		});
 
 		try {
@@ -62,26 +16,13 @@ class SessionController {
 
 			const { email, password } = req.body;
 
-			const user = await User.findOne({ where: { email } });
+			// Autentica o usuário usando o serviço
+			const user = await sessionService.authenticateUser(email, password);
 
-			if (!user) {
-				return res.status(401).json({ error: "Usuário não encontrado" });
-			}
+			// Gera o token JWT
+			const token = sessionService.generateToken(user);
 
-			if (!(await user.checkPassword(password))) {
-				// Usando o método correto para comparar senhas
-				return res.status(401).json({ error: "Senha incorreta" });
-			}
-
-			const { id, name, admin, status } = user; // Desestrutura os atributos
-
-			const token = jwt.sign(
-				{ id, name, email, admin, status },
-				process.env.APP_SECRET,
-				{
-					expiresIn: "30d",
-				},
-			);
+			const { id, name, admin, status } = user;
 
 			return res.json({
 				user: {
@@ -89,13 +30,19 @@ class SessionController {
 					name,
 					email,
 					admin,
-					status, // Retorna os dados do usuário
+					status,
 				},
 				token,
 			});
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
 				return res.status(400).json({ errors: error.errors });
+			}
+			if (
+				error.message === "Usuário não encontrado" ||
+				error.message === "Senha incorreta"
+			) {
+				return res.status(401).json({ error: error.message });
 			}
 			logger.error("Erro na autenticação:", error);
 			return res.status(500).json({ error: "Erro interno do servidor" });
