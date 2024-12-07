@@ -6,6 +6,19 @@ const prisma = new PrismaClient();
 
 export async function addLike(userId, entityId, entityType) {
 	try {
+		// Verifica se o like já existe para evitar duplicações
+		const existingLike = await prisma.like.findFirst({
+			where: {
+				userId,
+				[entityType]: entityId,
+			},
+		});
+
+		if (existingLike) {
+			throw new Error("Like já existe");
+		}
+
+		// Cria o like
 		const like = await prisma.like.create({
 			data: {
 				userId,

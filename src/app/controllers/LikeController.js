@@ -9,6 +9,10 @@ class LikeController {
 			const { userId } = req.body;
 			const { entityId, entityType } = req.params;
 
+			if (!userId || !entityId || !entityType) {
+				return res.status(400).json({ error: "Parâmetros inválidos" });
+			}
+
 			const like = await likeService.addLike(userId, entityId, entityType);
 
 			return res.status(201).json(like);
@@ -23,6 +27,10 @@ class LikeController {
 			const { userId } = req.body;
 			const { entityId, entityType } = req.params;
 
+			if (!userId || !entityId || !entityType) {
+				return res.status(400).json({ error: "Parâmetros inválidos" });
+			}
+
 			await likeService.removeLike(userId, entityId, entityType);
 
 			return res.status(204).send();
@@ -35,6 +43,10 @@ class LikeController {
 	async list(req, res) {
 		try {
 			const { entityId, entityType } = req.params;
+
+			if (!entityId || !entityType) {
+				return res.status(400).json({ error: "Parâmetros inválidos" });
+			}
 
 			const likes = await likeService.listLikes(entityId, entityType);
 
