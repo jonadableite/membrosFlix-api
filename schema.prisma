@@ -22,12 +22,14 @@ model Aula {
   progress    UserProgress[]
   comments    Comment[]
   likes       Like[]
+  materiais   Material[]   // Adiciona relação com materiais
 
   createdAt   DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
 
   @@map("aulas")
 }
+
 
 model Curso {
   id          Int          @id @default(autoincrement())
@@ -80,6 +82,20 @@ model UserProgress {
 
   @@map("users_progress")
 }
+
+model Material {
+  id        Int    @id @default(autoincrement())
+  title     String @db.VarChar(255)
+  url       String @db.VarChar(255)
+  aulaId    Int
+  aula      Aula   @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("materiais")
+}
+
 
 model Comment {
   id          Int          @id @default(autoincrement())

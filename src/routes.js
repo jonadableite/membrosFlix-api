@@ -1,5 +1,3 @@
-// src/routes.js
-
 import { Router } from "express";
 import multer from "multer";
 import adminMiddleware from "./app/middlewares/admin";
@@ -10,6 +8,7 @@ import AulasController from "./app/controllers/AulasController";
 import CommentController from "./app/controllers/CommentController";
 import CursosController from "./app/controllers/CursosController";
 import LikeController from "./app/controllers/LikeController";
+import MaterialController from "./app/controllers/MaterialController";
 import SessionController from "./app/controllers/SessionController";
 import UserController from "./app/controllers/UserController";
 import UserProgressController from "./app/controllers/UserProgressController";
@@ -18,19 +17,19 @@ const routes = new Router();
 const upload = multer(multerConfig);
 
 // Rotas públicas
-routes.post("/sessions", SessionController.store); // Autenticação
+routes.post("/sessions", SessionController.store);
 
 // Middleware de autenticação
 routes.use(authMiddleware);
 
 // Rotas de usuários
-routes.post("/users", adminMiddleware, UserController.store); // Criação de usuário restrita a administradores
-routes.get("/users", adminMiddleware, UserController.index); // Listagem de usuários restrita a administradores
-routes.get("/users/:id", adminMiddleware, UserController.show); // Visualização de usuário restrita a administradores
-routes.put("/users/:id", UserController.update); // Edição de usuário permitida para qualquer usuário autenticado
-routes.delete("/users/:id", adminMiddleware, UserController.delete); // Exclusão de usuário restrita a administradores
+routes.post("/users", adminMiddleware, UserController.store);
+routes.get("/users", adminMiddleware, UserController.index);
+routes.get("/users/:id", adminMiddleware, UserController.show);
+routes.put("/users/:id", UserController.update);
+routes.delete("/users/:id", adminMiddleware, UserController.delete);
 
-// Rotas de cursos (algumas protegidas por autorização de admin)
+// Rotas de cursos
 routes.get("/cursos", CursosController.index);
 routes.get("/cursos/:id", CursosController.show);
 routes.post(
@@ -47,7 +46,7 @@ routes.put(
 );
 routes.delete("/cursos/:id", adminMiddleware, CursosController.delete);
 
-// Rotas de aulas (algumas protegidas por autorização de admin)
+// Rotas de aulas
 routes.get("/cursos/:courseId/aulas", AulasController.index);
 routes.get("/cursos/:courseId/aulas/:id", AulasController.show);
 routes.get("/cursos/:courseId/aulas/proximas", AulasController.proximas);
@@ -69,7 +68,7 @@ routes.delete(
 	AulasController.delete,
 );
 
-// Rotas de progresso (protegidas apenas por autenticação)
+// Rotas de progresso
 routes.put(
 	"/users/:userId/courses/:courseId/progress",
 	UserProgressController.update,
@@ -79,15 +78,42 @@ routes.get(
 	UserProgressController.show,
 );
 
-// Rotas de comentários (protegidas por autenticação)
-routes.post("/comments", CommentController.create);
-routes.get("/comments/:entityId/:entityType", CommentController.list);
+// Rotas de comentários
+routes.post(
+	"/cursos/:courseId/aulas/:lessonId/comentarios",
+	CommentController.create,
+);
+routes.get(
+	"/cursos/:courseId/aulas/:lessonId/comentarios",
+	CommentController.list,
+);
 routes.put("/comments/:commentId", CommentController.update);
 routes.delete("/comments/:commentId", CommentController.delete);
 
-// Rotas de likes (protegidas por autenticação)
-routes.post("/likes/:entityId/:entityType", LikeController.add);
-routes.delete("/likes/:entityId/:entityType", LikeController.remove);
-routes.get("/likes/:entityId/:entityType", LikeController.list);
+// Rotas de likes para aulas
+routes.post("/cursos/:courseId/aulas/:lessonId/likes", LikeController.add);
+routes.delete("/cursos/:courseId/aulas/:lessonId/likes", LikeController.remove);
+
+// Rotas de likes para comentários
+routes.post(
+	"/cursos/:courseId/aulas/:lessonId/comentarios/:commentId/likes",
+	LikeController.add,
+);
+routes.delete(
+	"/cursos/:courseId/aulas/:lessonId/comentarios/:commentId/likes",
+	LikeController.remove,
+);
+
+// Rotas de materiais
+routes.get(
+	"/cursos/:courseId/aulas/:lessonId/materiais",
+	MaterialController.list,
+);
+routes.post(
+	"/cursos/:courseId/aulas/:lessonId/materiais",
+	adminMiddleware,
+	upload.single("file"),
+	MaterialController.create,
+);
 
 export default routes;

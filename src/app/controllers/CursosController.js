@@ -1,8 +1,8 @@
 // src/app/controllers/CursosController.js
 
-import * as cursoService from "../services/cursoService";
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
+import * as cursoService from "../services/cursoService";
 
 class CursoController {
 	async index(req, res) {
@@ -10,7 +10,7 @@ class CursoController {
 			const cursos = await cursoService.listCursos();
 			return res.json(cursos);
 		} catch (error) {
-			logger.error(error);
+			logger.error("Erro ao listar cursos:", error.message);
 			return res.status(500).json({ error: "Erro ao listar cursos" });
 		}
 	}
@@ -19,9 +19,14 @@ class CursoController {
 		try {
 			const { id } = req.params;
 			const curso = await cursoService.getCurso(id);
+
+			if (!curso) {
+				return res.status(404).json({ error: "Curso não encontrado" });
+			}
+
 			return res.json(curso);
 		} catch (error) {
-			logger.error(error);
+			logger.error("Erro ao exibir curso:", error.message);
 			return res.status(500).json({ error: "Erro ao exibir curso" });
 		}
 	}
@@ -29,8 +34,8 @@ class CursoController {
 	async store(req, res) {
 		try {
 			const schema = Yup.object().shape({
-				title: Yup.string().required(),
-				description: Yup.string(),
+				title: Yup.string().required("O título do curso é obrigatório"),
+				description: Yup.string().nullable(),
 			});
 
 			await schema.validate(req.body, { abortEarly: false });
@@ -39,9 +44,10 @@ class CursoController {
 			return res.status(201).json(curso);
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
+				logger.error("Erro de validação ao criar curso:", error.errors);
 				return res.status(400).json({ errors: error.errors });
 			}
-			logger.error(error);
+			logger.error("Erro ao criar curso:", error.message);
 			return res.status(500).json({ error: "Erro ao criar curso" });
 		}
 	}
@@ -50,7 +56,7 @@ class CursoController {
 		try {
 			const schema = Yup.object().shape({
 				title: Yup.string(),
-				description: Yup.string(),
+				description: Yup.string().nullable(),
 			});
 
 			await schema.validate(req.body, { abortEarly: false });
@@ -61,12 +67,18 @@ class CursoController {
 				req.body,
 				req.file,
 			);
+
+			if (!updatedCurso) {
+				return res.status(404).json({ error: "Curso não encontrado" });
+			}
+
 			return res.status(200).json(updatedCurso);
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
+				logger.error("Erro de validação ao atualizar curso:", error.errors);
 				return res.status(400).json({ errors: error.errors });
 			}
-			logger.error(error);
+			logger.error("Erro ao atualizar curso:", error.message);
 			return res.status(500).json({ error: "Erro ao atualizar curso" });
 		}
 	}
@@ -74,10 +86,15 @@ class CursoController {
 	async delete(req, res) {
 		try {
 			const { id } = req.params;
-			await cursoService.deleteCurso(id);
+			const deleted = await cursoService.deleteCurso(id);
+
+			if (!deleted) {
+				return res.status(404).json({ error: "Curso não encontrado" });
+			}
+
 			return res.status(204).send();
 		} catch (error) {
-			logger.error(error);
+			logger.error("Erro ao excluir curso:", error.message);
 			return res.status(500).json({ error: "Erro ao excluir curso" });
 		}
 	}

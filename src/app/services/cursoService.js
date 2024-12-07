@@ -10,14 +10,14 @@ export async function listCursos() {
 	try {
 		return await prisma.curso.findMany();
 	} catch (error) {
-		console.error("Erro ao listar cursos:", error);
-		throw error;
+		console.error("Erro ao listar cursos:", error.message);
+		throw new Error("Erro ao listar cursos");
 	}
 }
 
 export async function getCurso(id) {
 	try {
-		const parsedId = Number.parseInt(id);
+		const parsedId = Number.parseInt(id, 10);
 		if (Number.isNaN(parsedId)) {
 			throw new Error("ID do curso inválido");
 		}
@@ -29,8 +29,8 @@ export async function getCurso(id) {
 
 		return curso;
 	} catch (error) {
-		console.error("Erro ao exibir curso:", error);
-		throw error;
+		console.error("Erro ao exibir curso:", error.message);
+		throw new Error("Erro ao exibir curso");
 	}
 }
 
@@ -38,7 +38,7 @@ export async function createCurso(data, file) {
 	try {
 		const { title, description } = data;
 
-		// Use findFirst para verificar a existência do curso pelo título
+		// Verifica se já existe um curso com o mesmo título
 		const cursoExists = await prisma.curso.findFirst({ where: { title } });
 		if (cursoExists) {
 			throw new Error("Já existe um curso com este título");
@@ -67,14 +67,14 @@ export async function createCurso(data, file) {
 
 		return await prisma.curso.create({ data: cursoData });
 	} catch (error) {
-		console.error("Erro ao criar curso:", error);
-		throw error;
+		console.error("Erro ao criar curso:", error.message);
+		throw new Error("Erro ao criar curso");
 	}
 }
 
 export async function updateCurso(id, data, file) {
 	try {
-		const parsedId = Number.parseInt(id);
+		const parsedId = Number.parseInt(id, 10);
 		if (Number.isNaN(parsedId)) {
 			throw new Error("ID do curso inválido");
 		}
@@ -119,14 +119,14 @@ export async function updateCurso(id, data, file) {
 			data: cursoData,
 		});
 	} catch (error) {
-		console.error("Erro ao atualizar curso:", error);
-		throw error;
+		console.error("Erro ao atualizar curso:", error.message);
+		throw new Error("Erro ao atualizar curso");
 	}
 }
 
 export async function deleteCurso(id) {
 	try {
-		const parsedId = Number.parseInt(id);
+		const parsedId = Number.parseInt(id, 10);
 		if (Number.isNaN(parsedId)) {
 			throw new Error("ID do curso inválido");
 		}
@@ -138,7 +138,7 @@ export async function deleteCurso(id) {
 
 		await prisma.curso.delete({ where: { id: parsedId } });
 	} catch (error) {
-		console.error("Erro ao excluir curso:", error);
-		throw error;
+		console.error("Erro ao excluir curso:", error.message);
+		throw new Error("Erro ao excluir curso");
 	}
 }
