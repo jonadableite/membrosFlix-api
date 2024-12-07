@@ -1,13 +1,11 @@
-// src/app/controllers/AulasController.js
-
-// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-import fs from "fs";
-import * as Yup from "yup";
+import { PrismaClient } from "@prisma/client";
 import logger from "../../../utils/logger";
-import minioClient from "../../config/minioClient";
 import * as aulaService from "../services/aulaService";
 
+const prisma = new PrismaClient();
+
 class AulasController {
+	// Lista todas as aulas de um curso
 	async index(req, res) {
 		try {
 			const { courseId } = req.params;
@@ -19,6 +17,38 @@ class AulasController {
 		}
 	}
 
+	// Exibe uma aula específica
+	async show(req, res) {
+		try {
+			const { courseId, id: lessonId } = req.params;
+			const userId = req.userId; // Supondo que o ID do usuário está disponível no request
+
+			const aula = await prisma.aula.findUnique({
+				where: { id: Number.parseInt(lessonId, 10) },
+				include: {
+					likes: true,
+				},
+			});
+
+			if (!aula) {
+				return res.status(404).json({ error: "Aula não encontrada" });
+			}
+
+			const likesCount = aula.likes.length;
+			const userLiked = aula.likes.some((like) => like.userId === userId);
+
+			return res.json({
+				...aula,
+				likesCount,
+				userLiked,
+			});
+		} catch (error) {
+			logger.error("Erro ao exibir aula:", error.message);
+			return res.status(500).json({ error: "Erro ao exibir aula" });
+		}
+	}
+
+	// Lista as próximas aulas de um curso
 	async proximas(req, res) {
 		try {
 			const { courseId } = req.params;
@@ -37,22 +67,7 @@ class AulasController {
 		}
 	}
 
-	async show(req, res) {
-		try {
-			const { courseId, id } = req.params;
-			const aula = await aulaService.getAula(courseId, id);
-
-			if (!aula) {
-				return res.status(404).json({ error: "Aula não encontrada" });
-			}
-
-			return res.json(aula);
-		} catch (error) {
-			logger.error("Erro ao exibir aula:", error.message);
-			return res.status(500).json({ error: "Erro ao exibir aula" });
-		}
-	}
-
+	// Cria uma nova aula
 	async store(req, res) {
 		try {
 			const schema = Yup.object().shape({
@@ -104,6 +119,7 @@ class AulasController {
 		}
 	}
 
+	// Atualiza uma aula existente
 	async update(req, res) {
 		try {
 			const schema = Yup.object().shape({
@@ -140,6 +156,7 @@ class AulasController {
 		}
 	}
 
+	// Exclui uma aula
 	async delete(req, res) {
 		try {
 			const { courseId, id } = req.params;

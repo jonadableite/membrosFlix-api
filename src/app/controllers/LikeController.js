@@ -1,5 +1,3 @@
-// src/app/controllers/LikeController.js
-
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import * as likeService from "../services/likeService";
@@ -14,13 +12,9 @@ class LikeController {
 			await schema.validate(req.body, { abortEarly: false });
 
 			const { userId } = req.body;
-			const { entityId, entityType } = req.params;
+			const { lessonId } = req.params;
 
-			if (!entityId || !entityType) {
-				return res.status(400).json({ error: "Parâmetros inválidos" });
-			}
-
-			const like = await likeService.addLike(userId, entityId, entityType);
+			const like = await likeService.addLike(userId, lessonId, "aula");
 
 			if (!like) {
 				return res.status(404).json({ error: "Entidade não encontrada" });
@@ -46,17 +40,9 @@ class LikeController {
 			await schema.validate(req.body, { abortEarly: false });
 
 			const { userId } = req.body;
-			const { entityId, entityType } = req.params;
+			const { lessonId } = req.params;
 
-			if (!entityId || !entityType) {
-				return res.status(400).json({ error: "Parâmetros inválidos" });
-			}
-
-			const removed = await likeService.removeLike(
-				userId,
-				entityId,
-				entityType,
-			);
+			const removed = await likeService.removeLike(userId, lessonId, "aula");
 
 			if (!removed) {
 				return res.status(404).json({ error: "Like não encontrado" });
@@ -70,27 +56,6 @@ class LikeController {
 			}
 			logger.error("Erro ao remover like:", error.message);
 			return res.status(500).json({ error: "Erro ao remover like" });
-		}
-	}
-
-	async list(req, res) {
-		try {
-			const { entityId, entityType } = req.params;
-
-			if (!entityId || !entityType) {
-				return res.status(400).json({ error: "Parâmetros inválidos" });
-			}
-
-			const likes = await likeService.listLikes(entityId, entityType);
-
-			if (!likes) {
-				return res.status(404).json({ error: "Entidade não encontrada" });
-			}
-
-			return res.json(likes);
-		} catch (error) {
-			logger.error("Erro ao listar likes:", error.message);
-			return res.status(500).json({ error: "Erro ao listar likes" });
 		}
 	}
 }
