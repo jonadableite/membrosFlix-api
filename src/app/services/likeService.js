@@ -12,51 +12,33 @@ const prisma = new PrismaClient();
  */
 export async function addLike(userId, entityId, entityType) {
 	try {
-		// Verifica se o usuário existe
-		const userExists = await prisma.user.findUnique({
-			where: { id: userId },
-		});
-
-		if (!userExists) {
-			throw new Error("Usuário não encontrado");
-		}
-
-		// Verifica se a entidade (aula ou comentário) existe
-		const entityExists = await prisma[entityType].findUnique({
-			where: { id: Number.parseInt(entityId, 10) },
-		});
-
-		if (!entityExists) {
-			throw new Error(
-				`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} não encontrado`,
-			);
-		}
-
-		// Verifica se o like já existe para evitar duplicações
+		// Verifica se o like já existe
 		const existingLike = await prisma.like.findFirst({
 			where: {
 				userId,
-				...(entityType === "aula" && { aulaId: Number.parseInt(entityId, 10) }),
-				...(entityType === "comment" && {
-					commentId: Number.parseInt(entityId, 10),
-				}),
+				...(entityType === "aula" && { aulaId: Number(entityId) }),
+				...(entityType === "comment" && { commentId: Number(entityId) }),
 			},
 		});
 
-		if (existingLike) {
-			return existingLike; // Retorna o like existente
-		}
+		if (existingLike) return existingLike;
 
 		// Cria o like
 		const like = await prisma.like.create({
 			data: {
 				userId,
-				...(entityType === "aula" && { aulaId: Number.parseInt(entityId, 10) }),
-				...(entityType === "comment" && {
-					commentId: Number.parseInt(entityId, 10),
-				}),
+				...(entityType === "aula" && { aulaId: Number(entityId) }),
+				...(entityType === "comment" && { commentId: Number(entityId) }),
 			},
 		});
+
+		// Atualiza o contador de likes no comentário
+		if (entityType === "comment") {
+			await prisma.comment.update({
+				where: { id: Number(entityId) },
+				data: { likesCount: { increment: 1 } },
+			});
+		}
 
 		return like;
 	} catch (error) {
@@ -65,24 +47,14 @@ export async function addLike(userId, entityId, entityType) {
 	}
 }
 
-/**
- * Remove um like de uma entidade (aula ou comentário).
- * @param {string} userId - ID do usuário.
- * @param {string} entityId - ID da entidade (aula ou comentário).
- * @param {string} entityType - Tipo da entidade ("aula" ou "comment").
- * @returns {Promise<boolean>} - Retorna true se o like for removido com sucesso.
- * @throws {Error} - Lança um erro se o like não for encontrado.
- */
 export async function removeLike(userId, entityId, entityType) {
 	try {
 		// Verifica se o like existe
 		const like = await prisma.like.findFirst({
 			where: {
 				userId,
-				...(entityType === "aula" && { aulaId: Number.parseInt(entityId, 10) }),
-				...(entityType === "comment" && {
-					commentId: Number.parseInt(entityId, 10),
-				}),
+				...(entityType === "aula" && { aulaId: Number(entityId) }),
+				...(entityType === "comment" && { commentId: Number(entityId) }),
 			},
 		});
 
@@ -94,6 +66,14 @@ export async function removeLike(userId, entityId, entityType) {
 		await prisma.like.delete({
 			where: { id: like.id },
 		});
+
+		// Atualiza o contador de likes no comentário
+		if (entityType === "comment") {
+			await prisma.comment.update({
+				where: { id: Number(entityId) },
+				data: { likesCount: { decrement: 1 } },
+			});
+		}
 
 		return true;
 	} catch (error) {

@@ -98,24 +98,27 @@ model Material {
 
 
 model Comment {
-  id          Int          @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   content     String
   userId      String   @db.Uuid
   aulaId      Int?
   cursoId     Int?
   parentId    Int?
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  aula        Aula?        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  curso       Curso?       @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  parent      Comment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies     Comment[]    @relation("CommentReplies")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aula        Aula?    @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  curso       Curso?   @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[] @relation("CommentReplies")
   likes       Like[]
+  likesCount  Int      @default(0)
 
-  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
 
   @@map("comments")
 }
+
+
 
 model Like {
   id          Int          @id @default(autoincrement())

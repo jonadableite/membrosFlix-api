@@ -1,5 +1,3 @@
-// src/app/services/commentService.js
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -7,6 +5,11 @@ const prisma = new PrismaClient();
 export async function createComment(data) {
 	try {
 		const { content, userId, aulaId, cursoId, parentId } = data;
+
+		// Verifica se o conteúdo do comentário é válido
+		if (!content || content.trim() === "") {
+			throw new Error("O conteúdo do comentário não pode estar vazio.");
+		}
 
 		// Verifica se o usuário existe
 		const userExists = await prisma.user.findUnique({
@@ -20,7 +23,7 @@ export async function createComment(data) {
 		// Verifica se a aula ou curso existe
 		if (aulaId) {
 			const aulaExists = await prisma.aula.findUnique({
-				where: { id: aulaId },
+				where: { id: Number(aulaId) }, // Converte para inteiro
 			});
 			if (!aulaExists) {
 				throw new Error("Aula não encontrada");
@@ -29,7 +32,7 @@ export async function createComment(data) {
 
 		if (cursoId) {
 			const cursoExists = await prisma.curso.findUnique({
-				where: { id: cursoId },
+				where: { id: Number(cursoId) }, // Converte para inteiro
 			});
 			if (!cursoExists) {
 				throw new Error("Curso não encontrado");
@@ -50,8 +53,8 @@ export async function createComment(data) {
 			data: {
 				content,
 				userId,
-				aulaId,
-				cursoId,
+				aulaId: aulaId ? Number(aulaId) : null, // Converte para inteiro
+				cursoId: cursoId ? Number(cursoId) : null, // Converte para inteiro
 				parentId,
 			},
 		});
@@ -65,15 +68,19 @@ export async function createComment(data) {
 
 export async function listComments(courseId, lessonId) {
 	try {
-		const whereClause = lessonId
-			? { aulaId: Number.parseInt(lessonId, 10) }
-			: { cursoId: Number.parseInt(courseId, 10) };
+		const whereClause = {
+			aulaId: Number(lessonId),
+			cursoId: Number(courseId),
+		};
 
 		return await prisma.comment.findMany({
 			where: whereClause,
 			include: {
-				user: true, // Inclui informações do usuário que fez o comentário
-				replies: true, // Inclui respostas ao comentário
+				user: true,
+				replies: true,
+			},
+			orderBy: {
+				createdAt: "desc",
 			},
 		});
 	} catch (error) {

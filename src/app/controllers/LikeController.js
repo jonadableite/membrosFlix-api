@@ -12,9 +12,13 @@ class LikeController {
 			await schema.validate(req.body, { abortEarly: false });
 
 			const { userId } = req.body;
-			const { lessonId } = req.params;
+			const { lessonId, commentId } = req.params;
 
-			const like = await likeService.addLike(userId, lessonId, "aula");
+			// Verifica se é um like em aula ou comentário
+			const entityType = commentId ? "comment" : "aula";
+			const entityId = commentId || lessonId;
+
+			const like = await likeService.addLike(userId, entityId, entityType);
 
 			if (!like) {
 				return res.status(404).json({ error: "Entidade não encontrada" });

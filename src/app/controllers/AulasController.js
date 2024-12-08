@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import fs from "fs";
+import * as Yup from "yup";
 import logger from "../../../utils/logger";
+import minioClient from "../../config/minioClient";
 import * as aulaService from "../services/aulaService";
 
 const prisma = new PrismaClient();
@@ -21,7 +24,7 @@ class AulasController {
 	async show(req, res) {
 		try {
 			const { courseId, id: lessonId } = req.params;
-			const userId = req.userId; // Supondo que o ID do usuário está disponível no request
+			const userId = req.userId;
 
 			const aula = await prisma.aula.findUnique({
 				where: { id: Number.parseInt(lessonId, 10) },
@@ -83,6 +86,7 @@ class AulasController {
 			const { courseId, name, description, duration } = req.body;
 
 			if (!file) {
+				logger.warn("Nenhum arquivo de vídeo enviado.");
 				return res
 					.status(400)
 					.json({ error: "Nenhum arquivo de vídeo enviado." });
@@ -106,8 +110,22 @@ class AulasController {
 				path,
 			);
 
-			fs.unlinkSync(file.path);
+			// Verifique se o arquivo existe antes de tentar removê-lo
+			if (fs.existsSync(file.path)) {
+				try {
+					fs.unlinkSync(file.path);
+					logger.info("Arquivo local removido com sucesso");
+				} catch (error) {
+					logger.error("Erro ao remover arquivo local:", error.message);
+					return res
+						.status(500)
+						.json({ error: "Erro ao remover arquivo local" });
+				}
+			} else {
+				logger.warn("Arquivo local não encontrado para remoção");
+			}
 
+			logger.info("Aula criada com sucesso", { aula });
 			return res.status(201).json({ message: "Aula criada com sucesso", aula });
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {

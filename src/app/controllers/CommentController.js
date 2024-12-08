@@ -12,8 +12,8 @@ class CommentController {
 					"O conteúdo do comentário é obrigatório",
 				),
 				userId: Yup.string().required("O ID do usuário é obrigatório"),
-				aulaId: Yup.number().nullable(),
-				cursoId: Yup.number().nullable(),
+				aulaId: Yup.number().required("O ID da aula é obrigatório"),
+				cursoId: Yup.number().required("O ID do curso é obrigatório"),
 				parentId: Yup.number().nullable(),
 			});
 

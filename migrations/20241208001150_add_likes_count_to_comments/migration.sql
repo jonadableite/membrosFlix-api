@@ -61,6 +61,18 @@ CREATE TABLE "users_progress" (
 );
 
 -- CreateTable
+CREATE TABLE "materiais" (
+    "id" SERIAL NOT NULL,
+    "title" VARCHAR(255) NOT NULL,
+    "url" VARCHAR(255) NOT NULL,
+    "aulaId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ(6) NOT NULL,
+
+    CONSTRAINT "materiais_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "comments" (
     "id" SERIAL NOT NULL,
     "content" TEXT NOT NULL,
@@ -68,6 +80,7 @@ CREATE TABLE "comments" (
     "aulaId" INTEGER,
     "cursoId" INTEGER,
     "parentId" INTEGER,
+    "likesCount" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMPTZ(6) NOT NULL,
 
@@ -101,6 +114,9 @@ ALTER TABLE "users_progress" ADD CONSTRAINT "users_progress_courseId_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "users_progress" ADD CONSTRAINT "users_progress_aulaId_fkey" FOREIGN KEY ("aulaId") REFERENCES "aulas"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "materiais" ADD CONSTRAINT "materiais_aulaId_fkey" FOREIGN KEY ("aulaId") REFERENCES "aulas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "comments" ADD CONSTRAINT "comments_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
