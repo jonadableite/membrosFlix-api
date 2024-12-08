@@ -25,7 +25,7 @@ class App {
 	}
 
 	routes() {
-		this.app.use(routes); // Remove o authMiddleware daqui
+		this.app.use(routes);
 	}
 }
 

@@ -91,10 +91,15 @@ routes.put("/comments/:commentId", CommentController.update);
 routes.delete("/comments/:commentId", CommentController.delete);
 
 // Rotas de likes para aulas
+routes.get("/cursos/:courseId/aulas/:lessonId/likes", LikeController.list);
 routes.post("/cursos/:courseId/aulas/:lessonId/likes", LikeController.add);
 routes.delete("/cursos/:courseId/aulas/:lessonId/likes", LikeController.remove);
 
 // Rotas de likes para comentários
+routes.get(
+	"/cursos/:courseId/aulas/:lessonId/comentarios/:commentId/likes",
+	LikeController.list,
+);
 routes.post(
 	"/cursos/:courseId/aulas/:lessonId/comentarios/:commentId/likes",
 	LikeController.add,

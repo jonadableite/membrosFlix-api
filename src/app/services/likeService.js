@@ -75,3 +75,19 @@ export async function removeLike(userId, entityId, entityType) {
 		throw new Error("Erro ao remover like");
 	}
 }
+
+export async function listLikes(entityId, entityType) {
+	try {
+		const likes = await prisma.like.findMany({
+			where: {
+				...(entityType === "aula" && { aulaId: Number(entityId) }),
+				...(entityType === "comment" && { commentId: Number(entityId) }),
+			},
+		});
+
+		return likes;
+	} catch (error) {
+		console.error("Erro ao listar likes:", error.message);
+		throw new Error("Erro ao listar likes");
+	}
+}
