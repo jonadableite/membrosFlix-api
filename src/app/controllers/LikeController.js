@@ -44,9 +44,17 @@ class LikeController {
 			await schema.validate(req.body, { abortEarly: false });
 
 			const { userId } = req.body;
-			const { lessonId } = req.params;
+			const { lessonId, commentId } = req.params;
 
-			const removed = await likeService.removeLike(userId, lessonId, "aula");
+			// Verifica se é um like em aula ou comentário
+			const entityType = commentId ? "comment" : "aula";
+			const entityId = commentId || lessonId;
+
+			const removed = await likeService.removeLike(
+				userId,
+				entityId,
+				entityType,
+			);
 
 			if (!removed) {
 				return res.status(404).json({ error: "Like não encontrado" });
@@ -60,6 +68,23 @@ class LikeController {
 			}
 			logger.error("Erro ao remover like:", error.message);
 			return res.status(500).json({ error: "Erro ao remover like" });
+		}
+	}
+
+	async list(req, res) {
+		try {
+			const { lessonId, commentId } = req.params;
+
+			// Verifica se é um like em aula ou comentário
+			const entityType = commentId ? "comment" : "aula";
+			const entityId = commentId || lessonId;
+
+			const likes = await likeService.listLikes(entityId, entityType);
+
+			return res.status(200).json(likes);
+		} catch (error) {
+			logger.error("Erro ao listar likes:", error.message);
+			return res.status(500).json({ error: "Erro ao listar likes" });
 		}
 	}
 }

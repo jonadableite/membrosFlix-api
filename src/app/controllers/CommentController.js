@@ -65,6 +65,15 @@ class CommentController {
 
 			const { commentId } = req.params;
 			const { content } = req.body;
+			const userId = req.userId;
+
+			// Verifica se o comentário pertence ao usuário
+			const comment = await commentService.getCommentById(commentId);
+			if (!comment || comment.userId !== userId) {
+				return res.status(403).json({
+					error: "Você não tem permissão para editar este comentário",
+				});
+			}
 
 			const updatedComment = await commentService.updateComment(
 				commentId,

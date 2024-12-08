@@ -12,7 +12,6 @@ const prisma = new PrismaClient();
  */
 export async function addLike(userId, entityId, entityType) {
 	try {
-		// Verifica se o like já existe
 		const existingLike = await prisma.like.findFirst({
 			where: {
 				userId,
@@ -23,7 +22,6 @@ export async function addLike(userId, entityId, entityType) {
 
 		if (existingLike) return existingLike;
 
-		// Cria o like
 		const like = await prisma.like.create({
 			data: {
 				userId,
@@ -32,7 +30,6 @@ export async function addLike(userId, entityId, entityType) {
 			},
 		});
 
-		// Atualiza o contador de likes no comentário
 		if (entityType === "comment") {
 			await prisma.comment.update({
 				where: { id: Number(entityId) },
@@ -49,7 +46,6 @@ export async function addLike(userId, entityId, entityType) {
 
 export async function removeLike(userId, entityId, entityType) {
 	try {
-		// Verifica se o like existe
 		const like = await prisma.like.findFirst({
 			where: {
 				userId,
@@ -62,12 +58,10 @@ export async function removeLike(userId, entityId, entityType) {
 			throw new Error("Like não encontrado");
 		}
 
-		// Remove o like
 		await prisma.like.delete({
 			where: { id: like.id },
 		});
 
-		// Atualiza o contador de likes no comentário
 		if (entityType === "comment") {
 			await prisma.comment.update({
 				where: { id: Number(entityId) },
