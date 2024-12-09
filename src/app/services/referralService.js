@@ -37,6 +37,7 @@ export async function createReferral(userId, referralCode) {
 
 export async function listReferrals(userId) {
 	try {
+		console.log("Listando indicações para o usuário:", userId); // Log para verificar o userId
 		const referrals = await prisma.referralProgram.findMany({
 			where: { userId },
 			include: {
@@ -44,6 +45,7 @@ export async function listReferrals(userId) {
 			},
 		});
 
+		console.log("Indicações encontradas:", referrals); // Log para verificar o resultado
 		return referrals;
 	} catch (error) {
 		console.error("Erro ao listar indicações:", error);

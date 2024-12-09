@@ -8,14 +8,17 @@ import * as aulaService from "../services/aulaService";
 const prisma = new PrismaClient();
 
 class AulasController {
-	// Lista todas as aulas de um curso
 	async index(req, res) {
 		try {
 			const { courseId } = req.params;
-			const aulas = await aulaService.listAulas(courseId);
+
+			const aulas = await prisma.aula.findMany({
+				where: { courseId: Number.parseInt(courseId, 10) },
+			});
+
 			return res.json(aulas);
 		} catch (error) {
-			logger.error("Erro ao listar aulas:", error.message);
+			console.error("Erro ao listar aulas:", error.message);
 			return res.status(500).json({ error: "Erro ao listar aulas" });
 		}
 	}
