@@ -30,6 +30,7 @@ class AulasController {
 				where: { id: Number.parseInt(lessonId, 10) },
 				include: {
 					likes: true,
+					comments: true, // Inclua comentários se necessário
 				},
 			});
 

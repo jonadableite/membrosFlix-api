@@ -1,10 +1,9 @@
-// src/app/middlewares/admin.js
-
 export default function adminMiddleware(req, res, next) {
-	if (!req.user || !req.user.admin) {
-		return res.status(403).json({
-			error: "Acesso negado. Somente administradores podem realizar esta ação.",
-		});
+	console.log(req.user); // Adicione isso para depurar
+	if (req.user && req.user.role === "ADMIN") {
+		return next();
 	}
-	next();
+	return res.status(403).json({
+		error: "Acesso negado. Somente administradores podem realizar esta ação.",
+	});
 }

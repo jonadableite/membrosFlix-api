@@ -1,5 +1,3 @@
-// src/app/services/userService.js
-
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
@@ -8,7 +6,17 @@ const prisma = new PrismaClient();
 
 export async function createUser(data) {
 	try {
-		const { name, email, password, admin, status } = data;
+		const {
+			name,
+			email,
+			password,
+			role,
+			profilePicture,
+			bio,
+			referralCode,
+			referredBy,
+			status,
+		} = data;
 
 		// Verifique se o e-mail já está em uso
 		const userExists = await prisma.user.findUnique({ where: { email } });
@@ -25,8 +33,12 @@ export async function createUser(data) {
 				id: uuidv4(),
 				name,
 				email,
-				passwordHash, // Use o hash da senha
-				admin,
+				passwordHash,
+				role,
+				profilePicture,
+				bio,
+				referralCode,
+				referredBy,
 				status,
 			},
 		});
@@ -45,7 +57,11 @@ export async function listUsers() {
 				id: true,
 				name: true,
 				email: true,
-				admin: true,
+				role: true,
+				profilePicture: true,
+				bio: true,
+				referralCode: true,
+				referredBy: true,
 				status: true,
 				createdAt: true,
 				updatedAt: true,
@@ -65,7 +81,11 @@ export async function getUser(id) {
 				id: true,
 				name: true,
 				email: true,
-				admin: true,
+				role: true,
+				profilePicture: true,
+				bio: true,
+				referralCode: true,
+				referredBy: true,
 				status: true,
 				createdAt: true,
 				updatedAt: true,
@@ -110,8 +130,26 @@ export async function updateUser(id, data) {
 			throw new Error("Senha antiga incorreta");
 		}
 
-		const { name, password, admin, status } = data;
-		const updateData = { name, email, admin, status };
+		const {
+			name,
+			password,
+			role,
+			profilePicture,
+			bio,
+			referralCode,
+			referredBy,
+			status,
+		} = data;
+		const updateData = {
+			name,
+			email,
+			role,
+			profilePicture,
+			bio,
+			referralCode,
+			referredBy,
+			status,
+		};
 
 		if (password) {
 			updateData.passwordHash = await bcrypt.hash(password, 8);

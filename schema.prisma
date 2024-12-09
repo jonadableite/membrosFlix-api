@@ -7,145 +7,285 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model SequelizeMeta {
-  name String @id @db.VarChar(255)
-}
-
-model Aula {
-  id          Int          @id @default(autoincrement())
-  name        String       @db.VarChar(255)
-  description String?
-  duration    Int
-  path        String       @db.VarChar(255)
-  courseId    Int?
-  curso       Curso?       @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
-  progress    UserProgress[]
-  comments    Comment[]
-  likes       Like[]
-  materiais   Material[]   // Adiciona relação com materiais
-
-  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
-
-  @@map("aulas")
-}
-
-
-model Curso {
-  id          Int          @id @default(autoincrement())
-  title       String       @db.VarChar(255)
-  description String?
-  path        String?      @db.VarChar(255)
-  aulas       Aula[]
-  progress    UserProgress[]
-  comments    Comment[]
-  likes       Like[]
-
-  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
-
-  @@map("cursos")
-}
-
+// Modelo de Usuário Expandido
 model User {
-  id            String       @id @default(uuid()) @db.Uuid
-  name          String       @db.VarChar(255)
-  email         String       @unique @db.VarChar(255)
-  passwordHash  String       @db.VarChar(255)
-  admin         Boolean?     @default(false)
-  status        Boolean?     @default(true)
-  progress      UserProgress[]
-  comments      Comment[]
-  likes         Like[]
+  id                String          @id @default(uuid()) @db.Uuid
+  name              String          @db.VarChar(255)
+  email             String          @unique @db.VarChar(255)
+  passwordHash      String          @db.VarChar(255)
 
-  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
+  // Campos de perfil
+  profilePicture    String?
+  bio               String?
+
+  // Tipo de usuário
+  role              UserRole        @default(USER)
+
+  // Controle de acesso
+  status            Boolean?        @default(true)
+
+  // Relações existentes
+  progress          UserProgress[]
+  comments          Comment[]
+  likes             Like[]
+
+  // Relação com Instrutor
+  instructor        Instructor?
+
+  // Novos campos
+  referralCode      String?         @unique
+  referredBy        String?         @db.Uuid
+  referrer          User?           @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals         User[]          @relation("UserReferrals")
+
+  // Sistema de pontos e recompensas
+  points            Int             @default(0)
+  referralPoints    Int             @default(0)
+
+  // Sistema de notificações em tempo real
+  notifications     Notification[]
+
+  // Sistema de progresso e realizações
+  achievements      UserAchievement[]
+
+  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
 
   @@map("users")
 }
 
+// Modelo de Instrutor
+model Instructor {
+  id                Int             @id @default(autoincrement())
+  userId            String          @unique @db.Uuid
+  bio               String?
+  expertise         String[]
+  courses           Curso[]
+
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
+
+  @@map("instructors")
+}
+
+// Modelo de Progresso do Usuário Aprimorado
 model UserProgress {
-  id            Int      @id @default(autoincrement())
-  userId        String   @db.Uuid
-  courseId      Int
-  aulaId        Int?
-  progressoAula Int?     @default(0)
-  progressoCurso Int?    @default(0)
-  concluido     Boolean? @default(false)
+  id                Int             @id @default(autoincrement())
+  userId            String          @db.Uuid
+  courseId          Int
+  aulaId            Int?
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  curso         Curso    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  aula          Aula?    @relation(fields: [aulaId], references: [id], onDelete: SetNull)
+  // Progresso detalhado
+  progressoAula     Int?            @default(0)
+  progressoCurso    Int?            @default(0)
+  concluido         Boolean?        @default(false)
 
-  createdAt     DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+  // Timestamps de progresso
+  iniciadoEm        DateTime?
+  ultimoAcesso      DateTime?
 
+  // Metadados de progresso
+  tempoEstudo       Int             @default(0) // em segundos
+  ultimoProgresso   DateTime?
+
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  curso             Curso           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  aula              Aula?           @relation(fields: [aulaId], references: [id], onDelete: SetNull)
+
+  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
+
+  @@unique([userId, courseId])
   @@map("users_progress")
 }
 
-model Material {
-  id        Int    @id @default(autoincrement())
-  title     String @db.VarChar(255)
-  url       String @db.VarChar(255)
-  aulaId    Int
-  aula      Aula   @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+// Sistema de Notificações em Tempo Real
+model Notification {
+  id                Int             @id @default(autoincrement())
+  userId            String          @db.Uuid
+  tipo              NotificationType
+  mensagem          String
+  lida              Boolean         @default(false)
 
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("materiais")
+  createdAt         DateTime        @default(now())
+
+  @@map("notifications")
 }
 
+// Sistema de Realizações/Conquistas
+model UserAchievement {
+  id                Int             @id @default(autoincrement())
+  userId            String          @db.Uuid
+  achievementId     Int
+  desbloquedoEm     DateTime        @default(now())
 
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement       Achievement     @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// Catálogo de Realizações Possíveis
+model Achievement {
+  id                Int             @id @default(autoincrement())
+  nome              String
+  descricao         String
+  pontosNecessarios Int
+  tipo              AchievementType
+
+  usuarios          UserAchievement[]
+
+  @@map("achievements")
+}
+
+// Modelo de Curso com Progresso Detalhado
+model Curso {
+  id                Int             @id @default(autoincrement())
+  title             String          @db.VarChar(255)
+  description       String?
+  path              String?         @db.VarChar(255)
+  thumbnail         String?         @db.VarChar(255)
+  status            CourseStatus    @default(DRAFT)
+
+  // Metadados de progresso
+  totalAulas        Int             @default(0)
+  duracaoTotal      Int?            // em minutos
+
+  instructorId      Int?
+  instructor        Instructor?     @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+
+  aulas             Aula[]
+  progress          UserProgress[]
+  comments          Comment[]
+  likes             Like[]
+
+  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
+
+  @@map("curso")
+}
+
+// Modelo de Aula com Detalhes de Progresso
+model Aula {
+  id                Int             @id @default(autoincrement())
+  name              String          @db.VarChar(255)
+  description       String?
+  duration          Int             // em minutos
+  path              String          @db.VarChar(255)
+  courseId          Int?
+
+  // Metadados de progresso
+  ordemAula         Int             @default(1)
+
+  curso             Curso?          @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  progress          UserProgress[]
+  comments          Comment[]
+  likes             Like[]
+  materiais         Material[]
+
+  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
+
+  @@map("aulas")
+}
+
+// Modelo de Comentário
 model Comment {
   id          Int       @id @default(autoincrement())
   content     String
   userId      String    @db.Uuid
   aulaId      Int?
   cursoId     Int?
-  parentId    Int?      // Comentário pai (para respostas)
-
+  parentId    Int?
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   aula        Aula?     @relation(fields: [aulaId], references: [id], onDelete: Cascade)
   curso       Curso?    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-
-  // Relação para comentário pai
   parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-
-  // Relação para respostas
   replies     Comment[] @relation("CommentReplies")
-
-  // Likes do comentário
   likes       Like[]
-
-  // Campos calculados
   likesCount  Int       @default(0)
   repliesCount Int      @default(0)
-
-  isAnonymous Boolean   @default(false)  // Novo campo para controlar anonimato
-
+  isAnonymous Boolean   @default(false)
   createdAt   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
 
   @@map("comments")
 }
 
+// Modelo de Like
 model Like {
   id          Int       @id @default(autoincrement())
   userId      String    @db.Uuid
   aulaId      Int?
   cursoId     Int?
   commentId   Int?
-
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   aula        Aula?     @relation(fields: [aulaId], references: [id], onDelete: Cascade)
   curso       Curso?    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
   comment     Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-
   createdAt   DateTime  @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
 
-  // Garantir unicidade para evitar múltiplos likes
   @@unique([userId, commentId])
   @@map("likes")
+}
+
+// Modelo de Material
+model Material {
+  id        Int    @id @default(autoincrement())
+  title     String @db.VarChar(255)
+  url       String @db.VarChar(255)
+  aulaId    Int
+  aula      Aula   @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@map("materiais")
+}
+
+// Modelo de Sistema de Referência/Indicação
+model ReferralProgram {
+  id                Int             @id @default(autoincrement())
+  userId            String          @db.Uuid
+  indicadoId        String          @db.Uuid
+  pontosGanhos      Int             @default(0)
+  valorDesconto     Decimal?        @db.Decimal(10,2)
+  createdAt         DateTime        @default(now())
+
+  @@unique([userId, indicadoId])
+  @@map("referral_program")
+}
+
+// Enums para Tipagem Forte
+enum NotificationType {
+  PROGRESSO
+  CONQUISTA
+  INDICACAO
+  CURSO_NOVO
+  MENSAGEM
+}
+
+enum AchievementType {
+  CURSO
+  TEMPO_ESTUDO
+  INDICACAO
+  CONCLUSAO
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  ARCHIVED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  INSTRUCTOR
 }

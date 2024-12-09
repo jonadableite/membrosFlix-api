@@ -1,5 +1,3 @@
-// src/app/controllers/CommentController.js
-
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import * as commentService from "../services/commentService";
@@ -15,11 +13,13 @@ class CommentController {
 				aulaId: Yup.number().required("O ID da aula é obrigatório"),
 				cursoId: Yup.number().required("O ID do curso é obrigatório"),
 				parentId: Yup.number().nullable(),
+				isAnonymous: Yup.boolean().default(false),
 			});
 
 			await schema.validate(req.body, { abortEarly: false });
 
-			const { content, userId, aulaId, cursoId, parentId } = req.body;
+			const { content, userId, aulaId, cursoId, parentId, isAnonymous } =
+				req.body;
 
 			const comment = await commentService.createComment({
 				content,
@@ -27,6 +27,7 @@ class CommentController {
 				aulaId,
 				cursoId,
 				parentId,
+				isAnonymous,
 			});
 
 			return res.status(201).json(comment);
@@ -69,7 +70,10 @@ class CommentController {
 
 			// Verifica se o comentário pertence ao usuário
 			const comment = await commentService.getCommentById(commentId);
-			if (!comment || comment.userId !== userId) {
+			if (!comment) {
+				return res.status(404).json({ error: "Comentário não encontrado" });
+			}
+			if (comment.userId !== userId) {
 				return res.status(403).json({
 					error: "Você não tem permissão para editar este comentário",
 				});
@@ -78,11 +82,8 @@ class CommentController {
 			const updatedComment = await commentService.updateComment(
 				commentId,
 				content,
+				userId,
 			);
-
-			if (!updatedComment) {
-				return res.status(404).json({ error: "Comentário não encontrado" });
-			}
 
 			return res.json(updatedComment);
 		} catch (error) {
@@ -101,12 +102,19 @@ class CommentController {
 	async delete(req, res) {
 		try {
 			const { commentId } = req.params;
+			const userId = req.userId;
 
-			const deleted = await commentService.deleteComment(commentId);
-
-			if (!deleted) {
+			const comment = await commentService.getCommentById(commentId);
+			if (!comment) {
 				return res.status(404).json({ error: "Comentário não encontrado" });
 			}
+			if (comment.userId !== userId) {
+				return res.status(403).json({
+					error: "Você não tem permissão para excluir este comentário",
+				});
+			}
+
+			await commentService.deleteComment(commentId, userId);
 
 			return res.status(204).send();
 		} catch (error) {

@@ -5,10 +5,13 @@ import authMiddleware from "./app/middlewares/auth";
 import multerConfig from "./config/multer";
 
 import AulasController from "./app/controllers/AulasController";
+import CertificateController from "./app/controllers/CertificateController"; // Novo controlador
 import CommentController from "./app/controllers/CommentController";
 import CursosController from "./app/controllers/CursosController";
+import InstructorController from "./app/controllers/InstructorController"; // Importação do controlador de instrutores
 import LikeController from "./app/controllers/LikeController";
 import MaterialController from "./app/controllers/MaterialController";
+import ReferralController from "./app/controllers/ReferralController"; // Novo controlador
 import SessionController from "./app/controllers/SessionController";
 import UserController from "./app/controllers/UserController";
 import UserProgressController from "./app/controllers/UserProgressController";
@@ -29,19 +32,40 @@ routes.get("/users/:id", adminMiddleware, UserController.show);
 routes.put("/users/:id", UserController.update);
 routes.delete("/users/:id", adminMiddleware, UserController.delete);
 
+// Rotas de instrutores
+routes.post("/instructors", adminMiddleware, InstructorController.create);
+routes.get("/instructors", InstructorController.index);
+routes.get("/instructors/:userId", InstructorController.show);
+routes.put(
+	"/instructors/:userId",
+	adminMiddleware,
+	InstructorController.update,
+);
+routes.delete(
+	"/instructors/:userId",
+	adminMiddleware,
+	InstructorController.delete,
+);
+
 // Rotas de cursos
 routes.get("/cursos", CursosController.index);
 routes.get("/cursos/:id", CursosController.show);
 routes.post(
 	"/cursos",
 	adminMiddleware,
-	upload.single("file"),
+	upload.fields([
+		{ name: "file", maxCount: 1 },
+		{ name: "thumbnail", maxCount: 1 },
+	]),
 	CursosController.store,
 );
 routes.put(
 	"/cursos/:id",
 	adminMiddleware,
-	upload.single("file"),
+	upload.fields([
+		{ name: "file", maxCount: 1 },
+		{ name: "thumbnail", maxCount: 1 },
+	]),
 	CursosController.update,
 );
 routes.delete("/cursos/:id", adminMiddleware, CursosController.delete);
@@ -120,5 +144,13 @@ routes.post(
 	upload.single("file"),
 	MaterialController.create,
 );
+
+// Rotas de indicação
+routes.post("/referrals", ReferralController.create);
+routes.get("/users/:userId/referrals", ReferralController.list);
+
+// Rotas de certificados
+routes.post("/certificates", CertificateController.issue);
+routes.get("/users/:userId/certificates", CertificateController.list);
 
 export default routes;

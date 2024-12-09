@@ -1,42 +1,40 @@
-// src/app/services/userProgressService.js
-
 import { PrismaClient } from "@prisma/client";
+import { io } from "../../config/websocket";
 
 const prisma = new PrismaClient();
 
-export async function updateUserProgress(userId, courseId, data) {
+export async function updateUserProgress(userId, courseId, progressData) {
 	try {
-		const { progressoCurso, concluido } = data;
+		const { aulaId, progressoAula, concluido } = progressData;
 
-		let progress = await prisma.userProgress.findUnique({
+		const progress = await prisma.userProgress.upsert({
 			where: {
-				userId_courseId: {
-					userId,
-					courseId: Number.parseInt(courseId),
-				},
+				userId_courseId: { userId, courseId: Number(courseId) },
+			},
+			update: {
+				aulaId,
+				progressoAula,
+				concluido,
+				ultimoAcesso: new Date(),
+				tempoEstudo: { increment: 60 }, // incrementa 1 minuto
+			},
+			create: {
+				userId,
+				courseId: Number(courseId),
+				aulaId,
+				progressoAula,
+				concluido,
+				iniciadoEm: new Date(),
 			},
 		});
 
-		if (!progress) {
-			progress = await prisma.userProgress.create({
-				data: {
-					userId,
-					courseId: Number.parseInt(courseId),
-					progressoCurso,
-					concluido,
-				},
-			});
-		} else {
-			progress = await prisma.userProgress.update({
-				where: {
-					userId_courseId: {
-						userId,
-						courseId: Number.parseInt(courseId),
-					},
-				},
-				data: { progressoCurso, concluido },
-			});
-		}
+		io.emit("progressUpdated", {
+			userId,
+			courseId,
+			aulaId,
+			progressoAula,
+			concluido,
+		});
 
 		return progress;
 	} catch (error) {
@@ -51,13 +49,19 @@ export async function getUserProgress(userId, courseId) {
 			where: {
 				userId_courseId: {
 					userId,
-					courseId: Number.parseInt(courseId),
+					courseId: Number(courseId),
 				},
 			},
 		});
 
 		if (!progress) {
-			throw new Error("Progresso não encontrado");
+			return {
+				userId,
+				courseId,
+				progressoAula: 0,
+				progressoCurso: 0,
+				concluido: false,
+			};
 		}
 
 		return progress;

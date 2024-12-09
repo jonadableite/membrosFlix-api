@@ -1,14 +1,10 @@
-import fs from "fs";
 import multer from "multer";
+import fs from "node:fs";
 import { extname, resolve } from "node:path";
 import { v4 as uuidv4 } from "uuid";
 
-/**
- * Configurações do Multer para upload de arquivos.
- */
 const uploadDirectory = resolve(__dirname, "..", "..", "uploads");
 
-// Verifica se o diretório de upload existe, caso contrário, cria-o
 if (!fs.existsSync(uploadDirectory)) {
 	fs.mkdirSync(uploadDirectory, { recursive: true });
 }
@@ -25,8 +21,7 @@ export default {
 	}),
 
 	fileFilter: (req, file, callback) => {
-		// Adiciona 'pdf' aos tipos permitidos
-		const allowedTypes = /jpeg|jpg|png|mp4|pdf/;
+		const allowedTypes = /jpeg|jpg|png|mp4|avi|mkv/;
 		const mimeType = allowedTypes.test(file.mimetype);
 		const extName = allowedTypes.test(extname(file.originalname).toLowerCase());
 
@@ -35,4 +30,8 @@ export default {
 		}
 		callback(new Error("Tipo de arquivo não suportado"));
 	},
+	fields: [
+		{ name: "file", maxCount: 1 },
+		{ name: "thumbnail", maxCount: 1 },
+	],
 };

@@ -1,5 +1,3 @@
-// src/app/controllers/CursosController.js
-
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import * as cursoService from "../services/cursoService";
@@ -19,11 +17,6 @@ class CursoController {
 		try {
 			const { id } = req.params;
 			const curso = await cursoService.getCurso(id);
-
-			if (!curso) {
-				return res.status(404).json({ error: "Curso não encontrado" });
-			}
-
 			return res.json(curso);
 		} catch (error) {
 			logger.error("Erro ao exibir curso:", error.message);
@@ -36,11 +29,19 @@ class CursoController {
 			const schema = Yup.object().shape({
 				title: Yup.string().required("O título do curso é obrigatório"),
 				description: Yup.string().nullable(),
+				status: Yup.string()
+					.oneOf(["DRAFT", "PUBLISHED", "ACTIVE", "ARCHIVED"])
+					.default("DRAFT"),
+				duracaoTotal: Yup.number().nullable(),
 			});
 
 			await schema.validate(req.body, { abortEarly: false });
 
-			const curso = await cursoService.createCurso(req.body, req.file);
+			const curso = await cursoService.createCurso(
+				req.body,
+				req.files?.file?.[0],
+				req.files?.thumbnail?.[0],
+			);
 			return res.status(201).json(curso);
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
@@ -48,7 +49,7 @@ class CursoController {
 				return res.status(400).json({ errors: error.errors });
 			}
 			logger.error("Erro ao criar curso:", error.message);
-			return res.status(500).json({ error: "Erro ao criar curso" });
+			return res.status(500).json({ error: error.message });
 		}
 	}
 
@@ -57,6 +58,13 @@ class CursoController {
 			const schema = Yup.object().shape({
 				title: Yup.string(),
 				description: Yup.string().nullable(),
+				status: Yup.string().oneOf([
+					"DRAFT",
+					"PUBLISHED",
+					"ACTIVE",
+					"ARCHIVED",
+				]),
+				duracaoTotal: Yup.number().nullable(),
 			});
 
 			await schema.validate(req.body, { abortEarly: false });
@@ -65,12 +73,9 @@ class CursoController {
 			const updatedCurso = await cursoService.updateCurso(
 				id,
 				req.body,
-				req.file,
+				req.files?.file?.[0],
+				req.files?.thumbnail?.[0],
 			);
-
-			if (!updatedCurso) {
-				return res.status(404).json({ error: "Curso não encontrado" });
-			}
 
 			return res.status(200).json(updatedCurso);
 		} catch (error) {
@@ -79,23 +84,18 @@ class CursoController {
 				return res.status(400).json({ errors: error.errors });
 			}
 			logger.error("Erro ao atualizar curso:", error.message);
-			return res.status(500).json({ error: "Erro ao atualizar curso" });
+			return res.status(500).json({ error: error.message });
 		}
 	}
 
 	async delete(req, res) {
 		try {
 			const { id } = req.params;
-			const deleted = await cursoService.deleteCurso(id);
-
-			if (!deleted) {
-				return res.status(404).json({ error: "Curso não encontrado" });
-			}
-
+			await cursoService.deleteCurso(id);
 			return res.status(204).send();
 		} catch (error) {
 			logger.error("Erro ao excluir curso:", error.message);
-			return res.status(500).json({ error: "Erro ao excluir curso" });
+			return res.status(500).json({ error: error.message });
 		}
 	}
 }

@@ -1,5 +1,3 @@
-// src/app/controllers/UserController.js
-
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import * as userService from "../services/userService";
@@ -14,8 +12,12 @@ class UserController {
 			password: Yup.string()
 				.min(6, "A senha deve ter pelo menos 6 caracteres")
 				.required("Senha é obrigatória"),
-			admin: Yup.boolean(),
-			status: Yup.boolean(),
+			role: Yup.string().oneOf(["USER", "ADMIN", "INSTRUCTOR"]).default("USER"),
+			profilePicture: Yup.string().nullable(),
+			bio: Yup.string().nullable(),
+			referralCode: Yup.string().nullable(),
+			referredBy: Yup.string().nullable(),
+			status: Yup.boolean().default(true),
 		});
 
 		try {
@@ -27,7 +29,7 @@ class UserController {
 				id: user.id,
 				name: user.name,
 				email: user.email,
-				admin: user.admin,
+				role: user.role,
 			});
 		} catch (error) {
 			if (error instanceof Yup.ValidationError) {
@@ -84,7 +86,11 @@ class UserController {
 			confirmPassword: Yup.string().when("password", (password, field) =>
 				password ? field.required().oneOf([Yup.ref("password")]) : field,
 			),
-			admin: Yup.boolean(),
+			role: Yup.string().oneOf(["USER", "ADMIN", "INSTRUCTOR"]),
+			profilePicture: Yup.string().nullable(),
+			bio: Yup.string().nullable(),
+			referralCode: Yup.string().nullable(),
+			referredBy: Yup.string().nullable(),
 			status: Yup.boolean(),
 		});
 

@@ -56,6 +56,7 @@ export async function createComment(data) {
 			}
 		}
 
+		// Criação do comentário
 		const comment = await prisma.comment.create({
 			data: {
 				content,
@@ -64,14 +65,6 @@ export async function createComment(data) {
 				cursoId: cursoId ? Number(cursoId) : null,
 				parentId,
 				isAnonymous,
-				// Se for uma resposta, incrementa o contador de respostas do comentário pai
-				...(parentId && {
-					parent: {
-						update: {
-							repliesCount: { increment: 1 },
-						},
-					},
-				}),
 			},
 			include: {
 				user: true,
@@ -80,6 +73,16 @@ export async function createComment(data) {
 				},
 			},
 		});
+
+		// Atualização do contador de respostas do comentário pai, se houver
+		if (parentId) {
+			await prisma.comment.update({
+				where: { id: parentId },
+				data: {
+					repliesCount: { increment: 1 },
+				},
+			});
+		}
 
 		return {
 			...comment,

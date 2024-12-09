@@ -1,8 +1,6 @@
-// src/app/services/sessionService.js
-
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
 
@@ -31,9 +29,9 @@ export async function authenticateUser(email, password) {
 }
 
 export function generateToken(user) {
-	const { id, name, email, admin, status } = user;
+	const { id, name, email, role, status } = user;
 
-	return jwt.sign({ id, name, email, admin, status }, process.env.APP_SECRET, {
+	return jwt.sign({ id, name, email, role, status }, process.env.APP_SECRET, {
 		expiresIn: "30d",
 	});
 }

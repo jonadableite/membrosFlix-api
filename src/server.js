@@ -1,8 +1,13 @@
 import "dotenv/config";
+import http from "http";
 import swaggerUi from "swagger-ui-express";
 import logger from "../utils/logger";
 import app from "./app";
+import { setupWebSocket } from "./config/websocket"; // Importa a função de configuração do WebSocket
 import swaggerSpec from "./swagger";
+
+const server = http.createServer(app);
+setupWebSocket(server); // Configura o WebSocket com o servidor HTTP
 
 const PORT = process.env.PORT || 3001;
 
@@ -10,7 +15,7 @@ const PORT = process.env.PORT || 3001;
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 try {
-	app.listen(PORT, () => {
+	server.listen(PORT, () => {
 		logger.info(`🚀 Server ON, rodando na porta: ${PORT}...`); // Log após o servidor iniciar
 	});
 } catch (error) {

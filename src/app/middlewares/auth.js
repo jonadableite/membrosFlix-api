@@ -1,9 +1,7 @@
-// src/app/middlewares/auth.js
-
+import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { promisify } from "node:util";
 import authConfig from "../../config/auth";
-import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

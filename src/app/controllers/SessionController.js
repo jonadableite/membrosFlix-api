@@ -1,5 +1,3 @@
-// src/app/controllers/SessionController.js
-
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import * as sessionService from "../services/sessionService";
@@ -22,14 +20,14 @@ class SessionController {
 			// Gera o token JWT
 			const token = sessionService.generateToken(user);
 
-			const { id, name, admin, status } = user;
+			const { id, name, role, status } = user;
 
 			return res.json({
 				user: {
 					id,
 					name,
 					email,
-					admin,
+					role,
 					status,
 				},
 				token,

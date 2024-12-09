@@ -16,6 +16,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@prisma/client": "^6.0.1",
+		"@types/socket.io-client": "^1.4.36",
 		"bcryptjs": "^2.4.3",
 		"cors": "^2.8.5",
 		"dotenv": "^16.4.5",
@@ -28,6 +29,8 @@
 		"prisma": "^6.0.1",
 		"redis": "^4.7.0",
 		"sequelize": "^6.37.5",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
 		"swagger-jsdoc": "^6.2.8",
 		"swagger-ui-express": "^5.0.1",
 		"uuid": "^11.0.3",
