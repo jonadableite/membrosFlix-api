@@ -174,18 +174,22 @@ class AulasController {
 
 			// Enviar notificação para todos os usuários
 			const users = await prisma.user.findMany();
+
 			for (const user of users) {
+				console.log("user.id:", user.id, typeof user.id);
+				const userIdString = String(user.id);
+				console.log("userIdString:", userIdString, typeof userIdString);
+
 				try {
 					await notificationService.createNotification(
-						String(user.id),
-						"CURSO_NOVO",
+						userIdString,
+						"NOVA_AULA",
 						`Nova aula publicada: ${name}`,
 					);
 				} catch (error) {
 					console.error(`Erro ao notificar usuário ${user.id}:`, error);
 				}
 			}
-
 			logger.info("Aula criada com sucesso", { aula });
 			return res.status(201).json({ message: "Aula criada com sucesso", aula });
 		} catch (error) {

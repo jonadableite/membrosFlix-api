@@ -7,45 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo de Usuário Expandido
 model User {
   id           String @id @default(uuid()) @db.Uuid
   name         String @db.VarChar(255)
   email        String @unique @db.VarChar(255)
   passwordHash String @db.VarChar(255)
-
-  // Campos de perfil
   profilePicture String?
   bio            String?
-
-  // Tipo de usuário
   role UserRole @default(USER)
-
-  // Controle de acesso
   status Boolean? @default(true)
 
-  // Relações existentes
   progress UserProgress[]
   comments Comment[]
   likes    Like[]
-
-  // Relação com Instrutor
   instructor Instructor?
 
-  // Novos campos
   referralCode String? @unique
   referredBy   String? @db.Uuid
   referrer     User?   @relation("UserReferrals", fields: [referredBy], references: [id])
   referrals    User[]  @relation("UserReferrals")
 
-  // Sistema de pontos e recompensas
   points         Int @default(0)
   referralPoints Int @default(0)
 
-  // Sistema de notificações em tempo real
   notifications Notification[]
-
-  // Sistema de progresso e realizações
   achievements UserAchievement[]
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
@@ -54,17 +39,13 @@ model User {
   @@map("users")
 }
 
-// Modelo de Instrutor
 model Instructor {
   id        Int      @id @default(autoincrement())
   userId    String   @unique @db.Uuid
   bio       String?
   expertise String[]
   courses   Curso[]
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Novo campo de relação com Aula
   aulas Aula[] @relation("InstructorAulas")
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
@@ -73,24 +54,17 @@ model Instructor {
   @@map("instructors")
 }
 
-// Modelo de Progresso do Usuário Aprimorado
 model UserProgress {
   id       Int    @id @default(autoincrement())
   userId   String @db.Uuid
   courseId Int
   aulaId   Int?
-
-  // Progresso detalhado
   progressoAula  Int?     @default(0)
   progressoCurso Int?     @default(0)
   concluido      Boolean? @default(false)
-
-  // Timestamps de progresso
   iniciadoEm   DateTime?
   ultimoAcesso DateTime?
-
-  // Metadados de progresso
-  tempoEstudo     Int       @default(0) // em segundos
+  tempoEstudo     Int       @default(0)
   ultimoProgresso DateTime?
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -104,13 +78,12 @@ model UserProgress {
   @@map("users_progress")
 }
 
-// Sistema de Notificações em Tempo Real
 model Notification {
-  id       String           @id @default(uuid()) @db.Uuid
-  userId   String           @db.Uuid
-  tipo     NotificationType
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @db.Uuid
+  tipo     String   // Tipo como string
   mensagem String
-  lida     Boolean          @default(false)
+  lida     Boolean  @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -119,8 +92,6 @@ model Notification {
   @@map("notifications")
 }
 
-
-// Sistema de Realizações/Conquistas
 model UserAchievement {
   id            Int      @id @default(autoincrement())
   userId        String   @db.Uuid
@@ -134,7 +105,6 @@ model UserAchievement {
   @@map("user_achievements")
 }
 
-// Catálogo de Realizações Possíveis
 model Achievement {
   id                Int             @id @default(autoincrement())
   nome              String
@@ -147,7 +117,6 @@ model Achievement {
   @@map("achievements")
 }
 
-// Modelo de Curso com Progresso Detalhado
 model Curso {
   id          Int          @id @default(autoincrement())
   title       String       @db.VarChar(255)
@@ -155,11 +124,8 @@ model Curso {
   path        String?      @db.VarChar(255)
   thumbnail   String?      @db.VarChar(255)
   status      CourseStatus @default(DRAFT)
-
-  // Metadados de progresso
   totalAulas   Int  @default(0)
-  duracaoTotal Int? // em minutos
-
+  duracaoTotal Int?
   instructorId Int?
   instructor   Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
 
@@ -174,16 +140,13 @@ model Curso {
   @@map("curso")
 }
 
-// Modelo de Aula com Detalhes de Progresso
 model Aula {
   id          Int     @id @default(autoincrement())
   name        String  @db.VarChar(255)
   description String?
-  duration    Int // em minutos
+  duration    Int
   path        String  @db.VarChar(255)
   courseId    Int?
-
-  // Metadados de progresso
   ordemAula Int @default(1)
 
   curso     Curso?         @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
@@ -192,7 +155,6 @@ model Aula {
   likes     Like[]
   materiais Material[]
 
-  // Campo de relação com Instrutor
   instructorId Int?
   instructor   Instructor? @relation("InstructorAulas", fields: [instructorId], references: [id], onDelete: SetNull)
 
@@ -202,7 +164,6 @@ model Aula {
   @@map("aulas")
 }
 
-// Modelo de Comentário
 model Comment {
   id           Int       @id @default(autoincrement())
   content      String
@@ -225,7 +186,6 @@ model Comment {
   @@map("comments")
 }
 
-// Modelo de Like
 model Like {
   id        Int      @id @default(autoincrement())
   userId    String   @db.Uuid
@@ -243,7 +203,6 @@ model Like {
   @@map("likes")
 }
 
-// Modelo de Material
 model Material {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(255)
@@ -256,7 +215,6 @@ model Material {
   @@map("materiais")
 }
 
-// Modelo de Sistema de Referência/Indicação
 model ReferralProgram {
   id            Int      @id @default(autoincrement())
   userId        String   @db.Uuid
@@ -269,8 +227,9 @@ model ReferralProgram {
   @@map("referral_program")
 }
 
-// Enums para Tipagem Forte
 enum NotificationType {
+  NOVA_AULA
+  NOVO_COMENTARIO
   PROGRESSO
   CONQUISTA
   INDICACAO

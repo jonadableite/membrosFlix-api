@@ -1,7 +1,5 @@
-// src/app/services/notificationService.js
+import { PrismaClient } from "@prisma/client";
 
-const { PrismaClient } = require("@prisma/client");
-const { notifyUser } = require("../../config/websocket");
 const prisma = new PrismaClient();
 
 /**
@@ -15,15 +13,24 @@ async function createNotification(userId, tipo, mensagem) {
 	try {
 		const notification = await prisma.notification.create({
 			data: {
-				userId: userId,
-				tipo,
+				userId,
+				tipo: String(tipo), // Converte o tipo para string
 				mensagem,
 			},
 		});
-		notifyUser(userId, notification);
 		return notification;
 	} catch (error) {
 		console.error("Erro ao criar notificação:", error);
+
+		// Log detalhado do erro
+		console.error("Detalhes do erro:", {
+			userId,
+			tipo,
+			mensagem,
+			errorMessage: error.message,
+			errorCode: error.code,
+		});
+
 		throw error;
 	}
 }
@@ -62,7 +69,7 @@ async function getUnreadNotifications(userId) {
 	}
 }
 
-module.exports = {
+export default {
 	createNotification,
 	markNotificationAsRead,
 	getUnreadNotifications,
