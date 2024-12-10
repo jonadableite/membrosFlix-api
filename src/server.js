@@ -1,9 +1,10 @@
+// src/server.js
 import "dotenv/config";
 import http from "http";
 import swaggerUi from "swagger-ui-express";
 import logger from "../utils/logger";
 import app from "./app";
-import { setupWebSocket } from "./config/websocket"; // Importa a função de configuração do WebSocket
+import { setupWebSocket } from "./config/websocket";
 import swaggerSpec from "./swagger";
 
 const server = http.createServer(app);

@@ -1,6 +1,10 @@
 // src/app/controllers/InstructorController.js
 
+import { PrismaClient } from "@prisma/client";
 import * as instructorService from "../services/instructorService";
+
+// Inicializando o Prisma Client
+const prisma = new PrismaClient();
 
 class InstructorController {
 	/**
@@ -52,10 +56,21 @@ class InstructorController {
 	 */
 	async index(req, res) {
 		try {
-			const instructors = await instructorService.listInstructors();
-			return res.json(instructors);
+			const instructors = await prisma.instructor.findMany({
+				include: {
+					user: {
+						select: { id: true, name: true },
+					},
+				},
+			});
+			return res.json(
+				instructors.map((instructor) => ({
+					id: instructor.id,
+					name: instructor.user.name,
+				})),
+			);
 		} catch (error) {
-			console.error("Erro ao listar instrutores:", error);
+			console.error("Erro ao listar instrutores:", error.message);
 			return res.status(500).json({ error: "Erro ao listar instrutores" });
 		}
 	}

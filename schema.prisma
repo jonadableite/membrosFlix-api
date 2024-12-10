@@ -106,7 +106,7 @@ model UserProgress {
 
 // Sistema de Notificações em Tempo Real
 model Notification {
-  id       Int              @id @default(autoincrement())
+  id       String           @id @default(uuid()) @db.Uuid
   userId   String           @db.Uuid
   tipo     NotificationType
   mensagem String
@@ -118,6 +118,7 @@ model Notification {
 
   @@map("notifications")
 }
+
 
 // Sistema de Realizações/Conquistas
 model UserAchievement {

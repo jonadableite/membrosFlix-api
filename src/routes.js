@@ -5,13 +5,14 @@ import authMiddleware from "./app/middlewares/auth";
 import multerConfig from "./config/multer";
 
 import AulasController from "./app/controllers/AulasController";
-import CertificateController from "./app/controllers/CertificateController"; // Novo controlador
+import CertificateController from "./app/controllers/CertificateController";
 import CommentController from "./app/controllers/CommentController";
 import CursosController from "./app/controllers/CursosController";
-import InstructorController from "./app/controllers/InstructorController"; // Importação do controlador de instrutores
+import InstructorController from "./app/controllers/InstructorController";
 import LikeController from "./app/controllers/LikeController";
 import MaterialController from "./app/controllers/MaterialController";
-import ReferralController from "./app/controllers/ReferralController"; // Novo controlador
+import NotificationController from "./app/controllers/NotificationController";
+import ReferralController from "./app/controllers/ReferralController";
 import SessionController from "./app/controllers/SessionController";
 import UserController from "./app/controllers/UserController";
 import UserProgressController from "./app/controllers/UserProgressController";
@@ -153,4 +154,20 @@ routes.get("/users/:userId/referrals", ReferralController.list);
 routes.post("/certificates", CertificateController.issue);
 routes.get("/users/:userId/certificates", CertificateController.list);
 
+// Rotas de notificações
+routes.post("/aulas", NotificationController.notifyNewLesson);
+routes.post("/materiais", NotificationController.notifyMaterialUpdate);
+routes.post(
+	"/comments/:commentId/reply",
+	NotificationController.notifyCommentReply,
+);
+routes.post("/likes", NotificationController.notifyLikeReceived);
+routes.put(
+	"/notifications/:notificationId/read",
+	NotificationController.markAsRead,
+);
+routes.get(
+	"/users/:userId/notifications/unread",
+	NotificationController.getUnreadNotifications,
+);
 export default routes;

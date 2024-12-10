@@ -1,6 +1,8 @@
-// src/config/websocket.js
-
 import { Server } from "socket.io";
+
+// Mapeamento de usuários conectados
+const connectedUsers = new Map();
+let io; // Variável para armazenar a instância do servidor WebSocket
 
 /**
  * Configura o WebSocket para o servidor HTTP fornecido.
@@ -8,15 +10,12 @@ import { Server } from "socket.io";
  * @returns {Server} - Instância do servidor WebSocket.
  */
 export function setupWebSocket(server) {
-	const io = new Server(server, {
+	io = new Server(server, {
 		cors: {
 			origin: "http://localhost:5173", // Defina a origem como o endereço do frontend
 			methods: ["GET", "POST"],
 		},
 	});
-
-	// Mapeamento de usuários conectados
-	const connectedUsers = new Map();
 
 	io.on("connection", (socket) => {
 		console.log("Novo cliente conectado");
@@ -61,4 +60,25 @@ export function setupWebSocket(server) {
 	});
 
 	return io;
+}
+
+// Função para emitir notificações
+export function notifyUser(userId, notification) {
+	setTimeout(() => {
+		const userSocketId = connectedUsers.get(String(userId));
+		if (userSocketId && io) {
+			console.log(`Enviando notificação para o usuário ${userId}`);
+			io.to(userSocketId).emit("notification", notification);
+		} else {
+			console.error(
+				`Não foi possível enviar notificação para o usuário ${userId}`,
+			);
+			if (!userSocketId) {
+				console.error(`Socket ID não encontrado para o usuário ${userId}`);
+			}
+			if (!io) {
+				console.error("Instância do servidor WebSocket não inicializada");
+			}
+		}
+	}, 2000); // Atraso de 2 segundo
 }

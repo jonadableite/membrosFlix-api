@@ -1,5 +1,8 @@
+import { v4 as uuidv4 } from "uuid"; // Importe a biblioteca uuid
+// controllers/sessionController.js
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
+import { notifyUser } from "../../config/websocket";
 import * as sessionService from "../services/sessionService";
 
 class SessionController {
@@ -10,6 +13,7 @@ class SessionController {
 		});
 
 		try {
+			// Validação dos dados de entrada
 			await schema.validate(req.body, { abortEarly: false });
 
 			const { email, password } = req.body;
@@ -17,11 +21,27 @@ class SessionController {
 			// Autentica o usuário usando o serviço
 			const user = await sessionService.authenticateUser(email, password);
 
+			if (!user) {
+				return res.status(401).json({ error: "Usuário não encontrado" });
+			}
+
 			// Gera o token JWT
 			const token = sessionService.generateToken(user);
 
 			const { id, name, role, status } = user;
 
+			// Gerar um ID único para a notificação
+			const notificationId = uuidv4();
+
+			// Emitir notificação de boas-vindas com ID
+			const notification = {
+				id: notificationId,
+				type: "WELCOME",
+				message: `Bem-vindo novamente, ${name}! Bons estudos!`,
+			};
+			notifyUser(id, notification);
+
+			// Retorna a resposta de sucesso
 			return res.json({
 				user: {
 					id,

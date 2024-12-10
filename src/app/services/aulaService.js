@@ -1,5 +1,3 @@
-// src/app/services/aulaService.js
-
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -8,6 +6,11 @@ export async function listAulas(courseId) {
 	try {
 		return await prisma.aula.findMany({
 			where: { courseId: Number.parseInt(courseId, 10) },
+			include: {
+				instructor: {
+					select: { id: true, user: { select: { name: true } } },
+				},
+			},
 		});
 	} catch (error) {
 		console.error("Erro ao listar aulas:", error.message);
@@ -21,6 +24,11 @@ export async function listProximasAulas(courseId) {
 			where: { courseId: Number.parseInt(courseId, 10) },
 			orderBy: { createdAt: "asc" },
 			take: 5,
+			include: {
+				instructor: {
+					select: { id: true, user: { select: { name: true } } },
+				},
+			},
 		});
 	} catch (error) {
 		console.error("Erro ao buscar próximas aulas:", error.message);
@@ -32,6 +40,11 @@ export async function getAula(courseId, id) {
 	try {
 		const aula = await prisma.aula.findUnique({
 			where: { id: Number.parseInt(id, 10) },
+			include: {
+				instructor: {
+					select: { id: true, user: { select: { name: true } } },
+				},
+			},
 		});
 
 		if (!aula || aula.courseId !== Number.parseInt(courseId, 10)) {
@@ -45,18 +58,20 @@ export async function getAula(courseId, id) {
 	}
 }
 
+// No serviço de criação de aula
 export async function createAula(data, filePath) {
 	try {
-		const { courseId, name, description, duration } = data;
+		const { courseId, name, description, duration, instructorId } = data;
 		const path = filePath;
 
 		return await prisma.aula.create({
 			data: {
 				name,
 				description,
-				duration: Number.parseInt(duration, 10),
+				duration: Number(duration), // Conversão para número
 				path,
-				courseId: Number.parseInt(courseId, 10),
+				courseId: Number(courseId),
+				instructorId: Number(instructorId),
 			},
 		});
 	} catch (error) {
@@ -65,19 +80,35 @@ export async function createAula(data, filePath) {
 	}
 }
 
+// No serviço de atualização de aula
 export async function updateAula(courseId, id, data) {
 	try {
 		const aula = await prisma.aula.findUnique({
-			where: { id: Number.parseInt(id, 10) },
+			where: { id: Number(id) },
 		});
 
-		if (!aula || aula.courseId !== Number.parseInt(courseId, 10)) {
+		if (!aula || aula.courseId !== Number(courseId)) {
 			throw new Error("Aula não encontrada");
 		}
 
+		// Converta o campo duration e instructorId para número, se fornecidos
+		if (data.duration) {
+			data.duration = Number(data.duration);
+		}
+		if (data.instructorId) {
+			data.instructorId = Number(data.instructorId);
+		}
+
 		return await prisma.aula.update({
-			where: { id: Number.parseInt(id, 10) },
-			data,
+			where: { id: Number(id) },
+			data: {
+				...data,
+				duration: data.duration !== undefined ? data.duration : aula.duration,
+				instructorId:
+					data.instructorId !== undefined
+						? data.instructorId
+						: aula.instructorId,
+			},
 		});
 	} catch (error) {
 		console.error("Erro ao atualizar aula:", error.message);

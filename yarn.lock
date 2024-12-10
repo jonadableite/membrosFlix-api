@@ -48,6 +48,26 @@
     "@biomejs/cli-win32-arm64" "1.9.4"
     "@biomejs/cli-win32-x64" "1.9.4"
 
+"@biomejs/cli-darwin-arm64@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@biomejs/cli-darwin-arm64/-/cli-darwin-arm64-1.9.4.tgz"
+  integrity sha512-bFBsPWrNvkdKrNCYeAp+xo2HecOGPAy9WyNyB/jKnnedgzl4W4Hb9ZMzYNbf8dMCGmUdSavlYHiR01QaYR58cw==
+
+"@biomejs/cli-darwin-x64@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@biomejs/cli-darwin-x64/-/cli-darwin-x64-1.9.4.tgz"
+  integrity sha512-ngYBh/+bEedqkSevPVhLP4QfVPCpb+4BBe2p7Xs32dBgs7rh9nY2AIYUL6BgLw1JVXV8GlpKmb/hNiuIxfPfZg==
+
+"@biomejs/cli-linux-arm64-musl@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@biomejs/cli-linux-arm64-musl/-/cli-linux-arm64-musl-1.9.4.tgz"
+  integrity sha512-v665Ct9WCRjGa8+kTr0CzApU0+XXtRgwmzIf1SeKSGAv+2scAlW6JR5PMFo6FzqqZ64Po79cKODKf3/AAmECqA==
+
+"@biomejs/cli-linux-arm64@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@biomejs/cli-linux-arm64/-/cli-linux-arm64-1.9.4.tgz"
+  integrity sha512-fJIW0+LYujdjUgJJuwesP4EjIBl/N/TcOX3IvIHJQNsAqvV2CHIogsmA94BPG6jZATS4Hi+xv4SkBBQSt1N4/g==
+
 "@biomejs/cli-linux-x64-musl@1.9.4":
   version "1.9.4"
   resolved "https://registry.npmjs.org/@biomejs/cli-linux-x64-musl/-/cli-linux-x64-musl-1.9.4.tgz"
@@ -57,6 +77,16 @@
   version "1.9.4"
   resolved "https://registry.npmjs.org/@biomejs/cli-linux-x64/-/cli-linux-x64-1.9.4.tgz"
   integrity sha512-lRCJv/Vi3Vlwmbd6K+oQ0KhLHMAysN8lXoCI7XeHlxaajk06u7G+UsFSO01NAs5iYuWKmVZjmiOzJ0OJmGsMwg==
+
+"@biomejs/cli-win32-arm64@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@biomejs/cli-win32-arm64/-/cli-win32-arm64-1.9.4.tgz"
+  integrity sha512-tlbhLk+WXZmgwoIKwHIHEBZUwxml7bRJgk0X2sPyNR3S93cdRq6XulAZRQJ17FYGGzWne0fgrXBKpl7l4M87Hg==
+
+"@biomejs/cli-win32-x64@1.9.4":
+  version "1.9.4"
+  resolved "https://registry.npmjs.org/@biomejs/cli-win32-x64/-/cli-win32-x64-1.9.4.tgz"
+  integrity sha512-8Y5wMhVIPaWe6jw2H+KlEm4wP/f7EW3810ZLmDlrEEy5KvBsb9ECEfu/kMWD484ijfQ8+nIi0giMgu9g1UAuuA==
 
 "@colors/colors@^1.6.0", "@colors/colors@1.6.0":
   version "1.6.0"
@@ -1044,6 +1074,11 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
+
+fsevents@~2.3.2, fsevents@2.3.3:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+  integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.2:
   version "1.1.2"
