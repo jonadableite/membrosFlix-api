@@ -1,6 +1,7 @@
 // src/app/controllers/InstructorController.js
 
 import { PrismaClient } from "@prisma/client";
+import logger from "../../../utils/logger";
 import * as instructorService from "../services/instructorService";
 
 // Inicializando o Prisma Client
@@ -15,7 +16,8 @@ class InstructorController {
 			const instructor = await instructorService.createInstructor(req.body);
 			return res.status(201).json(instructor);
 		} catch (error) {
-			console.error("Erro ao criar instrutor:", error);
+			const instructorLogger = logger.setContext("InstructorController");
+			instructorLogger.error("Erro ao criar instrutor:", error);
 			return res.status(500).json({ error: "Erro ao criar instrutor" });
 		}
 	}
@@ -32,7 +34,7 @@ class InstructorController {
 			);
 			return res.json(instructor);
 		} catch (error) {
-			console.error("Erro ao atualizar instrutor:", error);
+			instructorLogger.error("Erro ao atualizar instrutor:", error);
 			return res.status(500).json({ error: "Erro ao atualizar instrutor" });
 		}
 	}
@@ -46,7 +48,7 @@ class InstructorController {
 			const instructor = await instructorService.getInstructorByUserId(userId);
 			return res.json(instructor);
 		} catch (error) {
-			console.error("Erro ao obter instrutor:", error);
+			instructorLogger.error("Erro ao obter instrutor:", error);
 			return res.status(500).json({ error: "Erro ao obter instrutor" });
 		}
 	}
@@ -56,21 +58,28 @@ class InstructorController {
 	 */
 	async index(req, res) {
 		try {
-			const instructors = await prisma.instructor.findMany({
+			instructorLogger.log("Buscando instrutores...");
+			const instructors = await prisma.user.findMany({
+				where: {
+					role: "INSTRUCTOR",
+				},
 				include: {
-					user: {
-						select: { id: true, name: true },
-					},
+					instructor: true,
 				},
 			});
-			return res.json(
-				instructors.map((instructor) => ({
-					id: instructor.id,
-					name: instructor.user.name,
-				})),
-			);
+
+			instructorLogger.log("Instrutores encontrados:", instructors);
+
+			const formattedInstructors = instructors.map((instructor) => ({
+				id: instructor.id, // Mudamos para usar o ID do usuário
+				name: instructor.name,
+			}));
+
+			instructorLogger.log("Instrutores formatados:", formattedInstructors);
+
+			return res.json(formattedInstructors);
 		} catch (error) {
-			console.error("Erro ao listar instrutores:", error.message);
+			instructorLogger.error("Erro ao listar instrutores:", error);
 			return res.status(500).json({ error: "Erro ao listar instrutores" });
 		}
 	}
@@ -84,7 +93,7 @@ class InstructorController {
 			await instructorService.deleteInstructorByUserId(userId);
 			return res.status(204).send();
 		} catch (error) {
-			console.error("Erro ao excluir instrutor:", error);
+			instructorLogger.error("Erro ao excluir instrutor:", error);
 			return res.status(500).json({ error: "Erro ao excluir instrutor" });
 		}
 	}

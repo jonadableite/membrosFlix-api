@@ -1,6 +1,8 @@
 // controllers/NotificationController.js
 const { PrismaClient } = require("@prisma/client");
 const notificationService = require("../services/notificationService");
+import logger from "../../../utils/logger";
+
 const prisma = new PrismaClient();
 
 /**
@@ -26,7 +28,8 @@ async function notifyNewLesson(req, res) {
 		});
 		res.status(201).json(aula);
 	} catch (error) {
-		console.error("Erro ao criar aula:", error);
+		const notificationsLogger = logger.setContext("NotificationController");
+		notificationsLogger.error("Erro ao criar aula:", error);
 		res.status(500).json({ error: "Erro ao criar aula" });
 	}
 }
@@ -57,7 +60,7 @@ async function notifyMaterialUpdate(req, res) {
 		});
 		res.status(201).json(material);
 	} catch (error) {
-		console.error("Erro ao criar material:", error);
+		notificationsLogger.error("Erro ao criar material:", error);
 		res.status(500).json({ error: "Erro ao criar material" });
 	}
 }
@@ -87,7 +90,7 @@ async function notifyCommentReply(req, res) {
 		);
 		res.status(201).json(reply);
 	} catch (error) {
-		console.error("Erro ao responder comentário:", error);
+		notificationsLogger.error("Erro ao responder comentário:", error);
 		res.status(500).json({ error: "Erro ao responder comentário" });
 	}
 }
@@ -115,7 +118,7 @@ async function notifyLikeReceived(req, res) {
 		);
 		res.status(201).json(like);
 	} catch (error) {
-		console.error("Erro ao registrar like:", error);
+		notificationsLogger.error("Erro ao registrar like:", error);
 		res.status(500).json({ error: "Erro ao registrar like" });
 	}
 }
@@ -133,7 +136,7 @@ async function markAsRead(req, res) {
 		}
 		res.status(200).json(notification);
 	} catch (error) {
-		console.error("Erro ao marcar notificação como lida:", error);
+		notificationsLogger.error("Erro ao marcar notificação como lida:", error);
 		res.status(500).json({ error: "Erro ao marcar notificação como lida" });
 	}
 }
@@ -144,12 +147,25 @@ async function markAsRead(req, res) {
 async function getUnreadNotifications(req, res) {
 	const { userId } = req.params;
 	try {
-		const notifications =
-			await notificationService.getUnreadNotifications(userId);
+		const notifications = await prisma.notification.findMany({
+			where: {
+				userId: String(userId),
+				lida: false,
+			},
+			select: {
+				id: true,
+				tipo: true,
+				mensagem: true,
+				createdAt: true,
+			},
+		});
 		res.status(200).json(notifications);
 	} catch (error) {
-		console.error("Erro ao buscar notificações não lidas:", error);
-		res.status(500).json({ error: "Erro ao buscar notificações não lidas" });
+		notificationsLogger.error("Erro ao buscar notificações não lidas:", error);
+		res.status(500).json({
+			error: "Erro ao buscar notificações não lidas",
+			message: error.message,
+		});
 	}
 }
 

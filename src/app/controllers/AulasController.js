@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import fs from "fs";
+// src/app/controllers/AulasController.js
+import { PrismaClient } from "@prisma/client";
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import minioClient from "../../config/minioClient";
@@ -17,10 +18,8 @@ class AulasController {
 				where: { courseId: Number(courseId) },
 				include: {
 					instructor: {
-						include: {
-							user: {
-								select: { name: true },
-							},
+						select: {
+							name: true,
 						},
 					},
 				},
@@ -28,12 +27,13 @@ class AulasController {
 
 			const aulasComInstrutor = aulas.map((aula) => ({
 				...aula,
-				instructorName: aula.instructor?.user?.name || "Não atribuído",
+				instructorName: aula.instructor?.name || "Não atribuído",
 			}));
 
 			return res.json(aulasComInstrutor);
 		} catch (error) {
-			console.error("Erro ao listar aulas:", error.message);
+			const aulasLogger = logger.setContext("AulasController");
+			aulasLogger.error("Erro ao listar aulas:", error.message);
 			return res.status(500).json({ error: "Erro ao listar aulas" });
 		}
 	}
@@ -48,13 +48,7 @@ class AulasController {
 				include: {
 					likes: true,
 					comments: true,
-					instructor: {
-						include: {
-							user: {
-								select: { name: true },
-							},
-						},
-					},
+					instructor: true,
 				},
 			});
 
@@ -67,12 +61,12 @@ class AulasController {
 
 			return res.json({
 				...aula,
-				instructorName: aula.instructor?.user?.name || "Não atribuído",
+				instructorName: aula.instructor?.name || "Não atribuído",
 				likesCount,
 				userLiked,
 			});
 		} catch (error) {
-			logger.error("Erro ao exibir aula:", error.message);
+			aulasLogger.error("Erro ao exibir aula:", error);
 			return res.status(500).json({ error: "Erro ao exibir aula" });
 		}
 	}
@@ -96,7 +90,7 @@ class AulasController {
 	}
 
 	async store(req, res) {
-		console.log("req.body:", req.body);
+		aulasLogger.log("req.body:", req.body);
 		try {
 			const schema = Yup.object().shape({
 				courseId: Yup.number().required(
@@ -107,9 +101,7 @@ class AulasController {
 				duration: Yup.number().required(
 					"A duração da aula é obrigatória e deve ser um número.",
 				),
-				instructorId: Yup.number().required(
-					"O ID do instrutor é obrigatório e deve ser um número.",
-				),
+				instructorId: Yup.string().required("O ID do instrutor é obrigatório."),
 			});
 
 			const validatedData = await schema.validate(req.body, {
@@ -176,9 +168,9 @@ class AulasController {
 			const users = await prisma.user.findMany();
 
 			for (const user of users) {
-				console.log("user.id:", user.id, typeof user.id);
+				aulasLogger.log("user.id:", user.id, typeof user.id);
 				const userIdString = String(user.id);
-				console.log("userIdString:", userIdString, typeof userIdString);
+				aulasLogger.log("userIdString:", userIdString, typeof userIdString);
 
 				try {
 					await notificationService.createNotification(
@@ -187,7 +179,7 @@ class AulasController {
 						`Nova aula publicada: ${name}`,
 					);
 				} catch (error) {
-					console.error(`Erro ao notificar usuário ${user.id}:`, error);
+					aulasLogger.error(`Erro ao notificar usuário ${user.id}:`, error);
 				}
 			}
 			logger.info("Aula criada com sucesso", { aula });
@@ -209,11 +201,13 @@ class AulasController {
 	async update(req, res) {
 		try {
 			const schema = Yup.object().shape({
-				name: Yup.string(),
+				courseId: Yup.number().required("O ID do curso é obrigatório."),
+				name: Yup.string().required("O nome da aula é obrigatório."),
 				description: Yup.string().nullable(),
-				duration: Yup.number(),
-				path: Yup.string(),
-				instructorId: Yup.number(),
+				duration: Yup.number().required("A duração da aula é obrigatória."),
+				instructorId: Yup.string()
+					.uuid()
+					.required("O ID do instrutor é obrigatório."),
 			});
 
 			await schema.validate(req.body, { abortEarly: false });

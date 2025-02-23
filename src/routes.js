@@ -1,3 +1,4 @@
+// src/routes.js
 import { Router } from "express";
 import multer from "multer";
 import adminMiddleware from "./app/middlewares/admin";
@@ -22,12 +23,13 @@ const upload = multer(multerConfig);
 
 // Rotas públicas
 routes.post("/sessions", SessionController.store);
+routes.post("/users", UserController.store);
 
 // Middleware de autenticação
 routes.use(authMiddleware);
 
 // Rotas de usuários
-routes.post("/users", adminMiddleware, UserController.store);
+
 routes.get("/users", adminMiddleware, UserController.index);
 routes.get("/users/:id", adminMiddleware, UserController.show);
 routes.put("/users/:id", UserController.update);
@@ -170,4 +172,5 @@ routes.get(
 	"/users/:userId/notifications/unread",
 	NotificationController.getUnreadNotifications,
 );
+
 export default routes;

@@ -1,3 +1,4 @@
+// src/app/services/cursoService.js
 import { PrismaClient } from "@prisma/client";
 import fs from "node:fs";
 import minioClient from "../../config/minioClient";

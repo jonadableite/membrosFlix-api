@@ -1,0 +1,259 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["connectOrCreate", "transactionApi"]
+}
+
+model User {
+  id           String @id @default(uuid()) @db.Uuid
+  name         String @db.VarChar(255)
+  email        String @unique @db.VarChar(255)
+  passwordHash String @db.VarChar(255)
+  profilePicture String?
+  bio            String?
+  aulas          Aula[]
+  role UserRole @default(USER)
+  status Boolean? @default(true)
+
+  progress UserProgress[]
+  comments Comment[]
+  likes    Like[]
+  instructor Instructor?
+
+  referralCode String? @unique
+  referredBy   String? @db.Uuid
+  referrer     User?   @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals    User[]  @relation("UserReferrals")
+
+  points         Int @default(0)
+  referralPoints Int @default(0)
+
+  notifications Notification[]
+  achievements UserAchievement[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model Instructor {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique @db.Uuid
+  bio       String?
+  expertise String[]
+  courses   Curso[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("instructors")
+}
+
+model UserProgress {
+  id       Int    @id @default(autoincrement())
+  userId   String @db.Uuid
+  courseId Int
+  aulaId   Int?
+  progressoAula  Int?     @default(0)
+  progressoCurso Int?     @default(0)
+  concluido      Boolean? @default(false)
+  iniciadoEm   DateTime?
+  ultimoAcesso DateTime?
+  tempoEstudo     Int       @default(0)
+  ultimoProgresso DateTime?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  curso Curso @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  aula  Aula? @relation(fields: [aulaId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([userId, courseId])
+  @@map("users_progress")
+}
+
+model Notification {
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @db.Uuid
+  tipo     String   // Tipo como string
+  mensagem String
+  lida     Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model UserAchievement {
+  id            Int      @id @default(autoincrement())
+  userId        String   @db.Uuid
+  achievementId Int
+  desbloquedoEm DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Achievement {
+  id                Int             @id @default(autoincrement())
+  nome              String
+  descricao         String
+  pontosNecessarios Int
+  tipo              AchievementType
+
+  usuarios UserAchievement[]
+
+  @@map("achievements")
+}
+
+model Curso {
+  id          Int          @id @default(autoincrement())
+  title       String       @db.VarChar(255)
+  description String?
+  path        String?      @db.VarChar(255)
+  thumbnail   String?      @db.VarChar(255)
+  status      CourseStatus @default(DRAFT)
+  totalAulas   Int  @default(0)
+  duracaoTotal Int?
+  instructorId Int?
+  instructor   Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+
+  aulas    Aula[]
+  progress UserProgress[]
+  comments Comment[]
+  likes    Like[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("curso")
+}
+
+model Aula {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  description String?
+  duration Int
+  path String @db.VarChar(255)
+  courseId Int?
+  ordemAula Int @default(1)
+
+  curso Curso? @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  progress UserProgress[]
+  comments Comment[]
+  likes Like[]
+  materiais Material[]
+
+  instructorId String @db.Uuid
+  instructor User @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("aulas")
+}
+
+model Comment {
+  id           Int       @id @default(autoincrement())
+  content      String
+  userId       String    @db.Uuid
+  aulaId       Int?
+  cursoId      Int?
+  parentId     Int?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aula         Aula?     @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  curso        Curso?    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  parent       Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      Comment[] @relation("CommentReplies")
+  likes        Like[]
+  likesCount   Int       @default(0)
+  repliesCount Int       @default(0)
+  isAnonymous  Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@map("comments")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  aulaId    Int?
+  cursoId   Int?
+  commentId Int?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aula      Aula?    @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  curso     Curso?   @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([userId, commentId])
+  @@map("likes")
+}
+
+model Material {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  url       String   @db.VarChar(255)
+  aulaId    Int
+  aula      Aula     @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  @@map("materiais")
+}
+
+model ReferralProgram {
+  id            Int      @id @default(autoincrement())
+  userId        String   @db.Uuid
+  indicadoId    String   @db.Uuid
+  pontosGanhos  Int      @default(0)
+  valorDesconto Decimal? @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
+
+  @@unique([userId, indicadoId])
+  @@map("referral_program")
+}
+
+enum NotificationType {
+  NOVA_AULA
+  NOVO_COMENTARIO
+  PROGRESSO
+  CONQUISTA
+  INDICACAO
+  CURSO_NOVO
+  MENSAGEM
+}
+
+enum AchievementType {
+  CURSO
+  TEMPO_ESTUDO
+  INDICACAO
+  CONCLUSAO
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  ARCHIVED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  INSTRUCTOR
+}

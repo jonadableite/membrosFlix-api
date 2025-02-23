@@ -1,3 +1,4 @@
+// src/app/services/aulaService.js
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -8,7 +9,7 @@ export async function listAulas(courseId) {
 			where: { courseId: Number.parseInt(courseId, 10) },
 			include: {
 				instructor: {
-					select: { id: true, user: { select: { name: true } } },
+					select: { name: true },
 				},
 			},
 		});
@@ -68,14 +69,14 @@ export async function createAula(data, filePath) {
 			data: {
 				name,
 				description,
-				duration: Number(duration), // Conversão para número
+				duration: Number(duration),
 				path,
 				courseId: Number(courseId),
-				instructorId: Number(instructorId),
+				instructorId,
 			},
 		});
 	} catch (error) {
-		console.error("Erro ao criar aula:", error.message);
+		console.error("Erro ao criar aula:", error);
 		throw new Error("Erro ao criar aula");
 	}
 }

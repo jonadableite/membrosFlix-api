@@ -1,5 +1,7 @@
+import logger from "../../../utils/logger";
 export default function adminMiddleware(req, res, next) {
-	console.log(req.user); // Adicione isso para depurar
+	const adminLogger = logger.setContext("AdminMiddleware");
+	adminLogger.log(req.user);
 	if (req.user && req.user.role === "ADMIN") {
 		return next();
 	}

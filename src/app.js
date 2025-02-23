@@ -1,3 +1,4 @@
+// src/app.js
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
@@ -15,7 +16,13 @@ class App {
 	}
 
 	middlewares() {
-		this.app.use(cors());
+		this.app.use(
+			cors({
+				origin: "*",
+				methods: ["GET", "POST", "PUT", "DELETE"],
+				allowedHeaders: ["Content-Type", "Authorization"],
+			}),
+		);
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
 	}

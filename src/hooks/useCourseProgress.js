@@ -1,6 +1,7 @@
 //src/hooks/useCourseProgress.js
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import io from "socket.io-client";
+import logger from "../../utils/logger";
 import api from "../services/api";
 
 function useCourseProgress(courseId, aulaId, userId) {
@@ -18,7 +19,8 @@ function useCourseProgress(courseId, aulaId, userId) {
 
 		// Eventos de socket
 		newSocket.on("connect", () => {
-			console.log("Conectado ao WebSocket");
+			const hooksLogger = logger.setContext("hooks");
+			hooksLogger.log("Conectado ao WebSocket");
 			newSocket.emit("authenticate", userId);
 		});
 
@@ -62,7 +64,7 @@ function useCourseProgress(courseId, aulaId, userId) {
 
 			setProgress(newProgress);
 		} catch (error) {
-			console.error("Erro ao atualizar progresso", error);
+			hooksLogger.error("Erro ao atualizar progresso", error);
 		}
 	};
 

@@ -1,3 +1,4 @@
+// src/app/controllers/CursosController.js
 import * as Yup from "yup";
 import logger from "../../../utils/logger";
 import * as cursoService from "../services/cursoService";

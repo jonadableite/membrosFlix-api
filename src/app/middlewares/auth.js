@@ -31,7 +31,7 @@ export default async (req, res, next) => {
 			return res.status(401).json({ error: "Usuário não encontrado" });
 		}
 
-		req.user = user; // Defina req.user com o objeto do usuário
+		req.user = user;
 
 		return next();
 	} catch (err) {

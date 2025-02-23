@@ -1,4 +1,6 @@
+// src/config/websocket.js
 import { Server } from "socket.io";
+import logger from "../../utils/logger";
 
 // Mapeamento de usuários conectados
 const connectedUsers = new Map();
@@ -12,26 +14,27 @@ let io; // Variável para armazenar a instância do servidor WebSocket
 export function setupWebSocket(server) {
 	io = new Server(server, {
 		cors: {
-			origin: "http://localhost:5173", // Defina a origem como o endereço do frontend
+			origin: "*",
 			methods: ["GET", "POST"],
 		},
 	});
 
 	io.on("connection", (socket) => {
-		console.log("Novo cliente conectado");
+		const socketLogger = logger.createLogger("WebSocket");
+		socketLogger.log("Novo cliente conectado");
 
 		// Autenticação do socket
 		socket.on("authenticate", (userId) => {
 			connectedUsers.set(userId, socket.id);
-			console.log(`Usuário ${userId} autenticado`);
+			socketLogger.log(`Usuário ${userId} autenticado`);
 		});
 
 		// Desconexão
 		socket.on("disconnect", () => {
 			for (const [userId, socketId] of connectedUsers.entries()) {
 				if (socketId === socket.id) {
+					socketLogger.log(`Usuário ${userId} desconectado`);
 					connectedUsers.delete(userId);
-					console.log(`Usuário ${userId} desconectado`);
 					break;
 				}
 			}
@@ -54,7 +57,7 @@ export function setupWebSocket(server) {
 					io.to(userSocketId).emit("progressUpdated", updatedProgress);
 				}
 			} catch (error) {
-				console.error("Erro ao atualizar progresso:", error);
+				socketLogger.error("Erro ao atualizar progresso:", error);
 			}
 		});
 	});
@@ -64,21 +67,33 @@ export function setupWebSocket(server) {
 
 // Função para emitir notificações
 export function notifyUser(userId, notification) {
+	const socketLogger = logger.createLogger("WebSocket");
+
 	setTimeout(() => {
 		const userSocketId = connectedUsers.get(String(userId));
 		if (userSocketId && io) {
-			console.log(`Enviando notificação para o usuário ${userId}`);
+			socketLogger.log(`Enviando notificação para o usuário ${userId}`, {
+				userId,
+				notification
+			}, {
+				context: 'WebSocket Notification',
+				file: 'websocket.js'
+			});
+
 			io.to(userSocketId).emit("notification", notification);
 		} else {
-			console.error(
+			socketLogger.error(
 				`Não foi possível enviar notificação para o usuário ${userId}`,
+				{
+					userId,
+					userSocketId: userSocketId || 'não encontrado',
+					ioInitialized: !!io
+				},
+				{
+					context: 'WebSocket Notification Error',
+					file: 'websocket.js'
+				}
 			);
-			if (!userSocketId) {
-				console.error(`Socket ID não encontrado para o usuário ${userId}`);
-			}
-			if (!io) {
-				console.error("Instância do servidor WebSocket não inicializada");
-			}
 		}
-	}, 2000); // Atraso de 2 segundo
+	}, 2000); // Atraso de 2 segundos
 }

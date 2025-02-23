@@ -26,6 +26,8 @@ export async function listMaterials(courseId, lessonId) {
 	}
 }
 
+/*************  ✨ Codeium Command ⭐  *************/
+/******  6031167c-f7ac-46cf-86fe-2fc54cd7fc28  *******/
 export async function createMaterial(courseId, lessonId, data) {
 	try {
 		const { title, url } = data;

@@ -17,9 +17,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 try {
 	server.listen(PORT, () => {
-		logger.info(`🚀 Server ON, rodando na porta: ${PORT}...`); // Log após o servidor iniciar
+		logger.info(`🚀 Server ON, rodando na porta: ${PORT}...`);
 	});
 } catch (error) {
-	logger.error("Erro ao iniciar o servidor:", error); // Log de erro
+	logger.error("Erro ao iniciar o servidor:", error);
 	process.exit(1);
 }

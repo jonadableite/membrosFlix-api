@@ -1,3 +1,4 @@
+// services/notificationService.js
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -21,8 +22,6 @@ async function createNotification(userId, tipo, mensagem) {
 		return notification;
 	} catch (error) {
 		console.error("Erro ao criar notificação:", error);
-
-		// Log detalhado do erro
 		console.error("Detalhes do erro:", {
 			userId,
 			tipo,
@@ -30,7 +29,6 @@ async function createNotification(userId, tipo, mensagem) {
 			errorMessage: error.message,
 			errorCode: error.code,
 		});
-
 		throw error;
 	}
 }
@@ -58,14 +56,28 @@ async function markNotificationAsRead(notificationId) {
  * @param {string} userId - ID do usuário.
  * @returns {Promise<Array>} - Lista de notificações não lidas.
  */
-async function getUnreadNotifications(userId) {
+export async function getUnreadNotifications(userId) {
+	const token = localStorage.getItem("@membrosflix:token");
+
 	try {
-		return await prisma.notification.findMany({
-			where: { userId: String(userId), lida: false },
+		const response = await fetch(`/users/${userId}/notifications/unread`, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
 		});
+
+		if (!response.ok) {
+			// Tenta capturar o texto da resposta em vez de JSON
+			const errorText = await response.text();
+			throw new Error(`Erro ao obter notificações: ${errorText}`);
+		}
+
+		return await response.json();
 	} catch (error) {
 		console.error("Erro ao obter notificações não lidas:", error);
-		throw new Error("Erro ao obter notificações não lidas");
+		throw error;
 	}
 }
 

@@ -1,12 +1,16 @@
 {
 	"name": "membrosfilix-api",
 	"version": "1.0.0",
-	"description": "",
+	"description": "API para plataforma de membros",
 	"main": "src/server.js",
 	"scripts": {
-		"dev": "nodemon",
-		"migrate": "sequelize-cli db:migrate --config src/config/database.js --migrations-path src/database/migrations",
-		"migrate:undo": "sequelize-cli db:migrate:undo --config src/config/database.js --migrations-path src/database/migrations"
+		"dev": "tsx watch src/server.js",
+		"start": "node src/server.js",
+		"build": "babel src --out-dir dist --copy-files",
+		"prisma:generate": "prisma generate",
+		"prisma:migrate": "prisma migrate dev",
+		"prisma:migrate:prod": "prisma migrate deploy",
+		"prisma:studio": "prisma studio"
 	},
 	"author": {
 		"name": "Jonadab Leite",
@@ -16,34 +20,33 @@
 	"license": "ISC",
 	"dependencies": {
 		"@prisma/client": "^6.0.1",
-		"@types/socket.io-client": "^1.4.36",
 		"bcryptjs": "^2.4.3",
 		"cors": "^2.8.5",
+		"dayjs": "^1.11.13",
 		"dotenv": "^16.4.5",
 		"express": "^4.21.1",
 		"jsonwebtoken": "^9.0.2",
 		"minio": "^8.0.2",
 		"multer": "^1.4.5-lts.1",
 		"pg": "^8.13.1",
-		"pg-hstore": "^2.3.4",
 		"prisma": "^6.0.1",
 		"redis": "^4.7.0",
-		"sequelize": "^6.37.5",
 		"socket.io": "^4.8.1",
 		"socket.io-client": "^4.8.1",
 		"swagger-jsdoc": "^6.2.8",
 		"swagger-ui-express": "^5.0.1",
 		"uuid": "^11.0.3",
 		"winston": "^3.17.0",
-		"yuo": "^0.0.1",
 		"yup": "^1.4.0"
 	},
 	"devDependencies": {
+		"@babel/cli": "^7.26.4",
+		"@babel/core": "^7.26.9",
+		"@babel/preset-env": "^7.26.9",
 		"@biomejs/biome": "1.9.4",
 		"globals": "^15.12.0",
 		"nodemon": "^3.1.7",
 		"prettier": "^3.3.3",
-		"sequelize-cli": "^6.6.2",
-		"sucrase": "^3.35.0"
+		"tsx": "^4.19.3"
 	}
 }
