@@ -156,21 +156,38 @@ routes.get("/users/:userId/referrals", ReferralController.list);
 routes.post("/certificates", CertificateController.issue);
 routes.get("/users/:userId/certificates", CertificateController.list);
 
+
 // Rotas de notificações
-routes.post("/aulas", NotificationController.notifyNewLesson);
-routes.post("/materiais", NotificationController.notifyMaterialUpdate);
 routes.post(
-	"/comments/:commentId/reply",
-	NotificationController.notifyCommentReply,
+	'/usuarios/:userId/notificacoes/boas-vindas',
+	NotificationController.criarNotificacaoBemVindo
 );
-routes.post("/likes", NotificationController.notifyLikeReceived);
-routes.put(
-	"/notifications/:notificationId/read",
-	NotificationController.markAsRead,
-);
+
 routes.get(
-	"/users/:userId/notifications/unread",
-	NotificationController.getUnreadNotifications,
+	'/usuarios/:userId/notificacoes/nao-lidas',
+	NotificationController.buscarNotificacoesNaoLidas
+);
+
+routes.put(
+	'/notificacoes/:id/lida',
+	NotificationController.marcarComoLida
+);
+
+routes.put(
+	'/usuarios/:userId/notificacoes/marcar-todas-lidas',
+	NotificationController.marcarTodasComoLidas
+);
+
+routes.post(
+	'/aulas/notificar',
+	adminMiddleware,
+	NotificationController.notificarNovaAula
+);
+
+routes.post(
+	'/materiais/notificar',
+	adminMiddleware,
+	NotificationController.notificarAtualizacaoMaterial
 );
 
 export default routes;

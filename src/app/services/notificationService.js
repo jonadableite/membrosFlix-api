@@ -1,88 +1,154 @@
-// services/notificationService.js
+// src/app/services/notificationService.js
 import { PrismaClient } from "@prisma/client";
+import logger from "../../../utils/logger";
 
 const prisma = new PrismaClient();
 
-/**
- * Cria uma nova notificação para um usuário.
- * @param {string} userId - ID do usuário que receberá a notificação.
- * @param {string} tipo - Tipo da notificação.
- * @param {string} mensagem - Mensagem da notificação.
- * @returns {Promise<Object>} - A notificação criada.
- */
-async function createNotification(userId, tipo, mensagem) {
+export const createNotification = async (userId, type, message, data = null) => {
 	try {
 		const notification = await prisma.notification.create({
 			data: {
 				userId,
-				tipo: String(tipo), // Converte o tipo para string
-				mensagem,
+				tipo: type,
+				mensagem: message,
+				data: data ? JSON.stringify(data) : null,
 			},
 		});
+
+		logger.log("Notificação criada com sucesso", {
+			userId,
+			notificationId: notification.id,
+		});
+
 		return notification;
 	} catch (error) {
-		console.error("Erro ao criar notificação:", error);
-		console.error("Detalhes do erro:", {
-			userId,
-			tipo,
-			mensagem,
-			errorMessage: error.message,
-			errorCode: error.code,
-		});
+		logger.error("Erro ao criar notificação:", error);
 		throw error;
 	}
-}
+};
 
-/**
- * Marca uma notificação como lida.
- * @param {string} notificationId - ID da notificação a ser marcada como lida.
- * @returns {Promise<Object>} - A notificação atualizada.
- */
-async function markNotificationAsRead(notificationId) {
+export const markAsRead = async (notificationId) => {
 	try {
 		const notification = await prisma.notification.update({
 			where: { id: notificationId },
 			data: { lida: true },
 		});
+
 		return notification;
 	} catch (error) {
-		console.error("Erro ao marcar notificação como lida:", error);
-		throw new Error("Erro ao marcar notificação como lida");
+		logger.error("Erro ao marcar notificação como lida:", error);
+		throw error;
 	}
-}
+};
 
-/**
- * Obtém todas as notificações não lidas de um usuário.
- * @param {string} userId - ID do usuário.
- * @returns {Promise<Array>} - Lista de notificações não lidas.
- */
-export async function getUnreadNotifications(userId) {
-	const token = localStorage.getItem("@membrosflix:token");
-
+export const markAllAsRead = async (userId) => {
 	try {
-		const response = await fetch(`/users/${userId}/notifications/unread`, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
+		await prisma.notification.updateMany({
+			where: { userId, lida: false },
+			data: { lida: true },
+		});
+	} catch (error) {
+		logger.error("Erro ao marcar todas notificações como lidas:", error);
+		throw error;
+	}
+};
+
+export const getUnreadNotifications = async (userId) => {
+	try {
+		const notifications = await prisma.notification.findMany({
+			where: {
+				userId,
+				lida: false,
+			},
+			orderBy: {
+				createdAt: 'desc',
 			},
 		});
 
-		if (!response.ok) {
-			// Tenta capturar o texto da resposta em vez de JSON
-			const errorText = await response.text();
-			throw new Error(`Erro ao obter notificações: ${errorText}`);
-		}
-
-		return await response.json();
+		return notifications;
 	} catch (error) {
-		console.error("Erro ao obter notificações não lidas:", error);
+		logger.error("Erro ao buscar notificações não lidas:", error);
 		throw error;
 	}
-}
+};
 
+export const getAllNotifications = async (userId, page = 1, limit = 10) => {
+	try {
+		const skip = (page - 1) * limit;
+
+		const [notifications, total] = await Promise.all([
+			prisma.notification.findMany({
+				where: { userId },
+				orderBy: { createdAt: 'desc' },
+				skip,
+				take: limit,
+			}),
+			prisma.notification.count({
+				where: { userId },
+			}),
+		]);
+
+		return {
+			notifications,
+			pagination: {
+				total,
+				pages: Math.ceil(total / limit),
+				currentPage: page,
+				perPage: limit,
+			},
+		};
+	} catch (error) {
+		logger.error("Erro ao buscar todas as notificações:", error);
+		throw error;
+	}
+};
+
+export const deleteNotification = async (notificationId) => {
+	try {
+		await prisma.notification.delete({
+			where: { id: notificationId },
+		});
+	} catch (error) {
+		logger.error("Erro ao deletar notificação:", error);
+		throw error;
+	}
+};
+
+export const clearAllNotifications = async (userId) => {
+	try {
+		await prisma.notification.deleteMany({
+			where: { userId },
+		});
+	} catch (error) {
+		logger.error("Erro ao limpar todas as notificações:", error);
+		throw error;
+	}
+};
+
+export const countUnreadNotifications = async (userId) => {
+	try {
+		const count = await prisma.notification.count({
+			where: {
+				userId,
+				lida: false,
+			},
+		});
+
+		return count;
+	} catch (error) {
+		logger.error("Erro ao contar notificações não lidas:", error);
+		throw error;
+	}
+};
+
+// Exporta um objeto com todas as funções
 export default {
 	createNotification,
-	markNotificationAsRead,
+	markAsRead,
+	markAllAsRead,
 	getUnreadNotifications,
+	getAllNotifications,
+	deleteNotification,
+	clearAllNotifications,
+	countUnreadNotifications,
 };

@@ -1,99 +1,184 @@
+import { PrismaClient } from "@prisma/client";
 // src/config/websocket.js
 import { Server } from "socket.io";
+import { v4 as uuidv4 } from "uuid";
 import logger from "../../utils/logger";
 
-// Mapeamento de usuários conectados
-const connectedUsers = new Map();
-let io; // Variável para armazenar a instância do servidor WebSocket
+const prisma = new PrismaClient();
+const socketLogger = logger.createLogger("WebSocket");
 
-/**
- * Configura o WebSocket para o servidor HTTP fornecido.
- * @param {http.Server} server - Servidor HTTP.
- * @returns {Server} - Instância do servidor WebSocket.
- */
-export function setupWebSocket(server) {
-	io = new Server(server, {
-		cors: {
-			origin: "*",
-			methods: ["GET", "POST"],
-		},
-	});
+class WebSocketManager {
+	static instancia;
+	io = null;
+	usuariosConectados = new Map();
 
-	io.on("connection", (socket) => {
-		const socketLogger = logger.createLogger("WebSocket");
-		socketLogger.log("Novo cliente conectado");
+	constructor() {
+		if (WebSocketManager.instancia) {
+			return WebSocketManager.instancia;
+		}
+		WebSocketManager.instancia = this;
+	}
 
-		// Autenticação do socket
-		socket.on("authenticate", (userId) => {
-			connectedUsers.set(userId, socket.id);
-			socketLogger.log(`Usuário ${userId} autenticado`);
+	static getInstancia() {
+		if (!this.instancia) {
+			this.instancia = new WebSocketManager();
+		}
+		return this.instancia;
+	}
+
+	setupWebSocket(server) {
+		this.io = new Server(server, {
+			cors: {
+				origin: "*",
+				methods: ["GET", "POST"],
+			},
+			pingTimeout: 60000,
+			pingInterval: 25000,
 		});
 
-		// Desconexão
-		socket.on("disconnect", () => {
-			for (const [userId, socketId] of connectedUsers.entries()) {
-				if (socketId === socket.id) {
-					socketLogger.log(`Usuário ${userId} desconectado`);
-					connectedUsers.delete(userId);
-					break;
+		this.io.on("connection", (socket) => {
+			socketLogger.log("Novo cliente conectado");
+
+			socket.on("authenticate", (userId) => {
+				this.registrarUsuario(userId, socket.id);
+				socketLogger.log(`Usuário ${userId} autenticado`);
+			});
+
+			socket.on("disconnect", () => {
+				this.tratarDesconexao(socket);
+			});
+
+			socket.on("atualizarProgresso", async (dados) => {
+				try {
+					const progressoAtualizado = await this.atualizarProgressoUsuario(dados);
+					this.notificarAtualizacaoProgresso(dados.userId, progressoAtualizado);
+				} catch (error) {
+					socketLogger.error("Erro ao atualizar progresso:", error);
 				}
-			}
+			});
+
+			socket.on("entrarCurso", (cursoId) => {
+				socket.join(`curso:${cursoId}`);
+			});
 		});
 
-		// Evento de progresso de curso
-		socket.on("updateProgress", async (data) => {
-			try {
-				const { userId, courseId, aulaId, progress } = data;
-				const updatedProgress = await updateUserProgress(
+		return this.io;
+	}
+
+	registrarUsuario(userId, socketId) {
+		this.usuariosConectados.set(userId, socketId);
+		socketLogger.log(`Usuário ${userId} registrado com socket ${socketId}`);
+	}
+
+	tratarDesconexao(socket) {
+		for (const [userId, socketConectadoId] of this.usuariosConectados.entries()) {
+			if (socketConectadoId === socket.id) {
+				socketLogger.log(`Usuário ${userId} desconectado`);
+				this.usuariosConectados.delete(userId);
+				break;
+			}
+		}
+	}
+
+	async atualizarProgressoUsuario(dados) {
+		const { userId, courseId, aulaId, progress } = dados;
+
+		try {
+			const progressoAtualizado = await prisma.userProgress.upsert({
+				where: {
+					userId_courseId: {
+						userId,
+						courseId
+					}
+				},
+				update: {
+					aulaId,
+					progressoAula: progress,
+					progressoCurso: progress,
+					concluido: progress === 100,
+					ultimoProgresso: new Date()
+				},
+				create: {
 					userId,
 					courseId,
 					aulaId,
-					progress,
-				);
-
-				// Emitir notificação para o usuário
-				const userSocketId = connectedUsers.get(userId);
-				if (userSocketId) {
-					io.to(userSocketId).emit("progressUpdated", updatedProgress);
+					progressoAula: progress,
+					progressoCurso: progress,
+					concluido: progress === 100,
+					iniciadoEm: new Date(),
+					ultimoProgresso: new Date()
 				}
-			} catch (error) {
-				socketLogger.error("Erro ao atualizar progresso:", error);
-			}
-		});
-	});
-
-	return io;
-}
-
-// Função para emitir notificações
-export function notifyUser(userId, notification) {
-	const socketLogger = logger.createLogger("WebSocket");
-
-	setTimeout(() => {
-		const userSocketId = connectedUsers.get(String(userId));
-		if (userSocketId && io) {
-			socketLogger.log(`Enviando notificação para o usuário ${userId}`, {
-				userId,
-				notification
-			}, {
-				context: 'WebSocket Notification',
-				file: 'websocket.js'
 			});
 
-			io.to(userSocketId).emit("notification", notification);
-		} else {
-			socketLogger.error(
-				`Não foi possível enviar notificação para o usuário ${userId}`,
-				{
-					userId,
-					userSocketId: userSocketId || 'não encontrado',
-					ioInitialized: !!io
-				},
-				{
-					context: 'WebSocket Notification Error',
-					file: 'websocket.js'
-				}
-			);
+			return progressoAtualizado;
+		} catch (error) {
+			socketLogger.error("Erro ao atualizar progresso do usuário:", error);
+			throw error;
 		}
-	}, 2000); // Atraso de 2 segundos
+	}
+
+	notificarAtualizacaoProgresso(userId, progressoAtualizado) {
+		const socketIdUsuario = this.usuariosConectados.get(userId);
+
+		if (socketIdUsuario && this.io) {
+			this.io.to(socketIdUsuario).emit("progressoAtualizado", progressoAtualizado);
+		}
+	}
+
+	async notificarUsuario(userId, notificacao) {
+		const socketIdUsuario = this.usuariosConectados.get(String(userId));
+
+		try {
+			// Criar notificação no banco de dados
+			const notificacaoSalva = await prisma.notification.create({
+				data: {
+					id: uuidv4(),
+					userId,
+					tipo: notificacao.tipo,
+					mensagem: notificacao.mensagem,
+					dados: notificacao.dados ? JSON.stringify(notificacao.dados) : null,
+					lida: false
+				}
+			});
+
+			socketLogger.log(`Notificação criada para usuário ${userId}`, {
+				userId,
+				notificacaoId: notificacaoSalva.id
+			});
+
+			// Enviar notificação via WebSocket se o usuário estiver conectado
+			if (socketIdUsuario && this.io) {
+				this.io.to(socketIdUsuario).emit("notificacao", {
+					id: notificacaoSalva.id,
+					tipo: notificacaoSalva.tipo,
+					mensagem: notificacaoSalva.mensagem,
+					dados: notificacaoSalva.dados,
+					criadoEm: notificacaoSalva.criadoEm
+				});
+
+				socketLogger.log(`Notificação enviada para o usuário ${userId}`);
+			} else {
+				socketLogger.warn(`Usuário ${userId} não conectado. Notificação salva no banco.`);
+			}
+
+			return notificacaoSalva;
+		} catch (error) {
+			socketLogger.error("Erro ao enviar notificação:", error);
+			throw error;
+		}
+	}
+
+	transmitirParaCurso(cursoId, evento, dados) {
+		if (this.io) {
+			this.io.to(`curso:${cursoId}`).emit(evento, dados);
+			socketLogger.log(`Transmitindo evento ${evento} para curso ${cursoId}`);
+		}
+	}
+
+	getIO() {
+		return this.io;
+	}
 }
+
+const webSocketManager = WebSocketManager.getInstancia();
+export default webSocketManager;

@@ -1,5 +1,7 @@
+// src/app/services/userProgressService.js
 import { PrismaClient } from "@prisma/client";
-import { io } from "../../config/websocket";
+import logger from "../../../utils/logger";
+import { getIO } from "../../config/websocket";
 
 const prisma = new PrismaClient();
 
@@ -28,6 +30,10 @@ export async function updateUserProgress(userId, courseId, progressData) {
 			},
 		});
 
+		// Obtenha a instância do WebSocket
+		const io = getIO();
+
+		// Emita o evento de progresso atualizado
 		io.emit("progressUpdated", {
 			userId,
 			courseId,
@@ -38,7 +44,7 @@ export async function updateUserProgress(userId, courseId, progressData) {
 
 		return progress;
 	} catch (error) {
-		console.error("Erro ao atualizar progresso:", error);
+		logger.error("Erro ao atualizar progresso:", error);
 		throw error;
 	}
 }
@@ -66,7 +72,7 @@ export async function getUserProgress(userId, courseId) {
 
 		return progress;
 	} catch (error) {
-		console.error("Erro ao obter progresso:", error);
+		logger.error("Erro ao obter progresso:", error);
 		throw error;
 	}
 }
