@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
 import { promisify } from "util";
-import logger from "../../../utils/logger";
-import minioClient from "../../config/minioClient";
-import prisma from "../../prismaClient";
+import logger from "../../../utils/logger.js";
+import minioClient from "../../config/minioClient.js";
+import prisma from "../../prismaClient.js";
 
 const unlinkAsync = promisify(fs.unlink);
 

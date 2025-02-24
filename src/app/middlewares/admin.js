@@ -1,4 +1,4 @@
-import logger from "../../../utils/logger";
+import logger from "../../../utils/logger.js";
 export default function adminMiddleware(req, res, next) {
 	const adminLogger = logger.setContext("AdminMiddleware");
 	adminLogger.log(req.user);

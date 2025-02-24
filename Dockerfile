@@ -1,4 +1,4 @@
-# Usar imagem oficial do Node.js com Alpine Linux
+# Use uma imagem Node.js oficial como base
 FROM node:20-alpine3.19
 
 # Definir diretório de trabalho no container
@@ -13,15 +13,16 @@ RUN apk add --no-cache \
 
 # Copiar package.json e package-lock.json
 COPY package*.json ./
+COPY prisma ./prisma
 
 # Instalar dependências
-RUN npm ci --omit=dev
-
-# Copiar código fonte
-COPY . .
+RUN npm ci
 
 # Gerar cliente Prisma
 RUN npx prisma generate
+
+# Copiar código fonte
+COPY . .
 
 # Variáveis de ambiente
 ENV PORT=3007
@@ -32,4 +33,4 @@ ENV NODE_ENV=production
 EXPOSE 3007
 
 # Comando para iniciar a aplicação
-CMD ["npm", "start"]
+CMD ["npm", "run", "prod:start"]

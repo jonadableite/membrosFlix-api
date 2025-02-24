@@ -1,22 +1,22 @@
 // src/routes.js
 import { Router } from "express";
 import multer from "multer";
-import adminMiddleware from "./app/middlewares/admin";
-import authMiddleware from "./app/middlewares/auth";
-import multerConfig from "./config/multer";
+import adminMiddleware from "./app/middlewares/admin.js";
+import authMiddleware from "./app/middlewares/auth.js";
+import multerConfig from "./config/multer.js";
 
-import AulasController from "./app/controllers/AulasController";
-import CertificateController from "./app/controllers/CertificateController";
-import CommentController from "./app/controllers/CommentController";
-import CursosController from "./app/controllers/CursosController";
-import InstructorController from "./app/controllers/InstructorController";
-import LikeController from "./app/controllers/LikeController";
-import MaterialController from "./app/controllers/MaterialController";
-import NotificationController from "./app/controllers/NotificationController";
-import ReferralController from "./app/controllers/ReferralController";
-import SessionController from "./app/controllers/SessionController";
-import UserController from "./app/controllers/UserController";
-import UserProgressController from "./app/controllers/UserProgressController";
+import AulasController from "./app/controllers/AulasController.js";
+import CertificateController from "./app/controllers/CertificateController.js";
+import CommentController from "./app/controllers/CommentController.js";
+import CursosController from "./app/controllers/CursosController.js";
+import InstructorController from "./app/controllers/InstructorController.js";
+import LikeController from "./app/controllers/LikeController.js";
+import MaterialController from "./app/controllers/MaterialController.js";
+import NotificationController from "./app/controllers/NotificationController.js";
+import ReferralController from "./app/controllers/ReferralController.js";
+import SessionController from "./app/controllers/SessionController.js";
+import UserController from "./app/controllers/UserController.js";
+import UserProgressController from "./app/controllers/UserProgressController.js";
 
 const routes = new Router();
 const upload = multer(multerConfig);

@@ -1,7 +1,7 @@
 // src/app/controllers/ReferralController.js
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import * as certificateService from "../services/certificateService";
+import logger from "../../../utils/logger.js";
+import * as certificateService from "../services/certificateService.js";
 
 class CertificateController {
 	async issue(req, res) {

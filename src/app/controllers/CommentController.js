@@ -1,6 +1,6 @@
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import * as commentService from "../services/commentService";
+import logger from "../../../utils/logger.js";
+import * as commentService from "../services/commentService.js";
 
 class CommentController {
 	async create(req, res) {

@@ -1,5 +1,11 @@
-// swagger.js
-const swaggerJSDoc = require("swagger-jsdoc");
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+// src/swagger.js
+import swaggerJSDoc from 'swagger-jsdoc';
+
+// Obter o diretório atual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const swaggerDefinition = {
 	openapi: "3.0.0",
@@ -10,7 +16,7 @@ const swaggerDefinition = {
 	},
 	servers: [
 		{
-			url: "http://localhost:3001", // Sua URL base
+			url: "http://localhost:3007",
 		},
 	],
 	components: {
@@ -29,7 +35,10 @@ const swaggerDefinition = {
 
 const options = {
 	swaggerDefinition,
-	apis: ["./src/routes.js", "./src/app/controllers/*.js"], // Caminhos para seus controllers
+	apis: [
+		resolve(__dirname, 'routes.js'),
+		resolve(__dirname, 'app/controllers/*.js')
+	], // Caminhos absolutos para seus controllers
 };
 
 const swaggerSpec = swaggerJSDoc(options);

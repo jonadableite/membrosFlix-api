@@ -2,10 +2,10 @@ import fs from "fs";
 // src/app/controllers/AulasController.js
 import { PrismaClient } from "@prisma/client";
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import minioClient from "../../config/minioClient";
-import * as aulaService from "../services/aulaService";
-import notificationService from "../services/notificationService";
+import logger from "../../../utils/logger.js";
+import minioClient from "../../config/minioClient.js";
+import * as aulaService from "../services/aulaService.js";
+import notificationService from "../services/notificationService.js";
 
 const prisma = new PrismaClient();
 

@@ -1,7 +1,12 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // src/utils/logger.js
-const dayjs = require('dayjs');
-const fs = require('fs');
-const path = require('path');
+import dayjs from 'dayjs';
+
+// Obter o diretório atual usando import.meta.url
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Função para ler o package.json de forma segura
 const getPackageVersion = () => {
@@ -363,4 +368,5 @@ class Logger {
 
 // Exportar uma instância padrão
 const logger = new Logger();
-module.exports = logger;
+
+export default logger;

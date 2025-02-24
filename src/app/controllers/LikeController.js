@@ -1,6 +1,6 @@
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import * as likeService from "../services/likeService";
+import logger from "../../../utils/logger.js";
+import * as likeService from "../services/likeService.js";
 
 class LikeController {
 	async add(req, res) {

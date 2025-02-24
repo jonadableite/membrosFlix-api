@@ -1,7 +1,7 @@
+import fs from "node:fs";
 // src/app/services/cursoService.js
 import { PrismaClient } from "@prisma/client";
-import fs from "node:fs";
-import minioClient from "../../config/minioClient";
+import minioClient from "../../config/minioClient.js";
 
 const prisma = new PrismaClient();
 

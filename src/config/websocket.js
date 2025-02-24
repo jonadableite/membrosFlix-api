@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 // src/config/websocket.js
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
-import logger from "../../utils/logger";
+import logger from "../../utils/logger.js";
 
 const prisma = new PrismaClient();
 const socketLogger = logger.createLogger("WebSocket");
@@ -14,6 +14,7 @@ class WebSocketManager {
 
 	constructor() {
 		if (WebSocketManager.instancia) {
+			// biome-ignore lint/correctness/noConstructorReturn: <explanation>
 			return WebSocketManager.instancia;
 		}
 		WebSocketManager.instancia = this;

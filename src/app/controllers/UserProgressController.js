@@ -1,7 +1,7 @@
 // src/app/controllers/UserProgressController.js
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import * as userProgressService from "../services/userProgressService";
+import logger from "../../../utils/logger.js";
+import * as userProgressService from "../services/userProgressService.js";
 
 class UserProgressController {
 	async update(req, res) {

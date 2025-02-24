@@ -1,11 +1,13 @@
 {
 	"name": "membrosfilix-api",
 	"version": "1.0.0",
+	"type": "module",
 	"description": "API para plataforma de membros",
 	"main": "src/server.js",
 	"scripts": {
-		"dev": "tsx watch src/server.js",
-		"start": "node src/server.js",
+		"dev": "node --experimental-specifier-resolution=node src/server.js",
+		"start": "npm run prisma:generate && node src/server.js",
+		"prod:start": "npm run prisma:generate && NODE_ENV=production node --optimize-for-size --max-old-space-size=460 src/server.js",
 		"build": "babel src --out-dir dist --copy-files",
 		"prisma:generate": "prisma generate",
 		"prisma:migrate": "prisma migrate dev",
@@ -48,5 +50,8 @@
 		"nodemon": "^3.1.7",
 		"prettier": "^3.3.3",
 		"tsx": "^4.19.3"
+	},
+	"prisma": {
+		"schema": "./prisma/schema.prisma"
 	}
 }

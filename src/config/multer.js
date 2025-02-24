@@ -1,8 +1,12 @@
-// src/config/multer.js
 import multer from "multer";
 import fs from "node:fs";
 import { extname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { v4 as uuidv4 } from "uuid";
+
+// Obter o caminho do arquivo atual
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = resolve(__filename, '..');
 
 const uploadDirectory = resolve(__dirname, "..", "..", "uploads");
 

@@ -1,7 +1,7 @@
 // src/app/services/userProgressService.js
 import { PrismaClient } from "@prisma/client";
-import logger from "../../../utils/logger";
-import { getIO } from "../../config/websocket";
+import logger from "../../../utils/logger.js";
+import getIO from "../../config/websocket.js";
 
 const prisma = new PrismaClient();
 

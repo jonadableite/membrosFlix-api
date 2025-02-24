@@ -2,9 +2,9 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import webSocketManager from "../../config/websocket";
-import * as sessionService from "../services/sessionService";
+import logger from "../../../utils/logger.js";
+import webSocketManager from "../../config/websocket.js";
+import * as sessionService from "../services/sessionService.js";
 
 const prisma = new PrismaClient();
 const sessionLogger = logger.createLogger("SessionController");

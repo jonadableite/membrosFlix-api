@@ -2,10 +2,10 @@
 import "dotenv/config";
 import http from "http";
 import swaggerUi from "swagger-ui-express";
-import logger from "../utils/logger";
-import app from "./app";
-import webSocketManager from "./config/websocket";
-import swaggerSpec from "./swagger";
+import logger from "../utils/logger.js";
+import app from "./app/index.js";
+import webSocketManager from "./config/websocket.js";
+import swaggerSpec from "./swagger.js";
 
 // Configuração de tratamento de erros não capturados
 process.on('uncaughtException', (error) => {

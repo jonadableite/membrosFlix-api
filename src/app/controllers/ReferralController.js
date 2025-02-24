@@ -1,8 +1,8 @@
 // src/app/controllers/ReferralController.js
 
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import * as referralService from "../services/referralService";
+import logger from "../../../utils/logger.js";
+import * as referralService from "../services/referralService.js";
 
 class ReferralController {
 	async create(req, res) {

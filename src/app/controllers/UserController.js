@@ -1,6 +1,6 @@
 import * as Yup from "yup";
-import logger from "../../../utils/logger";
-import * as userService from "../services/userService";
+import logger from "../../../utils/logger.js";
+import * as userService from "../services/userService.js";
 
 class UserController {
 	async store(req, res) {

@@ -1,8 +1,8 @@
 // src/app/controllers/InstructorController.js
 
 import { PrismaClient } from "@prisma/client";
-import logger from "../../../utils/logger";
-import * as instructorService from "../services/instructorService";
+import logger from "../../../utils/logger.js";
+import * as instructorService from "../services/instructorService.js";
 
 // Inicializando o Prisma Client
 const prisma = new PrismaClient();
