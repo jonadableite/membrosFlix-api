@@ -1,139 +1,210 @@
-# MembrosFlix API
+# MembrosF lix API
 
-API para gerenciamento de cursos, aulas e progresso do usuário para a plataforma MembrosFlix.
+> Backend API RESTful para plataforma de cursos online
 
-## Descrição
+## 🚀 Stack
 
-Esta API permite criar, listar, visualizar, atualizar e excluir cursos, aulas e o progresso do usuário nos cursos.  Ela utiliza Node.js com Express, Sequelize para persistência de dados, Multer para upload de arquivos e Swagger para documentação.
+- **Runtime**: Node.js v22+
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **ORM**: Prisma
+- **Database**: PostgreSQL
+- **Auth**: JWT + bcrypt
+- **Validation**: Zod
+- **Real-time**: Socket.io
+- **Storage**: MinIO
+- **Logger**: Winston
 
-## Instalação
+## 📁 Estrutura
 
-1. Clone o repositório:
-
-```bash
-git clone https://github.com/jonadableite/membrosFlix-api.git
 ```
-2. Instale as dependências:
+src/
+├── modules/          # Features (DDD)
+│   ├── auth/         # Autenticação
+│   ├── user/         # Usuários
+│   ├── course/       # Cursos
+│   ├── lesson/       # Aulas
+│   ├── comment/      # Comentários
+│   ├── like/         # Likes
+│   └── notification/ # Notificações
+├── shared/           # Código compartilhado
+│   ├── database/     # Prisma client
+│   ├── errors/       # Error handling
+│   ├── events/       # Event emitter
+│   ├── logger/       # Winston
+│   └── middlewares/  # Express middlewares
+├── config/           # Configurações
+├── core/             # Base classes
+└── server.ts         # Entry point
+```
+
+## ⚡ Quick Start
 
 ```bash
-cd membrosFlix-api
-yarn install
-```
-# ou
-```bash
+# Install
 npm install
+
+# Setup database
+npx prisma generate
+npx prisma migrate dev
+
+# Configure .env
+cp .env.example .env
+# Edit .env with your credentials
+
+# Start
+npm run dev  # Port 3007
 ```
 
-3. Configure as variáveis de ambiente:
+## 🔐 Environment Variables
 
-Crie um arquivo .env na raiz do projeto e configure as seguintes variáveis:
 ```bash
-DATABASE_URL=<sua_url_de_conexao_com_o_banco_de_dados>
-APP_SECRET=<sua_chave_secreta_para_jwt>
-MINIO_ROOT_USER=<seu_minio_root_user>
-MINIO_ROOT_PASSWORD=<seu_minio_root_password>
-MINIO_SERVER_URL=<sua_minio_server_url>
+DATABASE_URL="postgresql://user:pass@localhost:5432/membrosflix"
+JWT_SECRET="minimum-32-characters"
+DEFAULT_TENANT_ID="uuid"
+MINIO_ENDPOINT="endpoint"
+MINIO_ACCESS_KEY="key"
+MINIO_SECRET_KEY="secret"
+PORT="3007"
 ```
 
-4. Execute as migrações:
+## 📡 API Endpoints
+
+### Auth
+
+```
+POST /api/v1/auth/login       # Login
+POST /api/v1/auth/register    # Signup
+GET  /api/v1/auth/me          # Current user
+```
+
+### Courses
+
+```
+GET  /api/v1/courses          # List
+GET  /api/v1/courses/:id      # Details
+```
+
+### Lessons
+
+```
+GET  /api/v1/courses/:courseId/lessons        # List
+GET  /api/v1/courses/:courseId/lessons/:id    # Details
+POST /api/v1/courses/:courseId/lessons        # Create (admin)
+```
+
+### Comments & Likes
+
+```
+GET  /api/v1/courses/:courseId/lessons/:id/comentarios     # List
+POST /api/v1/courses/:courseId/lessons/:id/comentarios     # Create
+POST /api/v1/courses/:courseId/lessons/:id/likes           # Toggle like
+GET  /api/v1/courses/:courseId/lessons/:id/likes/status    # Like status
+```
+
+### Notifications
+
+```
+GET /api/v1/notifications     # List
+PUT /api/v1/notifications/:id # Mark as read
+```
+
+## 🏗️ Architecture
+
+### SOLID Principles
+
+```
+Request → Route → Controller → Service → Repository → Prisma → Database
+```
+
+**Exemplo:**
+
+```typescript
+// Controller (HTTP handling)
+export class LessonController {
+  constructor(private service: LessonService) {}
+
+  show = asyncHandler(async (req, res) => {
+    const lesson = await this.service.findById(+req.params.id);
+    res.json({ success: true, data: lesson });
+  });
+}
+
+// Service (Business logic)
+export class LessonService {
+  constructor(private repository: LessonRepository) {}
+
+  async findById(id: number) {
+    const lesson = await this.repository.findById(id);
+    if (!lesson) throw AppError.notFound("Aula não encontrada");
+    return lesson;
+  }
+}
+
+// Repository (Data access)
+export class LessonRepository {
+  async findById(id: number) {
+    return prisma.aula.findUnique({ where: { id } });
+  }
+}
+```
+
+## 🔄 Event-Driven
+
+```typescript
+// Emit event
+const event = AppEventEmitter.createEvent("lesson.created", tenantId, userId, {
+  lessonId,
+  courseId,
+  lessonName,
+});
+await AppEventEmitter.getInstance().emit(event);
+
+// Subscribe to event
+eventEmitter.subscribe("lesson.created", {
+  handle: async (event) => {
+    // Create notifications for students
+  },
+});
+```
+
+## 🧪 Testing
+
 ```bash
-yarn sequelize db:migrate
+# Health check
+curl http://localhost:3007/health
+
+# Login
+curl -X POST http://localhost:3007/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"brayan@gmail.com","password":"123456"}'
+
+# Get courses (with token)
+curl -H "Authorization: Bearer <token>" \
+  http://localhost:3007/api/v1/courses
 ```
-# ou
+
+## 🐛 Common Issues
+
 ```bash
-npx sequelize-cli db:migrate
+# Check TypeScript
+npx tsc --noEmit
+
+# See Prisma queries
+DEBUG="prisma:query" npm run dev
+
+# Socket.io debug
+DEBUG="socket.io*" npm run dev
 ```
 
-Execução
-```bash
-yarn dev
-```
-# ou
-```bash
-npm run dev
-```
+## 📚 Documentation
 
-A API estará disponível em http://localhost:3001.
+- **Arquitetura**: [../. github/suzy/MEMBROSFLIX_ARCHITECTURE.md](../.github/suzy/MEMBROSFLIX_ARCHITECTURE.md)
+- **Desenvolvimento**: [../.github/suzy/DEVELOPMENT_GUIDE.md](../.github/suzy/DEVELOPMENT_GUIDE.md)
+- **Troubleshooting**: [../.github/suzy/TROUBLESHOOTING.md](../.github/suzy/TROUBLESHOOTING.md)
+- **API Reference**: [../.github/suzy/API_REFERENCE.md](../.github/suzy/API_REFERENCE.md)
 
-Documentação
-A documentação da API, gerada com Swagger, está disponível em http://localhost:3001/api-docs.
+---
 
-# Rotas
-
-Usuários:
-
-
-
-POST /users: Cria um novo usuário.
-
-GET /users: Lista todos os usuários (requer autenticação).
-
-GET /users/:id: Exibe um usuário específico (requer autenticação).
-
-PUT /users/:id: Atualiza um usuário (requer autenticação).
-
-DELETE /users/:id: Exclui um usuário (requer autenticação).
-
-
-Sessões:
-
-
-
-POST /sessions: Autentica um usuário e retorna um token JWT.
-
-
-Cursos:
-
-
-
-POST /cursos: Cria um novo curso (requer autenticação).
-
-GET /cursos: Lista todos os cursos (requer autenticação).
-
-GET /cursos/:id: Exibe um curso específico (requer autenticação).
-
-PUT /cursos/:id: Atualiza um curso (requer autenticação).
-
-DELETE /cursos/:id: Exclui um curso (requer autenticação).
-
-
-Aulas:
-
-
-
-POST /cursos/:courseId/aulas: Cria uma nova aula para um curso específico (requer autenticação).
-
-GET /cursos/:courseId/aulas: Lista todas as aulas de um curso específico (requer autenticação).
-
-GET /cursos/:courseId/aulas/:id: Exibe uma aula específica (requer autenticação).
-
-PUT /cursos/:courseId/aulas/:id: Atualiza uma aula (requer autenticação).
-
-DELETE /cursos/:courseId/aulas/:id: Exclui uma aula (requer autenticação).
-
-
-Progresso do Usuário:
-
-
-
-PUT /users/:userId/courses/:courseId/progress: Atualiza o progresso do usuário em um curso (requer autenticação).
-
-GET /users/:userId/courses/:courseId/progress: Exibe o progresso do usuário em um curso (requer autenticação).
-
-
-## Tecnologias
-
-[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/en/)
-[![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white)](https://sequelize.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Multer](https://img.shields.io/badge/Multer-FF5722?style=for-the-badge&logo=multer&logoColor=white)](https://github.com/expressjs/multer)
-[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)](https://swagger.io/)
-[![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
-[![MinIO](https://img.shields.io/badge/MinIO-000000?style=for-the-badge&logo=minio&logoColor=white)](https://min.io/)
-
-
-## Autor
-
-Jonadab Leite
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-JonadabLeite-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/jonadableite/)
+**Versão**: 1.0.0  
+**Port**: 3007

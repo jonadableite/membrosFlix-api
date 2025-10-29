@@ -1,4 +1,63 @@
-node_modules
-*.log
-tmp/
+# Dependências
+node_modules/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Compilação / Build
 dist/
+build/
+out/
+lib/
+tmp/
+temp/
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Logs
+*.log
+logs/
+debug.log
+error.log
+*.pid
+*.seed
+*.pid.lock
+
+# Cobertura de testes
+coverage/
+.nyc_output/
+
+# Configurações de ambiente
+.env
+.env.*
+!.env.example
+
+# Diretórios temporários do sistema
+.DS_Store
+Thumbs.db
+
+# Cache de ferramentas diversas
+.cache/
+.parcel-cache/
+.babel-cache/
+jest-cache/
+jest-dist/
+jest-temp/
+
+# Arquivos locais de dev
+*.local
+*.bak
+*.tmp
+
+# Arquivos do sistema operacional
+ehthumbs.db
+Icon?
+Desktop.ini

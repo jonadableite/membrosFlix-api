@@ -4,54 +4,77 @@ datasource db {
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["connectOrCreate", "transactionApi"]
+  provider = "prisma-client-js"
+}
+
+model Tenant {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  domain      String?  @unique @db.VarChar(255)
+  settings    Json?
+  isActive    Boolean  @default(true)
+  users       User[]
+  courses     Curso[]
+  instructors Instructor[]
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("tenants")
 }
 
 model User {
-  id           String @id @default(uuid()) @db.Uuid
-  name         String @db.VarChar(255)
-  email        String @unique @db.VarChar(255)
-  passwordHash String @db.VarChar(255)
+  id             String         @id @default(uuid()) @db.Uuid
+  tenantId       String         @db.Uuid
+  name           String         @db.VarChar(255)
+  email          String         @db.VarChar(255)
+  passwordHash   String         @db.VarChar(255)
   profilePicture String?
   bio            String?
   aulas          Aula[]
-  role UserRole @default(USER)
-  status Boolean? @default(true)
-  ultimoAcesso DateTime?
-  progress UserProgress[]
-  comments Comment[]
-  likes    Like[]
-  instructor Instructor?
+  role           UserRole       @default(STUDENT)
+  status         Boolean?       @default(true)
+  ultimoAcesso   DateTime?
+  progress       UserProgress[]
+  comments       Comment[]
+  likes          Like[]
+  instructor     Instructor?
+  enrollments    Enrollment[]
 
-  referralCode String? @unique
-  referredBy   String? @db.Uuid
-  referrer     User?   @relation("UserReferrals", fields: [referredBy], references: [id])
-  referrals    User[]  @relation("UserReferrals")
+  referralCode   String? @unique
+  referredBy     String? @db.Uuid
+  referrer       User?   @relation("UserReferrals", fields: [referredBy], references: [id])
+  referrals      User[]  @relation("UserReferrals")
 
   points         Int @default(0)
   referralPoints Int @default(0)
 
   notifications Notification[]
-  achievements UserAchievement[]
+  achievements  UserAchievement[]
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
+  @@unique([email, tenantId])
+  @@index([tenantId])
   @@map("users")
 }
 
 model Instructor {
   id        Int      @id @default(autoincrement())
+  tenantId  String   @db.Uuid
   userId    String   @unique @db.Uuid
   bio       String?
   expertise String[]
   courses   Curso[]
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
+  @@index([tenantId])
   @@map("instructors")
 }
 
@@ -84,7 +107,7 @@ model Notification {
   userId    String   @db.Uuid
   tipo      NotificationType
   mensagem  String
-  dados     Json?    // Alterado para dados em português
+  dados     Json?    
   lida      Boolean  @default(false)
   criadoEm  DateTime @default(now()) @db.Timestamptz(6)
   atualizadoEm DateTime @updatedAt @db.Timestamptz(6)
@@ -122,45 +145,62 @@ model Achievement {
 }
 
 model Curso {
-  id          Int          @id @default(autoincrement())
-  title       String       @db.VarChar(255)
-  description String?
-  path        String?      @db.VarChar(255)
-  thumbnail   String?      @db.VarChar(255)
-  status      CourseStatus @default(DRAFT)
-  totalAulas   Int  @default(0)
+  id           Int          @id @default(autoincrement())
+  tenantId     String       @db.Uuid
+  title        String       @db.VarChar(255)
+  description  String?
+  path         String?      @db.VarChar(255)
+  thumbnail    String?      @db.VarChar(255)
+  status       CourseStatus @default(DRAFT)
+  totalAulas   Int          @default(0)
   duracaoTotal Int?
   instructorId Int?
-  instructor   Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  instructor   Instructor?  @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  
+  // Campos adicionais para funcionalidades avançadas
+  price        Decimal?     @db.Decimal(10, 2)
+  category     String?      @db.VarChar(100)
+  level        String?      @db.VarChar(50)
+  tags         String[]     @default([])
+  slug         String?      @db.VarChar(255)
 
-  aulas    Aula[]
-  progress UserProgress[]
-  comments Comment[]
-  likes    Like[]
+  aulas       Aula[]
+  progress    UserProgress[]
+  comments    Comment[]
+  likes       Like[]
+  enrollments Enrollment[]
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
+  @@unique([slug, tenantId])
+  @@index([tenantId])
   @@map("curso")
 }
 
 model Aula {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(255)
-  description String?
-  duration Int
-  path String @db.VarChar(255)
-  courseId Int?
-  ordemAula Int @default(1)
+  id           Int          @id @default(autoincrement())
+  name         String       @db.VarChar(255)
+  description  String?
+  duration     Int
+  path         String       @db.VarChar(255)
+  courseId     Int?
+  ordemAula    Int          @default(1)
+  instructorId String       @db.Uuid
+  
+  // Campos adicionais para funcionalidades avançadas
+  status       LessonStatus @default(DRAFT)
+  isPreview    Boolean      @default(false)
+  thumbnail    String?      @db.VarChar(255)
+  videoUrl     String?      @db.VarChar(255)
 
-  curso Curso? @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
-  progress UserProgress[]
-  comments Comment[]
-  likes Like[]
-  materiais Material[]
-
-  instructorId String @db.Uuid
-  instructor User @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  curso      Curso?         @relation(fields: [courseId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  instructor User           @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  progress   UserProgress[]
+  comments   Comment[]
+  likes      Like[]
+  materiais  Material[]
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
@@ -231,9 +271,24 @@ model ReferralProgram {
   @@map("referral_program")
 }
 
+model Enrollment {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  courseId  Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Curso    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
 enum NotificationType {
   NOVA_AULA
   NOVO_COMENTARIO
+  RESPOSTA_COMENTARIO  // ✅ Quando alguém responde seu comentário
+  NOVA_CURTIDA         // ✅ Quando alguém curte sua aula/comentário
   PROGRESSO
   CONQUISTA
   INDICACAO
@@ -256,8 +311,14 @@ enum CourseStatus {
   ARCHIVED
 }
 
+enum LessonStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 enum UserRole {
-  USER
-  ADMIN
+  STUDENT
   INSTRUCTOR
+  ADMIN
 }

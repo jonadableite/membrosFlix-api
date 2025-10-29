@@ -1,0 +1,46 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "files.associations": {
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact"
+  },
+  "eslint.enable": false, // Disable ESLint if Biome is used
+  "biome.enable": true,
+  "biome.format.enable": true,
+  "biome.lint.enable": true,
+  "debug.javascript.autoAttachFilter": "smart",
+  "launch": {
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Program",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "program": "${workspaceFolder}/src/server.ts",
+        "preLaunchTask": "npm: build",
+        "outFiles": [
+          "${workspaceFolder}/dist/**/*.js"
+        ]
+      }
+    ]
+  },
+  "snippets": {
+    "typescript": {
+      "log": {
+        "prefix": "log",
+        "body": "console.log('$1', $1);"
+      },
+      "import": {
+        "prefix": "imp",
+        "body": "import { $1 } from '$2';"
+      },
+      "export_default_class": {
+        "prefix": "edc",
+        "body": "export default class $1 {\n  constructor() {\n    $2\n  }\n}"
+      }
+    }
+  }
+}
