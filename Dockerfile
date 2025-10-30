@@ -32,6 +32,9 @@ COPY docker-entrypoint.sh ./
 # O diretório types contém env.d.ts com tipos globais do Node.js
 COPY types ./types
 
+# Build TypeScript para JavaScript (gera /app/dist)
+RUN npm run build
+
 # Stage 2: Production
 FROM node:22-alpine AS production
 
