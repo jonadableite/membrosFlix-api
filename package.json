@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "node --import tsx/esm --experimental-specifier-resolution=node --watch src/server.ts",
-    "build": "tsc -p tsconfig.json --skipLibCheck && tscpaths -p tsconfig.json -s ./src -o ./dist",
+    "build": "tsc -p tsconfig.json --skipLibCheck",
     "build:watch": "tsc --watch",
     "build:prod": "npm run clean && npm run type-check && npm run build",
     "clean": "rimraf dist",
