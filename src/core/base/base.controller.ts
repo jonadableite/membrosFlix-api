@@ -1,8 +1,13 @@
-import type { Request, Response } from 'express';
-import type { BaseEntity, Service, ApiResponse, PaginatedResponse } from '@/core/interfaces/base.interface';
-import type { PaginationParams } from '@/core/types/common.types';
-import { AppError } from '@/shared/errors/app.error';
-import { asyncHandler } from '@/shared/utils/async-handler';
+import type { Request, Response } from "express";
+import type {
+  BaseEntity,
+  Service,
+  ApiResponse,
+  PaginatedResponse,
+} from "@/core/interfaces/base.interface";
+import type { PaginationParams } from "@/core/types/common.types";
+import { AppError } from "@/shared/errors/app.error";
+import { asyncHandler } from "@/shared/utils/async-handler";
 
 export abstract class BaseController<T extends BaseEntity> {
   protected service: Service<T>;
@@ -13,112 +18,127 @@ export abstract class BaseController<T extends BaseEntity> {
     this.entityName = entityName;
   }
 
-  index = asyncHandler(async (req: Request, res: Response): Promise<Response> => {
-    const { page = 1, limit = 10, sortBy, sortOrder = 'desc' } = req.query as PaginationParams;
-    
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Number(limit);
+  index = asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const {
+        page = 1,
+        limit = 10,
+        sortBy,
+        sortOrder = "desc",
+      } = req.query as PaginationParams;
 
-    const orderBy = sortBy ? { [sortBy]: sortOrder } : { createdAt: 'desc' };
+      const skip = (Number(page) - 1) * Number(limit);
+      const take = Number(limit);
 
-    const [items, total] = await Promise.all([
-      this.service.findMany({
-        skip,
-        take,
-        orderBy: orderBy as any
-      }),
-      this.getTotalCount(req)
-    ]);
+      const orderBy = sortBy ? { [sortBy]: sortOrder } : { createdAt: "desc" };
 
-    const response: PaginatedResponse<T> = {
-      success: true,
-      data: items,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        totalPages: Math.ceil(total / Number(limit))
+      const [items, total] = await Promise.all([
+        this.service.findMany({
+          skip,
+          take,
+          orderBy: orderBy as any,
+        }),
+        this.getTotalCount(req),
+      ]);
+
+      const response: PaginatedResponse<T> = {
+        success: true,
+        data: items,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          totalPages: Math.ceil(total / Number(limit)),
+        },
+      };
+
+      return res.json(response);
+    }
+  );
+
+  show = asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const { id } = req.params;
+
+      if (!id) {
+        throw new AppError("ID parameter is required", 400);
       }
-    };
 
-    return res.json(response);
-  });
+      const item = await this.service.findById(id);
 
-  show = asyncHandler(async (req: Request, res: Response): Promise<Response> => {
-    const { id } = req.params;
-    
-    if (!id) {
-      throw new AppError('ID parameter is required', 400);
+      if (!item) {
+        throw new AppError(`${this.entityName} not found`, 404);
+      }
+
+      const response: ApiResponse<T> = {
+        success: true,
+        data: item,
+      };
+
+      return res.json(response);
     }
-    
-    const item = await this.service.findById(id);
-    
-    if (!item) {
-      throw new AppError(`${this.entityName} not found`, 404);
+  );
+
+  store = asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const data = await this.validateCreateData(req);
+
+      const item = await this.service.create(data);
+
+      const response: ApiResponse<T> = {
+        success: true,
+        data: item,
+        message: `${this.entityName} created successfully`,
+      };
+
+      return res.status(201).json(response);
     }
+  );
 
-    const response: ApiResponse<T> = {
-      success: true,
-      data: item
-    };
+  update = asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const { id } = req.params;
 
-    return res.json(response);
-  });
+      if (!id) {
+        throw new AppError("ID parameter is required", 400);
+      }
 
-  store = asyncHandler(async (req: Request, res: Response): Promise<Response> => {
-    const data = await this.validateCreateData(req);
-    
-    const item = await this.service.create(data);
+      const data = await this.validateUpdateData(req);
 
-    const response: ApiResponse<T> = {
-      success: true,
-      data: item,
-      message: `${this.entityName} created successfully`
-    };
+      const item = await this.service.update(id, data);
 
-    return res.status(201).json(response);
-  });
+      const response: ApiResponse<T> = {
+        success: true,
+        data: item,
+        message: `${this.entityName} updated successfully`,
+      };
 
-  update = asyncHandler(async (req: Request, res: Response): Promise<Response> => {
-    const { id } = req.params;
-    
-    if (!id) {
-      throw new AppError('ID parameter is required', 400);
+      return res.json(response);
     }
-    
-    const data = await this.validateUpdateData(req);
-    
-    const item = await this.service.update(id, data);
+  );
 
-    const response: ApiResponse<T> = {
-      success: true,
-      data: item,
-      message: `${this.entityName} updated successfully`
-    };
+  destroy = asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+      const { id } = req.params;
 
-    return res.json(response);
-  });
+      if (!id) {
+        throw new AppError("ID parameter is required", 400);
+      }
 
-  destroy = asyncHandler(async (req: Request, res: Response): Promise<Response> => {
-    const { id } = req.params;
-    
-    if (!id) {
-      throw new AppError('ID parameter is required', 400);
+      await this.service.delete(id);
+
+      const response: ApiResponse = {
+        success: true,
+        message: `${this.entityName} deleted successfully`,
+      };
+
+      return res.json(response);
     }
-    
-    await this.service.delete(id);
-
-    const response: ApiResponse = {
-      success: true,
-      message: `${this.entityName} deleted successfully`
-    };
-
-    return res.json(response);
-  });
+  );
 
   protected abstract validateCreateData(req: Request): Promise<any>;
   protected abstract validateUpdateData(req: Request): Promise<any>;
-  
+
   protected async getTotalCount(_req: Request): Promise<number> {
     // Override in child classes for filtered counts
     const items = await this.service.findMany();

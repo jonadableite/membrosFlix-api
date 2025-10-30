@@ -1,12 +1,12 @@
 import type { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { AppError } from "@/shared/errors/app.error";
-import { env } from "@/config/env";
+import { AppError } from "../errors/app.error.js";
+import { env } from "../../config/env.js";
 import type {
   AuthenticatedRequest,
   JwtPayload,
   UserRole,
-} from "@/core/types/common.types";
+} from "../../core/types/common.types.js";
 
 export const authenticate = async (
   req: AuthenticatedRequest,

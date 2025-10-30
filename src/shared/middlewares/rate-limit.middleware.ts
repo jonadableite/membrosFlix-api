@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 import { Request, Response } from "express";
-import { AppError } from "@/shared/errors/app.error";
+import { AppError } from "../errors/app.error.js";
 
 // General rate limiter - Increased limits for development
 export const generalLimiter = rateLimit({

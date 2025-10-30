@@ -16,8 +16,7 @@ COPY . .
 
 # Gerar Prisma Client, Build TypeScript e ajustar aliases
 RUN npx prisma generate && \
-    npx tsc -p tsconfig.json && \
-    npx tscpaths -p tsconfig.json -s ./src -o ./dist
+    npx tsc -p tsconfig.json 
 
 # ==========================
 # Stage 2: Production

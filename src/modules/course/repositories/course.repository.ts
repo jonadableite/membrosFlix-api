@@ -1,10 +1,10 @@
 import type { Curso, CourseStatus, Prisma } from "@prisma/client";
-import { BaseRepository } from "@/core/base/base.repository";
-import { prisma } from "@/shared/database/prisma";
+import { BaseRepository } from "../../../core/base/base.repository";
+import { prisma } from "../../../shared/database/prisma";
 import type {
   Repository,
   FindManyOptions,
-} from "@/core/interfaces/base.interface";
+} from "../../../core/interfaces/base.interface";
 import type {
   CourseQueryDto,
   CourseResponseDto,

@@ -1,5 +1,5 @@
-import { BaseRepository } from "@/core/base/base.repository";
-import { prisma } from "@/shared/database/prisma";
+import { BaseRepository } from "../../../core/base/base.repository.js";
+import { prisma } from "../../../shared/database/prisma.js";
 import type { Instructor, Prisma } from "@prisma/client";
 
 export class InstructorRepository extends BaseRepository<Instructor> {

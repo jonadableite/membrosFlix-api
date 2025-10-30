@@ -1,6 +1,6 @@
 import { EventEmitter as NodeEventEmitter } from "events";
 import type { AppEvent, EventHandler } from "./event.types";
-import logger from "@/shared/logger/logger";
+import logger from "../logger/logger.js";
 
 export class AppEventEmitter {
   private static instance: AppEventEmitter;

@@ -5,8 +5,8 @@ import {
   livenessCheck,
   detailedHealthCheck,
 } from "./health.controller";
-import { correlationMiddleware } from "@/shared/middlewares/correlation.middleware";
-import { tenantContext } from "@/shared/middlewares/tenant.middleware";
+import { correlationMiddleware } from "../middlewares/correlation.middleware.js";
+import { tenantContext } from "../middlewares/tenant.middleware.js";
 
 const router = Router();
 

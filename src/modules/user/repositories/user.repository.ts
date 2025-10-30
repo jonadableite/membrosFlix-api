@@ -1,7 +1,7 @@
 import type { User } from "@prisma/client";
-import { BaseRepository } from "@/core/base/base.repository";
-import { prisma } from "@/shared/database/prisma";
-import type { Repository } from "@/core/interfaces/base.interface";
+import { BaseRepository } from "../../../core/base/base.repository";
+import { prisma } from "../../../shared/database/prisma";
+import type { Repository } from "../../../core/interfaces/base.interface";
 
 export interface UserRepository extends Repository<User> {
   findByEmail(email: string): Promise<User | null>;
@@ -35,11 +35,11 @@ export class UserRepositoryImpl
 
   async findByEmail(email: string): Promise<User | null> {
     return await prisma.user.findUnique({
-      where: { 
-        email_tenantId: { 
-          email, 
-          tenantId: "58ea5458-bf4b-43b3-8c86-9d3f4564b2d0" 
-        } 
+      where: {
+        email_tenantId: {
+          email,
+          tenantId: "58ea5458-bf4b-43b3-8c86-9d3f4564b2d0",
+        },
       },
     });
   }

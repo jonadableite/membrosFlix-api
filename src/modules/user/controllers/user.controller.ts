@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import { BaseController } from "@/core/base/base.controller";
+import { BaseController } from "../../../core/base/base.controller";
 import type { User } from "@prisma/client";
 import type { UserService } from "../services/user.service";
-import type { AuthenticatedRequest } from "@/core/types/common.types";
+import type { AuthenticatedRequest } from "../../../core/types/common.types";
 import {
   createUserSchema,
   updateUserSchema,
@@ -10,8 +10,8 @@ import {
   type CreateUserDto,
   type UpdateUserDto,
 } from "../dtos/user.dto";
-import { asyncHandler } from "@/shared/utils/async-handler";
-import { AppError } from "@/shared/errors/app.error";
+import { asyncHandler } from "../../../shared/utils/async-handler";
+import { AppError } from "../../../shared/errors/app.error";
 
 export class UserController extends BaseController<User> {
   constructor(private userService: UserService) {

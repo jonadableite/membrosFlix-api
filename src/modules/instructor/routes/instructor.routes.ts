@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { InstructorController } from "../controllers/instructor.controller";
-import { authorize } from "@/shared/middlewares/auth.middleware";
+import { authorize } from "../../../shared/middlewares/auth.middleware";
 
 const instructorRoutes = Router();
 const instructorController = new InstructorController();

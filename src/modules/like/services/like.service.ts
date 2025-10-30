@@ -1,5 +1,5 @@
-import { prisma } from "@/shared/database/prisma";
-import logger from "@/shared/logger/logger";
+import { prisma } from "../../../shared/database/prisma";
+import logger from "../../../shared/logger/logger";
 import { ILikeService, LikeStatsDto } from "../interfaces/like.interface";
 
 export class LikeService implements ILikeService {

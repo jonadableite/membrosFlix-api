@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { authRoutes } from "@/modules/auth/routes/auth.routes";
-import { userRoutes } from "@/modules/user/routes/user.routes";
-import { courseRoutes } from "@/modules/course/routes/course.routes";
+import { authRoutes } from "../modules/auth/routes/auth.routes.js";
+import { userRoutes } from "../modules/user/routes/user.routes.js";
+import { courseRoutes } from "../modules/course/routes/course.routes.js";
 import {
   lessonRoutes,
   courseLessonRoutes,
   instructorLessonRoutes,
-} from "@/modules/lesson/routes/lesson.routes";
-import { notificationRoutes } from "@/modules/notification/routes/notification.routes";
-import { instructorRoutes } from "@/modules/instructor/routes/instructor.routes";
-import { commentRoutes } from "@/modules/comment/routes/comment.routes";
+} from "../modules/lesson/routes/lesson.routes.js";
+import { notificationRoutes } from "../modules/notification/routes/notification.routes.js";
+import { instructorRoutes } from "../modules/instructor/routes/instructor.routes.js";
+import { commentRoutes } from "../modules/comment/routes/comment.routes.js";
 
 const routes = Router();
 

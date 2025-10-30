@@ -1,9 +1,9 @@
 import type { Notification, User } from "@prisma/client";
-import { BaseRepository } from "@/core/base/base.repository";
+import { BaseRepository } from "../../../core/base/base.repository";
 import type {
   Repository,
   FindManyOptions,
-} from "@/core/interfaces/base.interface";
+} from "../../../core/interfaces/base.interface";
 
 // Extend Notification to match BaseEntity
 interface NotificationEntity extends Notification {
@@ -46,7 +46,7 @@ export class NotificationRepositoryImpl
         ...where,
         userId,
       },
-      orderBy: orderBy || { criadoEm: "desc" },  // ✅ FIX: usar criadoEm ao invés de createdAt
+      orderBy: orderBy || { criadoEm: "desc" }, // ✅ FIX: usar criadoEm ao invés de createdAt
       skip,
       take,
     });

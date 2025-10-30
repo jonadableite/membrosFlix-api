@@ -1,4 +1,4 @@
-import logger from "@/shared/logger/logger";
+import logger from "../logger/logger.js";
 
 /**
  * Execute multiple async operations in parallel with error handling

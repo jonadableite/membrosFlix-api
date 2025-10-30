@@ -1,7 +1,7 @@
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
-import { env } from "@/config/env";
-import { getCorrelationId } from "@/shared/middlewares/correlation.middleware";
+import { env } from "../../config/env.js";
+import { getCorrelationId } from "../middlewares/correlation.middleware.js";
 
 // Cores ANSI aprimoradas para diferentes níveis
 const colors = {

@@ -5,12 +5,12 @@ interface NotificationEntity extends Notification {
   createdAt: Date;
   updatedAt: Date;
 }
-import { BaseService } from "@/core/base/base.service";
-import { AppError } from "@/shared/errors/app.error";
+import { BaseService } from "../../../core/base/base.service";
+import { AppError } from "../../../shared/errors/app.error";
 import type {
   Service,
   FindManyOptions,
-} from "@/core/interfaces/base.interface";
+} from "../../../core/interfaces/base.interface";
 import type { NotificationRepository } from "../repositories/notification.repository";
 import type {
   NotificationResponseDto,
@@ -21,13 +21,13 @@ import {
   createNotificationSchema,
   updateNotificationSchema,
 } from "../dtos/notification.dto";
-import { eventEmitter } from "@/shared/events/event.emitter";
+import { eventEmitter } from "../../../shared/events/event.emitter";
 import type {
   LessonCreatedEvent,
   CoursePublishedEvent,
   UserEnrolledEvent,
-} from "@/shared/events/event.types";
-import logger from "@/shared/logger/logger";
+} from "../../../shared/events/event.types";
+import logger from "../../../shared/logger/logger";
 
 export interface NotificationService extends Service<NotificationEntity> {
   createNotification(
@@ -132,7 +132,7 @@ export class NotificationServiceImpl
         ...options.where,
         userId,
       },
-      orderBy: { criadoEm: "desc" } as any,  // ✅ FIX: usar criadoEm ao invés de createdAt
+      orderBy: { criadoEm: "desc" } as any, // ✅ FIX: usar criadoEm ao invés de createdAt
     });
 
     return notifications.map((notification) =>

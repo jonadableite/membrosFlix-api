@@ -5,7 +5,7 @@ import app from "./app";
 import swaggerSpec from "./swagger";
 import { coloredLogger } from "./shared/logger/colored.logger";
 // import { SocketService } from "./shared/websocket/socket.service";
-import { initializeMinIOBuckets } from "@/modules/uploads/lib/minio.client";
+import { initializeMinIOBuckets } from "./modules/uploads/lib/minio.client.js";
 
 // Configuration for handling uncaught errors
 process.on("uncaughtException", (error: Error) => {

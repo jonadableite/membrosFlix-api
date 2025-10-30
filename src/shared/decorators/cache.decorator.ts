@@ -1,5 +1,5 @@
-import { redisClient } from "@/shared/cache/redis.client";
-import logger from "@/shared/logger/logger";
+import { redisClient } from "../cache/redis.client.js";
+import logger from "../logger/logger.js";
 
 interface CacheOptions {
   ttl?: number; // Time to live in seconds

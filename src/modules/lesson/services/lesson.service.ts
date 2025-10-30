@@ -1,14 +1,14 @@
 import type { Aula } from "@prisma/client";
-import { BaseService } from "@/core/base/base.service";
-import { AppError } from "@/shared/errors/app.error";
+import { BaseService } from "../../../core/base/base.service";
+import { AppError } from "../../../shared/errors/app.error";
 import type {
   Service,
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "@/core/interfaces/base.interface";
+} from "../../../core/interfaces/base.interface";
 import type { LessonRepository } from "../repositories/lesson.repository";
-import type { CourseRepository } from "@/modules/course/repositories/course.repository";
+import type { CourseRepository } from "../../../modules/course/repositories/course.repository";
 import type {
   CreateLessonDto,
   UpdateLessonDto,
@@ -24,8 +24,11 @@ import {
   updateLessonSchema,
   reorderLessonsSchema,
 } from "../dtos/lesson.dto";
-import { eventEmitter, AppEventEmitter } from "@/shared/events/event.emitter";
-import logger from "@/shared/logger/logger";
+import {
+  eventEmitter,
+  AppEventEmitter,
+} from "../../../shared/events/event.emitter";
+import logger from "../../../shared/logger/logger";
 
 export interface LessonService extends Service<Aula> {
   createLesson(data: CreateLessonDto): Promise<LessonResponseDto>;

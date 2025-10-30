@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
-import { AppError } from "@/shared/errors/app.error";
-import logger from "@/shared/logger/logger";
-import type { AuthenticatedRequest } from "@/core/types/common.types";
+import { AppError } from "../errors/app.error.js";
+import logger from "../logger/logger.js";
+import type { AuthenticatedRequest } from "../../core/types/common.types.js";
 
 export interface TenantRequest extends AuthenticatedRequest {
   tenantId?: string;

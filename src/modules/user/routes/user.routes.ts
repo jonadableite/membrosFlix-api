@@ -1,8 +1,11 @@
-import { Router } from 'express';
-import { UserController } from '../controllers/user.controller';
-import { UserServiceImpl } from '../services/user.service';
-import { UserRepositoryImpl } from '../repositories/user.repository';
-import { authenticate, authorize } from '@/shared/middlewares/auth.middleware';
+import { Router } from "express";
+import { UserController } from "../controllers/user.controller";
+import { UserServiceImpl } from "../services/user.service";
+import { UserRepositoryImpl } from "../repositories/user.repository";
+import {
+  authenticate,
+  authorize,
+} from "../../../shared/middlewares/auth.middleware";
 
 // Initialize dependencies
 const userRepository = new UserRepositoryImpl();
@@ -81,7 +84,7 @@ const userRoutes = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.post('/', userController.store);
+userRoutes.post("/", userController.store);
 
 // Protected routes
 userRoutes.use(authenticate);
@@ -115,7 +118,7 @@ userRoutes.use(authenticate);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.get('/profile', userController.profile);
+userRoutes.get("/profile", userController.profile);
 
 /**
  * @swagger
@@ -168,7 +171,7 @@ userRoutes.get('/profile', userController.profile);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.put('/profile', userController.updateProfile);
+userRoutes.put("/profile", userController.updateProfile);
 
 /**
  * @swagger
@@ -217,7 +220,7 @@ userRoutes.put('/profile', userController.updateProfile);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.put('/change-password', userController.changePassword);
+userRoutes.put("/change-password", userController.changePassword);
 
 /**
  * @swagger
@@ -282,7 +285,7 @@ userRoutes.put('/change-password', userController.changePassword);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.get('/', authorize('ADMIN'), userController.usersWithStats);
+userRoutes.get("/", authorize("ADMIN"), userController.usersWithStats);
 
 /**
  * @swagger
@@ -333,7 +336,7 @@ userRoutes.get('/', authorize('ADMIN'), userController.usersWithStats);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.get('/email/:email', authorize('ADMIN'), userController.findByEmail);
+userRoutes.get("/email/:email", authorize("ADMIN"), userController.findByEmail);
 
 /**
  * @swagger
@@ -383,7 +386,11 @@ userRoutes.get('/email/:email', authorize('ADMIN'), userController.findByEmail);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.get('/referral/:code', authorize('ADMIN'), userController.findByReferralCode);
+userRoutes.get(
+  "/referral/:code",
+  authorize("ADMIN"),
+  userController.findByReferralCode
+);
 
 /**
  * @swagger
@@ -466,6 +473,10 @@ userRoutes.get('/referral/:code', authorize('ADMIN'), userController.findByRefer
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRoutes.post('/:id/award-points', authorize('ADMIN'), userController.awardPoints);
+userRoutes.post(
+  "/:id/award-points",
+  authorize("ADMIN"),
+  userController.awardPoints
+);
 
 export { userRoutes };

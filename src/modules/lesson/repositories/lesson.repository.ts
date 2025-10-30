@@ -1,12 +1,12 @@
 import type { Aula, Prisma } from "@prisma/client";
-import { BaseRepository } from "@/core/base/base.repository";
-import { prisma } from "@/shared/database/prisma";
+import { BaseRepository } from "../../../core/base/base.repository.js";
+import { prisma } from "../../../shared/database/prisma.js";
 import type {
   Repository,
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "@/core/interfaces/base.interface";
+} from "../../../core/interfaces/base.interface.js";
 import type {
   LessonQueryDto,
   LessonResponseDto,

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import helmet from "helmet";
-import { AppError } from "@/shared/errors/app.error";
-import logger from "@/shared/logger/logger";
+import { AppError } from "../errors/app.error.js";
+import logger from "../logger/logger.js";
 
 /**
  * Advanced security middleware configuration

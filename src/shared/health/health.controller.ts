@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { prisma } from "@/shared/database/prisma";
-import { redisClient } from "@/shared/cache/redis.client";
-import { eventEmitter } from "@/shared/events/event.emitter";
-import { CorrelatedRequest } from "@/shared/middlewares/correlation.middleware";
+import { prisma } from "../database/prisma.js";
+import { redisClient } from "../cache/redis.client.js";
+import { eventEmitter } from "../events/event.emitter.js";
+import { CorrelatedRequest } from "../middlewares/correlation.middleware.js";
 
 interface HealthCheck {
   status: "healthy" | "unhealthy";

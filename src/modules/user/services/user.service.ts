@@ -1,11 +1,19 @@
-import type { User } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
-import { BaseService } from '@/core/base/base.service';
-import { AppError } from '@/shared/errors/app.error';
-import type { UserRepository } from '../repositories/user.repository';
-import type { CreateUserDto, UserResponseDto, UserWithStatsDto } from '../dtos/user.dto';
-import type { FindManyOptions, CreateData, UpdateData } from '@/core/interfaces/base.interface';
+import type { User } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import { BaseService } from "../../../core/base/base.service";
+import { AppError } from "../../../shared/errors/app.error";
+import type { UserRepository } from "../repositories/user.repository";
+import type {
+  CreateUserDto,
+  UserResponseDto,
+  UserWithStatsDto,
+} from "../dtos/user.dto";
+import type {
+  FindManyOptions,
+  CreateData,
+  UpdateData,
+} from "../../../core/interfaces/base.interface";
 
 export interface UserService {
   // Base service methods
@@ -15,13 +23,17 @@ export interface UserService {
   create(data: CreateData<User>): Promise<User>;
   update(id: string, data: UpdateData<User>): Promise<User>;
   delete(id: string): Promise<void>;
-  
+
   // User-specific methods
   createUser(data: CreateUserDto): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
   findByReferralCode(referralCode: string): Promise<User | null>;
   updateLastAccess(id: string): Promise<void>;
-  changePassword(id: string, currentPassword: string, newPassword: string): Promise<void>;
+  changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void>;
   incrementPoints(id: string, points: number): Promise<User>;
   incrementReferralPoints(id: string, points: number): Promise<User>;
   findUsersWithStats(options?: {
@@ -34,21 +46,23 @@ export interface UserService {
 
 export class UserServiceImpl extends BaseService<User> implements UserService {
   constructor(private userRepository: UserRepository) {
-    super(userRepository, 'User');
+    super(userRepository, "User");
   }
 
   async createUser(data: CreateUserDto): Promise<User> {
     // Check if email already exists
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) {
-      throw AppError.conflict('E-mail já está em uso');
+      throw AppError.conflict("E-mail já está em uso");
     }
 
     // Check if referral code already exists (if provided)
     if (data.referralCode) {
-      const existingReferralCode = await this.userRepository.findByReferralCode(data.referralCode);
+      const existingReferralCode = await this.userRepository.findByReferralCode(
+        data.referralCode
+      );
       if (existingReferralCode) {
-        throw AppError.conflict('Código de referência já está em uso');
+        throw AppError.conflict("Código de referência já está em uso");
       }
     }
 
@@ -56,7 +70,7 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
     if (data.referredBy) {
       const referrer = await this.userRepository.findById(data.referredBy);
       if (!referrer) {
-        throw AppError.badRequest('Usuário referenciador não encontrado');
+        throw AppError.badRequest("Usuário referenciador não encontrado");
       }
     }
 
@@ -70,7 +84,7 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
     // Get or use default tenant ID
     const tenantId = data.tenantId || process.env.DEFAULT_TENANT_ID;
     if (!tenantId) {
-      throw AppError.badRequest('Tenant ID é obrigatório');
+      throw AppError.badRequest("Tenant ID é obrigatório");
     }
 
     const userData = {
@@ -99,7 +113,7 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
 
   async findByEmail(email: string): Promise<User | null> {
     if (!email) {
-      throw AppError.badRequest('E-mail é obrigatório');
+      throw AppError.badRequest("E-mail é obrigatório");
     }
 
     return await this.userRepository.findByEmail(email);
@@ -107,7 +121,7 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
 
   async findByReferralCode(referralCode: string): Promise<User | null> {
     if (!referralCode) {
-      throw AppError.badRequest('Código de referência é obrigatório');
+      throw AppError.badRequest("Código de referência é obrigatório");
     }
 
     return await this.userRepository.findByReferralCode(referralCode);
@@ -117,24 +131,33 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
     await this.userRepository.updateLastAccess(id);
   }
 
-  async changePassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
     const user = await this.findByIdOrThrow(id);
 
     // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash
+    );
     if (!isCurrentPasswordValid) {
-      throw AppError.badRequest('Senha atual incorreta');
+      throw AppError.badRequest("Senha atual incorreta");
     }
 
     // Hash new password
     const newPasswordHash = await bcrypt.hash(newPassword, 12);
 
-    await this.userRepository.update(id, { passwordHash: newPasswordHash } as any);
+    await this.userRepository.update(id, {
+      passwordHash: newPasswordHash,
+    } as any);
   }
 
   async incrementPoints(id: string, points: number): Promise<User> {
     if (points <= 0) {
-      throw AppError.badRequest('Pontos devem ser maior que zero');
+      throw AppError.badRequest("Pontos devem ser maior que zero");
     }
 
     return await this.userRepository.incrementPoints(id, points);
@@ -142,20 +165,24 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
 
   async incrementReferralPoints(id: string, points: number): Promise<User> {
     if (points <= 0) {
-      throw AppError.badRequest('Pontos de referência devem ser maior que zero');
+      throw AppError.badRequest(
+        "Pontos de referência devem ser maior que zero"
+      );
     }
 
     return await this.userRepository.incrementReferralPoints(id, points);
   }
 
-  async findUsersWithStats(options: {
-    skip?: number;
-    take?: number;
-    search?: string;
-  } = {}): Promise<UserWithStatsDto[]> {
+  async findUsersWithStats(
+    options: {
+      skip?: number;
+      take?: number;
+      search?: string;
+    } = {}
+  ): Promise<UserWithStatsDto[]> {
     const users = await this.userRepository.findUsersWithStats(options);
 
-    return users.map(user => ({
+    return users.map((user) => ({
       ...this.toResponseDto(user),
       totalCourses: 0, // This would need to be calculated based on enrollments
       completedCourses: 0, // This would need to be calculated based on progress
@@ -186,7 +213,10 @@ export class UserServiceImpl extends BaseService<User> implements UserService {
     // Additional business validation can be added here
   }
 
-  protected override async validateUpdate(_id: string, _data: any): Promise<void> {
+  protected override async validateUpdate(
+    _id: string,
+    _data: any
+  ): Promise<void> {
     // Additional business validation can be added here
   }
 

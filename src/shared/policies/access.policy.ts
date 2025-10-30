@@ -1,6 +1,6 @@
 import type { User, Curso, Aula } from "@prisma/client";
-import { AppError } from "@/shared/errors/app.error";
-import logger from "@/shared/logger/logger";
+import { AppError } from "../errors/app.error.js";
+import logger from "../logger/logger.js";
 
 export interface AccessContext {
   user: User;

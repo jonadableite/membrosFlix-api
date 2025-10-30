@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { NotificationService } from "../services/notification.service";
-import { AppError } from "@/shared/errors/app.error";
-import { coloredLogger } from "@/shared/logger/colored.logger";
+import { AppError } from "../../../shared/errors/app.error";
+import { coloredLogger } from "../../../shared/logger/colored.logger";
 
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}
@@ -12,48 +12,58 @@ export class NotificationController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log('🔔 [CONTROLLER] getUserNotifications START');
+      console.log("🔔 [CONTROLLER] getUserNotifications START");
       const userId = (req as any).user?.id;
-      console.log('🔔 [CONTROLLER] userId:', userId);
-      
-      const tenantId = (req as any).tenantId || 'default';
-      console.log('🔔 [CONTROLLER] tenantId:', tenantId);
-      
+      console.log("🔔 [CONTROLLER] userId:", userId);
+
+      const tenantId = (req as any).tenantId || "default";
+      console.log("🔔 [CONTROLLER] tenantId:", tenantId);
+
       const { page = 1, limit = 10, tipo, lida } = req.query;
-      console.log('🔔 [CONTROLLER] Query params:', { page, limit, tipo, lida });
+      console.log("🔔 [CONTROLLER] Query params:", { page, limit, tipo, lida });
 
       const options = {
         page: Number(page),
         limit: Number(limit),
         where: {
           ...(tipo && { tipo: tipo as any }),
-          ...(lida !== undefined && { lida: lida === 'true' }),
+          ...(lida !== undefined && { lida: lida === "true" }),
         },
       };
-      console.log('🔔 [CONTROLLER] Options:', options);
+      console.log("🔔 [CONTROLLER] Options:", options);
 
-      console.log('🔔 [CONTROLLER] Calling notificationService.getUserNotifications...');
+      console.log(
+        "🔔 [CONTROLLER] Calling notificationService.getUserNotifications..."
+      );
       const notifications = await this.notificationService.getUserNotifications(
         userId,
         tenantId,
         options
       );
-      console.log('🔔 [CONTROLLER] Notifications fetched:', notifications.length);
+      console.log(
+        "🔔 [CONTROLLER] Notifications fetched:",
+        notifications.length
+      );
 
-      console.log('🔔 [CONTROLLER] Calling notificationService.getUnreadCount...');
+      console.log(
+        "🔔 [CONTROLLER] Calling notificationService.getUnreadCount..."
+      );
       const unreadCount = await this.notificationService.getUnreadCount(
         userId,
         tenantId
       );
-      console.log('🔔 [CONTROLLER] Unread count:', unreadCount);
+      console.log("🔔 [CONTROLLER] Unread count:", unreadCount);
 
-      coloredLogger.notification(`User ${userId} retrieved ${notifications.length} notifications`, {
-        userId,
-        tenantId,
-        page,
-        limit,
-        unreadCount,
-      });
+      coloredLogger.notification(
+        `User ${userId} retrieved ${notifications.length} notifications`,
+        {
+          userId,
+          tenantId,
+          page,
+          limit,
+          unreadCount,
+        }
+      );
 
       res.status(200).json({
         success: true,
@@ -128,11 +138,14 @@ export class NotificationController {
 
       await this.notificationService.markAsRead(id, userId, tenantId);
 
-      coloredLogger.notification(`User ${userId} marked notification ${id} as read`, {
-        userId,
-        tenantId,
-        notificationId: id,
-      });
+      coloredLogger.notification(
+        `User ${userId} marked notification ${id} as read`,
+        {
+          userId,
+          tenantId,
+          notificationId: id,
+        }
+      );
 
       res.status(200).json({
         success: true,
@@ -154,10 +167,13 @@ export class NotificationController {
 
       await this.notificationService.markAllAsRead(userId, tenantId);
 
-      coloredLogger.notification(`User ${userId} marked all notifications as read`, {
-        userId,
-        tenantId,
-      });
+      coloredLogger.notification(
+        `User ${userId} marked all notifications as read`,
+        {
+          userId,
+          tenantId,
+        }
+      );
 
       res.status(200).json({
         success: true,
@@ -182,11 +198,14 @@ export class NotificationController {
         tenantId
       );
 
-      coloredLogger.notification(`User ${userId} checked unread count: ${unreadCount}`, {
-        userId,
-        tenantId,
-        unreadCount,
-      });
+      coloredLogger.notification(
+        `User ${userId} checked unread count: ${unreadCount}`,
+        {
+          userId,
+          tenantId,
+          unreadCount,
+        }
+      );
 
       res.status(200).json({
         success: true,

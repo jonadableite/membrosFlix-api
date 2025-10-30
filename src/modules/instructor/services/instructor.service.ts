@@ -3,7 +3,7 @@ import type {
   CreateInstructorDTO,
   UpdateInstructorDTO,
 } from "../dtos/instructor.dto";
-import { AppError } from "@/shared/errors/app.error";
+import { AppError } from "../../../shared/errors/app.error";
 import type { Instructor } from "@prisma/client";
 
 export class InstructorService {

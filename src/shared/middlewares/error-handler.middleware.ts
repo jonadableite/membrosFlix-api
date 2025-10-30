@@ -1,8 +1,8 @@
-import type { Request, Response, NextFunction } from 'express';
-import type { ApiResponse } from '@/core/interfaces/base.interface';
-import { AppError } from '@/shared/errors/app.error';
-import { logger } from '@/config/logger';
-import { ZodError } from 'zod';
+import type { Request, Response, NextFunction } from "express";
+import type { ApiResponse } from "../../core/interfaces/base.interface";
+import { AppError } from "../../shared/errors/app.error";
+import { logger } from "../../config/logger";
+import { ZodError } from "zod";
 
 export const errorHandler = (
   error: Error,
@@ -11,7 +11,7 @@ export const errorHandler = (
   _next: NextFunction
 ): Response => {
   let statusCode = 500;
-  let message = 'Internal server error';
+  let message = "Internal server error";
   let errors: string[] = [];
 
   // Handle custom AppError
@@ -22,65 +22,64 @@ export const errorHandler = (
   // Handle Zod validation errors
   else if (error instanceof ZodError) {
     statusCode = 400;
-    message = 'Validation error';
-    errors = error.issues.map(err => `${err.path.join('.')}: ${err.message}`);
+    message = "Validation error";
+    errors = error.issues.map((err) => `${err.path.join(".")}: ${err.message}`);
   }
   // Handle Prisma errors
-  else if (error.name === 'PrismaClientKnownRequestError') {
+  else if (error.name === "PrismaClientKnownRequestError") {
     const prismaError = error as any;
-    
+
     switch (prismaError.code) {
-      case 'P2002':
+      case "P2002":
         statusCode = 409;
-        message = 'Resource already exists';
+        message = "Resource already exists";
         break;
-      case 'P2025':
+      case "P2025":
         statusCode = 404;
-        message = 'Resource not found';
+        message = "Resource not found";
         break;
       default:
         statusCode = 400;
-        message = 'Database error';
+        message = "Database error";
     }
   }
   // Handle JWT errors
-  else if (error.name === 'JsonWebTokenError') {
+  else if (error.name === "JsonWebTokenError") {
     statusCode = 401;
-    message = 'Invalid token';
-  }
-  else if (error.name === 'TokenExpiredError') {
+    message = "Invalid token";
+  } else if (error.name === "TokenExpiredError") {
     statusCode = 401;
-    message = 'Token expired';
+    message = "Token expired";
   }
   // Handle Multer errors
-  else if (error.name === 'MulterError') {
+  else if (error.name === "MulterError") {
     statusCode = 400;
     message = `File upload error: ${error.message}`;
   }
 
   // Log error for debugging
   if (statusCode >= 500) {
-    logger.error('Internal server error:', {
+    logger.error("Internal server error:", {
       error: error.message,
       stack: error.stack,
       url: req.url,
       method: req.method,
       ip: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get("User-Agent"),
     });
   } else {
-    logger.warn('Client error:', {
+    logger.warn("Client error:", {
       error: error.message,
       url: req.url,
       method: req.method,
-      statusCode
+      statusCode,
     });
   }
 
   const response: ApiResponse = {
     success: false,
     message,
-    ...(errors.length > 0 && { errors })
+    ...(errors.length > 0 && { errors }),
   };
 
   return res.status(statusCode).json(response);
@@ -89,7 +88,7 @@ export const errorHandler = (
 export const notFoundHandler = (req: Request, res: Response): Response => {
   const response: ApiResponse = {
     success: false,
-    message: `Route ${req.originalUrl} not found`
+    message: `Route ${req.originalUrl} not found`,
   };
 
   return res.status(404).json(response);

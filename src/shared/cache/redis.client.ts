@@ -1,6 +1,6 @@
 import Redis from "ioredis";
-import { env } from "@/config/env";
-import logger from "@/shared/logger/logger";
+import { env } from "../../config/env.js";
+import logger from "../logger/logger.js";
 
 class RedisClient {
   private client: Redis | null = null;

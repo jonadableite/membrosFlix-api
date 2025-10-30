@@ -1,12 +1,12 @@
 import type { Curso } from "@prisma/client";
-import { BaseService } from "@/core/base/base.service";
-import { AppError } from "@/shared/errors/app.error";
+import { BaseService } from "../../../core/base/base.service";
+import { AppError } from "../../../shared/errors/app.error";
 import type {
   Service,
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "@/core/interfaces/base.interface";
+} from "../../../core/interfaces/base.interface";
 import type { CourseRepository } from "../repositories/course.repository";
 import type {
   CreateCourseDto,
@@ -17,8 +17,8 @@ import type {
   CourseStatsDto,
 } from "../dtos/course.dto";
 import { createCourseSchema, updateCourseSchema } from "../dtos/course.dto";
-import { Cache } from "@/shared/decorators/cache.decorator";
-import { invalidateEntityCache } from "@/shared/decorators/cache.decorator";
+import { Cache } from "../../../shared/decorators/cache.decorator";
+import { invalidateEntityCache } from "../../../shared/decorators/cache.decorator";
 
 export interface CourseService extends Service<Curso> {
   createCourse(data: CreateCourseDto): Promise<CourseResponseDto>;

@@ -1,6 +1,6 @@
 import winston from "winston";
 import { v4 as uuidv4 } from "uuid";
-import { env } from "@/config/env";
+import { env } from "../../config/env.js";
 
 // Custom format for structured logging
 const structuredFormat = winston.format.combine(

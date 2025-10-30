@@ -1,9 +1,12 @@
-import { Router } from 'express';
-import { AuthController } from '../controllers/auth.controller';
-import { AuthServiceImpl } from '../services/auth.service';
-import { UserServiceImpl } from '@/modules/user/services/user.service';
-import { UserRepositoryImpl } from '@/modules/user/repositories/user.repository';
-import { authenticate, optionalAuth } from '@/shared/middlewares/auth.middleware';
+import { Router } from "express";
+import { AuthController } from "../controllers/auth.controller";
+import { AuthServiceImpl } from "../services/auth.service";
+import { UserServiceImpl } from "../../user/services/user.service";
+import { UserRepositoryImpl } from "../../user/repositories/user.repository";
+import {
+  authenticate,
+  optionalAuth,
+} from "../../../shared/middlewares/auth.middleware";
 
 // Initialize dependencies
 const userRepository = new UserRepositoryImpl();
@@ -74,7 +77,7 @@ const authRoutes = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.post('/login', authController.login);
+authRoutes.post("/login", authController.login);
 
 /**
  * @swagger
@@ -149,7 +152,7 @@ authRoutes.post('/login', authController.login);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.post('/register', authController.register);
+authRoutes.post("/register", authController.register);
 
 /**
  * @swagger
@@ -199,7 +202,7 @@ authRoutes.post('/register', authController.register);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.post('/refresh-token', authController.refreshToken);
+authRoutes.post("/refresh-token", authController.refreshToken);
 
 /**
  * @swagger
@@ -235,7 +238,7 @@ authRoutes.post('/refresh-token', authController.refreshToken);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.post('/forgot-password', authController.forgotPassword);
+authRoutes.post("/forgot-password", authController.forgotPassword);
 
 /**
  * @swagger
@@ -275,7 +278,7 @@ authRoutes.post('/forgot-password', authController.forgotPassword);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.post('/reset-password', authController.resetPassword);
+authRoutes.post("/reset-password", authController.resetPassword);
 
 /**
  * @swagger
@@ -311,7 +314,7 @@ authRoutes.post('/reset-password', authController.resetPassword);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.get('/validate-token', optionalAuth, authController.validateToken);
+authRoutes.get("/validate-token", optionalAuth, authController.validateToken);
 
 /**
  * @swagger
@@ -337,7 +340,7 @@ authRoutes.get('/validate-token', optionalAuth, authController.validateToken);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.post('/logout', authenticate, authController.logout);
+authRoutes.post("/logout", authenticate, authController.logout);
 
 /**
  * @swagger
@@ -368,6 +371,6 @@ authRoutes.post('/logout', authenticate, authController.logout);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-authRoutes.get('/me', authenticate, authController.me);
+authRoutes.get("/me", authenticate, authController.me);
 
 export { authRoutes };

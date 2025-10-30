@@ -1,18 +1,18 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ES2022",
+    "moduleResolution": "Node",
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
-      "@config/*": ["./config/*"],
-      "@core/*": ["./core/*"],
-      "@modules/*": ["./modules/*"],
-      "@shared/*": ["./shared/*"]
+      "@config/*": ["config/*"],
+      "@core/*": ["core/*"],
+      "@modules/*": ["modules/*"],
+      "@shared/*": ["shared/*"]
     },
     "strict": false,
     "noImplicitAny": false,
@@ -42,19 +42,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "incremental": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo",
-
-    // 🔹 Novas flags recomendadas para evitar erros de tipos implícitos
-    "types": [],
-    "typeRoots": ["./node_modules/@types"]
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["src/**/*", "types/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
-  "ts-node": {
-    "esm": true,
-    "experimentalSpecifierResolution": "node"
-  },
-  "tsx": {
-    "esm": true
-  }
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
