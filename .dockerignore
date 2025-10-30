@@ -61,7 +61,7 @@ nodemon.json
 biome.json
 jest.config.js
 # tsconfig.json é necessário para build - NÃO ignorar
-types
+# types é necessário para declarações TypeScript - NÃO ignorar
 
 # Docker
 Dockerfile

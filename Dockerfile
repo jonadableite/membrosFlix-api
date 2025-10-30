@@ -26,11 +26,11 @@ RUN npx prisma generate
 # Copiar arquivos de configuração necessários para build
 COPY tsconfig.json ./
 COPY src ./src
-COPY types ./types
 COPY docker-entrypoint.sh ./
 
-# Build TypeScript para JavaScript
-RUN npm run build
+# Copiar types (removido do .dockerignore - necessário para declarações TypeScript)
+# O diretório types contém env.d.ts com tipos globais do Node.js
+COPY types ./types
 
 # Stage 2: Production
 FROM node:22-alpine AS production
