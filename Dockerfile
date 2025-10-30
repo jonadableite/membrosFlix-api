@@ -9,7 +9,7 @@ RUN apk add --no-cache bash git python3 make g++ openssl openssl-dev
 
 # Copiamos apenas package.json e package-lock.json para cache
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copiamos todo o projeto
 COPY . ./
