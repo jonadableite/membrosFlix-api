@@ -47,9 +47,10 @@ build.log
 build-errors.log
 server.log
 
-# Uploads (podem ser grandes)
+# Uploads (somente a raiz de uploads fora de src)
 uploads/*
 !uploads/.gitkeep
+!src/modules/uploads/**
 
 # Scripts de desenvolvimento
 scripts/*
