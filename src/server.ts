@@ -4,7 +4,7 @@ import swaggerUi from "swagger-ui-express";
 import app from "./app.js";
 import swaggerSpec from "./swagger.js";
 import { coloredLogger } from "./shared/logger/colored.logger.js";
-// import { SocketService } from "./shared/websocket/socket.service";
+import { SocketService } from "./shared/websocket/socket.service.js";
 import { initializeMinIOBuckets } from "./modules/uploads/lib/minio.client.js";
 
 // Configuration for handling uncaught errors
@@ -45,7 +45,7 @@ const startServer = async (): Promise<void> => {
 
     server.listen(Number(PORT), HOST, () => {
       // Initialize Socket.io after server starts
-      // const socketService = new SocketService(server);
+      const socketService = new SocketService(server);
 
       coloredLogger.start(`Server ON, running on ${HOST}:${PORT}...`);
       coloredLogger.info(

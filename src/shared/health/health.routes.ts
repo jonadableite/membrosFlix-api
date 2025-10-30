@@ -4,7 +4,7 @@ import {
   readinessCheck,
   livenessCheck,
   detailedHealthCheck,
-} from "./health.controller";
+} from "./health.controller.js";
 import { correlationMiddleware } from "../middlewares/correlation.middleware.js";
 import { tenantContext } from "../middlewares/tenant.middleware.js";
 

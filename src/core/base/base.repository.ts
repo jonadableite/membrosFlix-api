@@ -22,9 +22,24 @@ export abstract class BaseRepository<T extends BaseEntity>
     return (this.prisma as any)[this.modelName];
   }
 
+  // Converte ID para o tipo correto (Int ou String)
+  protected parseId(id: string | number): string | number {
+    // Se já é número, retorna direto
+    if (typeof id === 'number') return id;
+    
+    // Se é string numérica, converte para número
+    const numId = Number(id);
+    if (!isNaN(numId) && id === String(numId)) {
+      return numId;
+    }
+    
+    // Caso contrário, mantém como string (UUID)
+    return id;
+  }
+
   async findById(id: string | number): Promise<T | null> {
     return await this.model.findUnique({
-      where: { id },
+      where: { id: this.parseId(id) },
     });
   }
 
@@ -65,7 +80,7 @@ export abstract class BaseRepository<T extends BaseEntity>
   ): Promise<T | null> {
     return await this.model.findUnique({
       where: {
-        id,
+        id: this.parseId(id),
         tenantId,
       },
     });
@@ -79,14 +94,14 @@ export abstract class BaseRepository<T extends BaseEntity>
 
   async update(id: string | number, data: UpdateData<T>): Promise<T> {
     return await this.model.update({
-      where: { id },
+      where: { id: this.parseId(id) },
       data,
     });
   }
 
   async delete(id: string | number): Promise<void> {
     await this.model.delete({
-      where: { id },
+      where: { id: this.parseId(id) },
     });
   }
 
@@ -96,7 +111,7 @@ export abstract class BaseRepository<T extends BaseEntity>
 
   async exists(id: string | number): Promise<boolean> {
     const count = await this.model.count({
-      where: { id },
+      where: { id: this.parseId(id) },
     });
     return count > 0;
   }

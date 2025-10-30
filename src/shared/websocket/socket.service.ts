@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import { coloredLogger } from '../logger/colored.logger';
+import { coloredLogger } from '../logger/colored.logger.js';
 
 export class SocketService {
   private io: SocketIOServer;
