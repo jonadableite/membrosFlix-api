@@ -4,25 +4,25 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import swaggerUi from "swagger-ui-express";
-import routes from "./routes";
-import swaggerSpec from "./swagger";
-import healthRoutes from "./shared/health/health.routes";
-import { AppError } from "./shared/errors/app.error";
+import routes from "./routes/index.js";
+import swaggerSpec from "./swagger.js";
+import healthRoutes from "./shared/health/health.routes.js";
+import { AppError } from "./shared/errors/app.error.js";
 import {
   securityMiddleware,
   sanitizeRequest,
   requestSizeLimiter,
   sqlInjectionProtection,
   xssProtection,
-} from "./shared/middlewares/security.middleware";
+} from "./shared/middlewares/security.middleware.js";
 import {
   coloredLogger,
   httpLoggerMiddleware,
-} from "./shared/logger/colored.logger";
-import { generalLimiter } from "./shared/middlewares/rate-limit.middleware";
+} from "./shared/logger/colored.logger.js";
+import { generalLimiter } from "./shared/middlewares/rate-limit.middleware.js";
 import {
   tenantContext,
-} from "./shared/middlewares/tenant.middleware";
+} from "./shared/middlewares/tenant.middleware.js";
 
 // Define __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);

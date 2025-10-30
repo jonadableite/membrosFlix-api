@@ -2,10 +2,10 @@ import "dotenv/config";
 import http from "http";
 import swaggerUi from "swagger-ui-express";
 import app from "./app.js";
-import swaggerSpec from "./swagger";
-import { coloredLogger } from "./shared/logger/colored.logger";
+import swaggerSpec from "./swagger.js";
+import { coloredLogger } from "./shared/logger/colored.logger.js";
 // import { SocketService } from "./shared/websocket/socket.service";
-import { initializeMinIOBuckets } from "./modules/uploads/lib/minio.client";
+import { initializeMinIOBuckets } from "./modules/uploads/lib/minio.client.js";
 
 // Configuration for handling uncaught errors
 process.on("uncaughtException", (error: Error) => {
