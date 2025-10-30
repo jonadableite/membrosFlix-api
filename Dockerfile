@@ -14,7 +14,7 @@ COPY . .
 # Build completo com Prisma + TypeScript + tsc-alias
 RUN npx prisma generate && \
     npx tsc -p tsconfig.json && \
-    npx tsc-alias -p tsconfig.json
+    npx tscpaths -p tsconfig.json -s ./src -o ./dist
 
 # ==========================
 # Stage 2: Production
