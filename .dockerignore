@@ -47,7 +47,7 @@ build.log
 build-errors.log
 server.log
 
-# Uploads (somente a raiz de uploads fora de src)
+# Uploads (somente raiz externa)
 uploads/*
 !uploads/.gitkeep
 !src/modules/uploads/**
@@ -61,11 +61,8 @@ nodemon.json
 .babelrc
 biome.json
 jest.config.js
-# tsconfig.json é necessário para build - NÃO ignorar
-# types é necessário para declarações TypeScript - NÃO ignorar
 
 # Docker
 Dockerfile
 .dockerignore
 docker-compose.yml
-
