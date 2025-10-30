@@ -478,7 +478,7 @@ courseLessonRoutes.get("/:id/comentarios", async (req, res) => {
     const user = (req as any).user;
     const userId = user?.id;
 
-    const comments = await commentService.getCommentsByLesson(lessonId, userId);
+    const comments = await commentService.getCommentsByLesson(lessonId);
 
     res.json({
       success: true,

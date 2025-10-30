@@ -20,7 +20,7 @@
  */
 
 import { Like } from "@prisma/client";
-import { CreateLikeDto, LikeResponseDto, LikeStatsDto } from "../interfaces/like.interface";
+import { CreateLikeDto, LikeStatsDto } from "../interfaces/like.interface";
 
 // ============================================================================
 // INTERFACES PARA ESTRATÉGIAS (OCP + ISP)
@@ -178,10 +178,7 @@ export class DefaultLikeProcessingStrategy implements ILikeProcessingStrategy {
    */
   async processBeforeCreate(likeData: CreateLikeDto): Promise<CreateLikeDto> {
     // Processamento básico: validação de dados
-    return {
-      ...likeData,
-      createdAt: new Date(),
-    };
+    return likeData;
   }
 
   /**
@@ -203,7 +200,7 @@ export class DefaultLikeProcessingStrategy implements ILikeProcessingStrategy {
   /**
    * Processa após remoção - implementação padrão
    */
-  async processAfterRemove(userId: string, aulaId?: number, commentId?: number): Promise<void> {
+  async processAfterRemove(_userId: string, _aulaId?: number, _commentId?: number): Promise<void> {
     // Implementação padrão: não faz nada
   }
 }
@@ -336,14 +333,11 @@ export class BasicAnalyticsStrategy implements ILikeAnalyticsStrategy {
     // Implementação de tracking de unlike
   }
 
-  async generateStats(aulaId?: number, commentId?: number): Promise<LikeStatsDto> {
+  async generateStats(_aulaId?: number, _commentId?: number): Promise<LikeStatsDto> {
     // Implementação básica de estatísticas
     return {
       totalLikes: 0,
-      likesThisWeek: 0,
-      likesThisMonth: 0,
-      averageLikesPerDay: 0,
-      topLikedContent: [],
+      userHasLiked: false,
     };
   }
 }
@@ -379,18 +373,11 @@ export class DetailedAnalyticsStrategy implements ILikeAnalyticsStrategy {
     console.log(`Detailed Analytics: Analisando padrão de unlike para user ${userId}`);
   }
 
-  async generateStats(aulaId?: number, commentId?: number): Promise<LikeStatsDto> {
-    // Gera estatísticas mais detalhadas
+  async generateStats(_aulaId?: number, _commentId?: number): Promise<LikeStatsDto> {
+    // Gera estatísticas básicas conforme interface LikeStatsDto
     return {
       totalLikes: 0,
-      likesThisWeek: 0,
-      likesThisMonth: 0,
-      averageLikesPerDay: 0,
-      topLikedContent: [],
-      // Métricas adicionais que poderiam ser incluídas:
-      // likeGrowthRate: 0.15,
-      // peakLikeHours: [14, 15, 20, 21],
-      // userRetentionByLikes: 0.85,
+      userHasLiked: false,
     };
   }
 }
@@ -522,14 +509,14 @@ export class DailyRateLimitStrategy implements ILikeRateLimitStrategy {
 export class MilestoneNotificationStrategy implements ILikeNotificationStrategy {
   private readonly milestones: number[] = [10, 25, 50, 100, 250, 500, 1000];
 
-  async notifyNewLike(like: Like): Promise<void> {
+  async notifyNewLike(_like: Like): Promise<void> {
     // Notificação básica não implementada nesta estratégia
     // Foca apenas em milestones
   }
 
   async notifyLikeMilestone(
-    aulaId: number | undefined, 
-    commentId: number | undefined, 
+    _aulaId: number | undefined, 
+    _commentId: number | undefined, 
     likeCount: number
   ): Promise<void> {
     if (this.milestones.includes(likeCount)) {
@@ -567,9 +554,9 @@ export class RealTimeNotificationStrategy implements ILikeNotificationStrategy {
   }
 
   async notifyLikeMilestone(
-    aulaId: number | undefined, 
-    commentId: number | undefined, 
-    likeCount: number
+    _aulaId: number | undefined, 
+    _commentId: number | undefined, 
+    _likeCount: number
   ): Promise<void> {
     // Esta estratégia não lida com milestones
     // Foca apenas em notificações em tempo real
@@ -738,9 +725,14 @@ export class LikeStrategyFactory {
       }
     });
 
+    // Se não há estratégias, retorna uma estratégia padrão
+    if (strategies.length === 0) {
+      return new MilestoneNotificationStrategy();
+    }
+
     // Se apenas uma estratégia, retorna diretamente
     // Se múltiplas, seria necessário um CompositeNotificationStrategy
-    return strategies[0];
+    return strategies[0]!;
   }
 
   /**
@@ -773,9 +765,14 @@ export class LikeStrategyFactory {
       strategies.push(new RateLimitedLikeProcessingStrategy(rateLimitStrategy));
     }
 
+    // Se não há estratégias, retorna uma estratégia padrão
+    if (strategies.length === 0) {
+      return new DefaultLikeProcessingStrategy();
+    }
+
     // Se apenas uma estratégia, retorna diretamente
     if (strategies.length === 1) {
-      return strategies[0];
+      return strategies[0]!;
     }
 
     // Se múltiplas, usa composite

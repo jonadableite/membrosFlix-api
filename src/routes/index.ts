@@ -9,6 +9,7 @@ import {
 } from "@/modules/lesson/routes/lesson.routes";
 import { notificationRoutes } from "@/modules/notification/routes/notification.routes";
 import { instructorRoutes } from "@/modules/instructor/routes/instructor.routes";
+import { commentRoutes } from "@/modules/comment/routes/comment.routes";
 
 const routes = Router();
 
@@ -32,6 +33,9 @@ routes.use(`${API_VERSION}/lessons`, lessonRoutes);
 
 // Notification routes
 routes.use(`${API_VERSION}/notifications`, notificationRoutes);
+
+// Comment routes (standalone)
+routes.use(`${API_VERSION}/comments`, commentRoutes);
 
 // Nested routes for course lessons
 routes.use(`${API_VERSION}/courses/:courseId/lessons`, courseLessonRoutes);

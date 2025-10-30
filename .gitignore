@@ -61,3 +61,11 @@ jest-temp/
 ehthumbs.db
 Icon?
 Desktop.ini
+NUL
+nul
+*.nul
+
+# Arquivos especiais do Windows
+CON
+PRN
+AUX

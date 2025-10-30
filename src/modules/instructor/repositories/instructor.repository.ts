@@ -2,14 +2,7 @@ import { BaseRepository } from "@/core/base/base.repository";
 import { prisma } from "@/shared/database/prisma";
 import type { Instructor, Prisma } from "@prisma/client";
 
-export class InstructorRepository extends BaseRepository<
-  Instructor,
-  Prisma.InstructorFindUniqueArgs,
-  Prisma.InstructorFindManyArgs,
-  Prisma.InstructorCreateArgs,
-  Prisma.InstructorUpdateArgs,
-  Prisma.InstructorDeleteArgs
-> {
+export class InstructorRepository extends BaseRepository<Instructor> {
   constructor() {
     super(prisma, "instructor");
   }

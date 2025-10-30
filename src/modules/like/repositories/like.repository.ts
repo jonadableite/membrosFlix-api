@@ -1,57 +1,62 @@
 /**
  * @fileoverview Like Repository
  * @description Implementação do repositório para operações de likes
- * 
+ *
  * SOLID PRINCIPLES APPLIED:
- * 
+ *
  * 1. Single Responsibility Principle (SRP):
  *    - Responsabilidade única: gerenciar persistência de likes
  *    - Não lida com validação ou regras de negócio
  *    - Foca apenas em operações de banco de dados
- * 
+ *
  * 2. Dependency Inversion Principle (DIP):
  *    - Depende da abstração ILikeRepository
  *    - PrismaClient é injetado como dependência
  *    - Não depende de implementações concretas
- * 
+ *
  * 3. Open/Closed Principle (OCP):
  *    - Aberto para extensão através da interface
  *    - Fechado para modificação da implementação base
- * 
+ *
  * 4. Liskov Substitution Principle (LSP):
  *    - Estende BaseLikeRepository respeitando todos os contratos
  *    - Pode ser substituído por qualquer implementação da classe base
  *    - Mantém comportamento consistente definido na classe base
  */
 
-import { Like, PrismaClient } from "@prisma/client";
-import { 
-  ILikeRepository, 
+import { PrismaClient, Like } from "@prisma/client";
+import {
+  ILikeRepository,
   CreateLikeDto,
-  LikeResponseDto
+  LikeResponseDto,
 } from "../interfaces/like.interface";
 import { BaseLikeRepository } from "../abstractions/like.base";
 
 /**
  * @class LikeRepository
  * @description Implementação concreta do repositório de likes
- * 
+ *
  * SOLID: Single Responsibility Principle (SRP) + Liskov Substitution Principle (LSP)
  * - Responsabilidade única: operações de persistência de likes
  * - Não contém lógica de negócio ou validação
  * - Respeita todos os contratos definidos na classe base
  */
-export class LikeRepository extends BaseLikeRepository implements ILikeRepository {
+export class LikeRepository
+  extends BaseLikeRepository
+  implements ILikeRepository
+{
   /**
    * @constructor
    * @param {PrismaClient} prisma - Cliente Prisma injetado
-   * 
+   *
    * SOLID: Dependency Inversion Principle (DIP)
    * - Recebe dependência como parâmetro
    * - Permite diferentes implementações de cliente de banco
    * - Facilita testes unitários
    */
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaClient) {
+    super();
+  }
 
   /**
    * @method create
@@ -82,26 +87,41 @@ export class LikeRepository extends BaseLikeRepository implements ILikeRepositor
       },
     });
 
-    return this.mapToResponseDto(like);
+    return {
+      id: like.id,
+      userId: like.userId,
+      commentId: like.commentId,
+      aulaId: like.aulaId,
+      cursoId: like.cursoId,
+      createdAt: like.createdAt,
+      updatedAt: like.updatedAt,
+      user: like.user || null,
+    };
   }
 
   /**
-   * @method findByUserAndComment
-   * @description Busca like por usuário e comentário
+   * @method findByUser
+   * @description Busca like específico do usuário
    * @param {string} userId - ID do usuário
-   * @param {number} commentId - ID do comentário
-   * @returns {Promise<LikeResponseDto | null>} Like encontrado ou null
-   * 
-   * SOLID: Single Responsibility Principle (SRP)
-   * - Responsabilidade específica: busca de like por critérios específicos
-   * - Operação atômica de consulta
+   * @param {number} aulaId - ID da aula (opcional)
+   * @param {number} commentId - ID do comentário (opcional)
+   * @returns {Promise<Like | null>} Like encontrado ou null
    */
-  async findByUserAndComment(userId: string, commentId: number): Promise<LikeResponseDto | null> {
-    const like = await this.prisma.like.findFirst({
-      where: {
-        userId,
-        commentId,
-      },
+  async findByUser(
+    userId: string,
+    aulaId?: number,
+    commentId?: number
+  ): Promise<Like | null> {
+    const where: any = { userId };
+
+    if (commentId) {
+      where.commentId = commentId;
+    } else if (aulaId) {
+      where.aulaId = aulaId;
+    }
+
+    return await this.prisma.like.findFirst({
+      where,
       include: {
         user: {
           select: {
@@ -112,59 +132,76 @@ export class LikeRepository extends BaseLikeRepository implements ILikeRepositor
         },
       },
     });
-
-    return like ? this.mapToResponseDto(like) : null;
   }
 
   /**
-   * @method findByUserAndLesson
-   * @description Busca like por usuário e aula
+   * @method deleteByUser
+   * @description Remove like por usuário e conteúdo
    * @param {string} userId - ID do usuário
-   * @param {number} aulaId - ID da aula
-   * @returns {Promise<LikeResponseDto | null>} Like encontrado ou null
-   * 
-   * SOLID: Single Responsibility Principle (SRP)
-   * - Responsabilidade específica: busca de like por critérios específicos
-   * - Operação atômica de consulta
+   * @param {number} aulaId - ID da aula (opcional)
+   * @param {number} commentId - ID do comentário (opcional)
+   * @returns {Promise<boolean>} True se removido com sucesso
    */
-  async findByUserAndLesson(userId: string, aulaId: number): Promise<LikeResponseDto | null> {
-    const like = await this.prisma.like.findFirst({
-      where: {
-        userId,
-        aulaId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
+  async deleteByUser(
+    userId: string,
+    aulaId?: number,
+    commentId?: number
+  ): Promise<boolean> {
+    try {
+      const where: any = { userId };
 
-    return like ? this.mapToResponseDto(like) : null;
+      if (commentId) {
+        where.commentId = commentId;
+      } else if (aulaId) {
+        where.aulaId = aulaId;
+      }
+
+      const result = await this.prisma.like.deleteMany({ where });
+      return result.count > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * @method countByContent
+   * @description Conta likes por conteúdo
+   * @param {number} aulaId - ID da aula (opcional)
+   * @param {number} commentId - ID do comentário (opcional)
+   * @returns {Promise<number>} Número de likes
+   */
+  async countByContent(aulaId?: number, commentId?: number): Promise<number> {
+    const where: any = {};
+
+    if (commentId) {
+      where.commentId = commentId;
+    } else if (aulaId) {
+      where.aulaId = aulaId;
+    }
+
+    return await this.prisma.like.count({ where });
   }
 
   /**
    * @method delete
    * @description Remove um like do banco de dados
    * @param {number} id - ID do like
-   * @returns {Promise<boolean>} True se removido com sucesso
-   * 
+   * @returns {Promise<void>}
+   *
    * SOLID: Single Responsibility Principle (SRP)
    * - Responsabilidade específica: remoção de like do banco
    * - Operação atômica de exclusão
    */
-  async delete(id: number): Promise<boolean> {
+  async delete(id: number): Promise<void> {
     try {
       await this.prisma.like.delete({
         where: { id },
       });
-      return true;
-    } catch {
-      return false;
+    } catch (error: any) {
+      // Se o like não existir, não é um erro (idempotente)
+      if (error.code !== "P2025") {
+        throw error;
+      }
     }
   }
 
@@ -173,7 +210,7 @@ export class LikeRepository extends BaseLikeRepository implements ILikeRepositor
    * @description Conta likes de um comentário
    * @param {number} commentId - ID do comentário
    * @returns {Promise<number>} Número de likes
-   * 
+   *
    * SOLID: Single Responsibility Principle (SRP)
    * - Responsabilidade específica: contagem de likes por comentário
    * - Operação otimizada de agregação
@@ -191,7 +228,7 @@ export class LikeRepository extends BaseLikeRepository implements ILikeRepositor
    * @description Conta likes de uma aula
    * @param {number} aulaId - ID da aula
    * @returns {Promise<number>} Número de likes
-   * 
+   *
    * SOLID: Single Responsibility Principle (SRP)
    * - Responsabilidade específica: contagem de likes por aula
    * - Operação otimizada de agregação
@@ -208,55 +245,43 @@ export class LikeRepository extends BaseLikeRepository implements ILikeRepositor
    * @method findById
    * @description Busca like por ID
    * @param {number} id - ID do like
-   * @returns {Promise<LikeResponseDto | null>} Like encontrado ou null
-   * 
+   * @returns {Promise<Like | null>} Like encontrado ou null
+   *
    * SOLID: Single Responsibility Principle (SRP)
-   * - Responsabilidade específica: busca de like por ID
+   * - Responsabilidade específica: busca por ID
    * - Operação básica de consulta
    */
-  async findById(id: number): Promise<LikeResponseDto | null> {
-    const like = await this.prisma.like.findUnique({
+  async findById(id: number): Promise<Like | null> {
+    return await this.prisma.like.findUnique({
       where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
-
-    return like ? this.mapToResponseDto(like) : null;
   }
 
   /**
-   * @method mapToResponseDto
-   * @description Mapeia dados do Prisma para DTO de resposta
-   * @param {any} like - Dados do like do Prisma
-   * @returns {LikeResponseDto} DTO formatado
-   * 
+   * @method findByContent
+   * @description Busca likes por conteúdo (aula ou comentário)
+   * @param {number} aulaId - ID da aula (opcional)
+   * @param {number} commentId - ID do comentário (opcional)
+   * @returns {Promise<Like[]>} Array de likes encontrados
+   *
    * SOLID: Single Responsibility Principle (SRP)
-   * - Responsabilidade específica: transformação de dados
-   * - Centraliza mapeamento de dados do banco para DTO
-   * 
-   * SOLID: Open/Closed Principle (OCP)
-   * - Aberto para extensão: novos campos podem ser adicionados
-   * - Fechado para modificação: mapeamento existente não muda
+   * - Responsabilidade específica: busca por conteúdo
+   * - Operação básica de consulta
    */
-  private mapToResponseDto(like: any): LikeResponseDto {
-    return {
-      id: like.id,
-      userId: like.userId,
-      commentId: like.commentId ?? undefined,
-      aulaId: like.aulaId ?? undefined,
-      createdAt: like.createdAt,
-      user: like.user ? {
-        id: like.user.id,
-        name: like.user.name,
-        email: like.user.email,
-      } : undefined,
-    };
+  async findByContent(aulaId?: number, commentId?: number): Promise<Like[]> {
+    const where: any = {};
+
+    if (aulaId) {
+      where.aulaId = aulaId;
+    }
+
+    if (commentId) {
+      where.commentId = commentId;
+    }
+
+    return await this.prisma.like.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
   }
 }

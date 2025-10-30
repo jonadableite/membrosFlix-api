@@ -29,7 +29,7 @@ import {
   ILikeRepository, 
   CreateLikeDto 
 } from "../interfaces/like.interface";
-import { BaseLikeValidator } from "../abstractions/like.base";
+import { AppError } from "../../../shared/errors/app.error";
 
 /**
  * @class LikeValidator
@@ -40,7 +40,7 @@ import { BaseLikeValidator } from "../abstractions/like.base";
  * - Não contém lógica de persistência ou regras de negócio
  * - Respeita todos os contratos definidos na classe base
  */
-export class LikeValidator extends BaseLikeValidator implements ILikeValidator {
+export class LikeValidator implements ILikeValidator {
   /**
    * @constructor
    * @param {ILikeRepository} likeRepository - Repository injetado para verificações
@@ -69,7 +69,7 @@ export class LikeValidator extends BaseLikeValidator implements ILikeValidator {
     await this.validateContext(data.commentId, data.aulaId);
 
     // Validação de duplicação
-    await this.validateNoDuplicateLike(data.userId, data.commentId, data.aulaId);
+    await this.validateNoDuplicateLike(data.userId, data.aulaId, data.commentId);
   }
 
   /**
@@ -96,8 +96,8 @@ export class LikeValidator extends BaseLikeValidator implements ILikeValidator {
    * @method validateNoDuplicateLike
    * @description Valida se não existe like duplicado
    * @param {string} userId - ID do usuário
-   * @param {number} commentId - ID do comentário (opcional)
    * @param {number} aulaId - ID da aula (opcional)
+   * @param {number} commentId - ID do comentário (opcional)
    * @throws {AppError} Se like já existe
    * 
    * SOLID: Single Responsibility Principle (SRP)
@@ -106,16 +106,10 @@ export class LikeValidator extends BaseLikeValidator implements ILikeValidator {
    */
   async validateNoDuplicateLike(
     userId: string,
-    commentId?: number,
-    aulaId?: number
+    aulaId?: number,
+    commentId?: number
   ): Promise<void> {
-    let existingLike = null;
-
-    if (commentId) {
-      existingLike = await this.likeRepository.findByUserAndComment(userId, commentId);
-    } else if (aulaId) {
-      existingLike = await this.likeRepository.findByUserAndLesson(userId, aulaId);
-    }
+    const existingLike = await this.likeRepository.findByUser(userId, aulaId, commentId);
 
     if (existingLike) {
       const context = commentId ? "comentário" : "aula";
@@ -260,8 +254,8 @@ export class LikeValidator extends BaseLikeValidator implements ILikeValidator {
    */
   async validateTogglePermission(
     userId: string,
-    commentId?: number,
-    aulaId?: number
+    _commentId?: number,
+    _aulaId?: number
   ): Promise<void> {
     // Por enquanto, qualquer usuário autenticado pode dar like
     // Esta validação pode ser expandida para incluir:

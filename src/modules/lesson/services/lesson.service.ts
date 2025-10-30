@@ -108,7 +108,7 @@ export class LessonServiceImpl
     // Get next order if not provided
     if (!validatedData.ordemAula) {
       validatedData.ordemAula = await this.lessonRepository.getNextOrder(
-        validatedData.courseId
+        validatedData.courseId?.toString() || ""
       );
     } else {
       // Check if order already exists in the course
@@ -489,7 +489,7 @@ export class LessonServiceImpl
     const existingLesson = await this.lessonRepository.prisma.aula.findFirst({
       where: {
         name: data.name,
-        courseId: parseInt(data.courseId),
+        courseId: Number(data.courseId),
       },
     });
 

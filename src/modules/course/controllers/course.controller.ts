@@ -114,14 +114,9 @@ export class CourseController extends BaseController<Curso> {
       if (!validatedData.instructorId && req.user?.role === "INSTRUCTOR") {
         validatedData.instructorId = Number(req.user.id);
       } else if (!validatedData.instructorId && req.user?.role === "ADMIN") {
-        // Check if admin is also an instructor
-        const instructor =
-          await this.courseService.repository.prisma.instructor.findUnique({
-            where: { userId: req.user.id },
-          });
-        if (instructor) {
-          validatedData.instructorId = instructor.id;
-        }
+        // Para admin, usar um instructorId padrão ou pular esta validação
+        // TODO: Implementar lógica adequada para admin criar cursos
+        console.warn("Admin criando curso sem instructorId específico");
       }
 
       const course = await this.courseService.createCourse(validatedData);

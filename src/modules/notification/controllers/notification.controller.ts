@@ -12,9 +12,15 @@ export class NotificationController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = (req as any).user.id;
-      const tenantId = (req as any).tenantId;
+      console.log('🔔 [CONTROLLER] getUserNotifications START');
+      const userId = (req as any).user?.id;
+      console.log('🔔 [CONTROLLER] userId:', userId);
+      
+      const tenantId = (req as any).tenantId || 'default';
+      console.log('🔔 [CONTROLLER] tenantId:', tenantId);
+      
       const { page = 1, limit = 10, tipo, lida } = req.query;
+      console.log('🔔 [CONTROLLER] Query params:', { page, limit, tipo, lida });
 
       const options = {
         page: Number(page),
@@ -24,17 +30,22 @@ export class NotificationController {
           ...(lida !== undefined && { lida: lida === 'true' }),
         },
       };
+      console.log('🔔 [CONTROLLER] Options:', options);
 
+      console.log('🔔 [CONTROLLER] Calling notificationService.getUserNotifications...');
       const notifications = await this.notificationService.getUserNotifications(
         userId,
         tenantId,
         options
       );
+      console.log('🔔 [CONTROLLER] Notifications fetched:', notifications.length);
 
+      console.log('🔔 [CONTROLLER] Calling notificationService.getUnreadCount...');
       const unreadCount = await this.notificationService.getUnreadCount(
         userId,
         tenantId
       );
+      console.log('🔔 [CONTROLLER] Unread count:', unreadCount);
 
       coloredLogger.notification(`User ${userId} retrieved ${notifications.length} notifications`, {
         userId,

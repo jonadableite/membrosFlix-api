@@ -31,7 +31,7 @@ import {
   ILikePermissionChecker, 
   ILikeRepository 
 } from "../interfaces/like.interface";
-import { BaseLikePermissionChecker } from "../abstractions/like.base";
+import { AppError } from "../../../shared/errors/app.error";
 
 /**
  * @enum UserRole
@@ -69,7 +69,7 @@ export interface UserContext {
  * - Não contém lógica de persistência ou validação
  * - Respeita todos os contratos definidos na classe base
  */
-export class LikePermissionChecker extends BaseLikePermissionChecker implements ILikePermissionChecker {
+export class LikePermissionChecker implements ILikePermissionChecker {
   /**
    * @constructor
    * @param {ILikeRepository} likeRepository - Repository injetado para buscar dados
@@ -219,12 +219,7 @@ export class LikePermissionChecker extends BaseLikePermissionChecker implements 
     commentId?: number,
     aulaId?: number
   ): Promise<any> {
-    if (commentId) {
-      return await this.likeRepository.findByUserAndComment(userId, commentId);
-    } else if (aulaId) {
-      return await this.likeRepository.findByUserAndLesson(userId, aulaId);
-    }
-    return null;
+    return await this.likeRepository.findByUser(userId, aulaId, commentId);
   }
 
   /**
@@ -244,9 +239,9 @@ export class LikePermissionChecker extends BaseLikePermissionChecker implements 
    * - Fechado para modificação: lógica base não muda
    */
   private async hasAccessToContent(
-    userId: string,
-    commentId?: number,
-    aulaId?: number
+    _userId: string,
+    _commentId?: number,
+    _aulaId?: number
   ): Promise<boolean> {
     // Esta implementação seria expandida para verificar se o usuário
     // tem acesso ao comentário/aula através de repositories específicos
@@ -322,7 +317,7 @@ export class LikePermissionChecker extends BaseLikePermissionChecker implements 
    * - Aberto para extensão: diferentes estratégias de rate limiting
    * - Fechado para modificação: lógica base não muda
    */
-  async validateRateLimit(userId: string): Promise<boolean> {
+  async validateRateLimit(_userId: string): Promise<boolean> {
     // Esta implementação seria expandida para verificar:
     // - Número de likes nas últimas horas/dias
     // - Limites específicos por tipo de usuário

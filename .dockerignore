@@ -1,0 +1,70 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist
+build
+*.tsbuildinfo
+
+# Development files
+.vscode
+.idea
+*.log
+.env.local
+.env.development
+.env.test
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Tests
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+tests
+__tests__
+
+# Documentation
+README.md
+*.md
+docs
+
+# CI/CD
+.github
+.cursor
+.trae
+
+# Temporary files
+*.tmp
+*.temp
+NUL
+build.log
+build-errors.log
+server.log
+
+# Uploads (podem ser grandes)
+uploads/*
+!uploads/.gitkeep
+
+# Scripts de desenvolvimento
+scripts/*
+!scripts/*.js
+
+# Configs locais
+nodemon.json
+.babelrc
+biome.json
+jest.config.js
+tsconfig.json
+types
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+

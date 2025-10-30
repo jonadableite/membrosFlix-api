@@ -25,20 +25,7 @@ export class InstructorService {
       where.tenantId = tenantId;
     }
 
-    const instructor = await this.instructorRepository.findUnique({
-      where,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            profilePicture: true,
-          },
-        },
-        courses: true,
-      },
-    });
+    const instructor = await this.instructorRepository.findById(id);
 
     if (!instructor) {
       throw AppError.notFound("Instrutor não encontrado");
@@ -74,24 +61,15 @@ export class InstructorService {
       throw AppError.badRequest("Usuário já possui perfil de instrutor");
     }
 
-    return this.instructorRepository.create({
-      data: {
-        userId: data.userId,
-        bio: data.bio,
-        expertise: data.expertise || [],
-        tenantId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            profilePicture: true,
-          },
-        },
-      },
+    const instructor = await this.instructorRepository.create({
+      userId: data.userId,
+      bio: data.bio,
+      expertise: data.expertise || [],
+      tenantId,
     });
+
+    // Buscar o instrutor criado com os dados do usuário
+    return this.getInstructor(instructor.id, tenantId);
   }
 
   /**
@@ -110,23 +88,12 @@ export class InstructorService {
       where.tenantId = tenantId;
     }
 
-    return this.instructorRepository.update({
-      where,
-      data: {
-        ...(data.bio !== undefined && { bio: data.bio }),
-        ...(data.expertise && { expertise: data.expertise }),
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            profilePicture: true,
-          },
-        },
-      },
+    const instructor = await this.instructorRepository.update(id, {
+      ...(data.bio !== undefined && { bio: data.bio }),
+      ...(data.expertise && { expertise: data.expertise }),
     });
+
+    return this.getInstructor(instructor.id, tenantId);
   }
 
   /**
@@ -141,6 +108,6 @@ export class InstructorService {
       where.tenantId = tenantId;
     }
 
-    await this.instructorRepository.delete({ where });
+    await this.instructorRepository.delete(id);
   }
 }

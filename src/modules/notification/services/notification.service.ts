@@ -132,7 +132,7 @@ export class NotificationServiceImpl
         ...options.where,
         userId,
       },
-      orderBy: { createdAt: "desc" } as any,
+      orderBy: { criadoEm: "desc" } as any,  // ✅ FIX: usar criadoEm ao invés de createdAt
     });
 
     return notifications.map((notification) =>

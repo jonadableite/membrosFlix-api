@@ -14,6 +14,8 @@ import type {
 } from "../dtos/auth.dto";
 import type { JwtPayload } from "@/core/types/common.types";
 import { AppEventEmitter } from "@/shared/events/event.emitter";
+import { prisma } from "@/shared/database/prisma";
+import { emailService } from "@/shared/email/email.service";
 
 export interface AuthService {
   login(data: LoginDto): Promise<AuthResponseDto>;
@@ -27,7 +29,7 @@ export interface AuthService {
 
 export class AuthServiceImpl implements AuthService {
   private refreshTokens = new Map<string, string>(); // In production, use Redis
-  private passwordResetTokens = new Map<string, PasswordResetToken>(); // In production, use database
+  private passwordResetTokens = new Map<string, PasswordResetToken>(); // Legacy fallback (não usado em produção)
 
   constructor(private userService: UserService) {}
 
@@ -187,40 +189,59 @@ export class AuthServiceImpl implements AuthService {
   async forgotPassword(email: string): Promise<void> {
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      // Don't reveal if email exists
+      // Não revelar existência do e-mail
       return;
     }
 
-    // Generate reset token
-    const resetToken = uuidv4();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    // Invalida tokens antigos
+    await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
 
-    // Store reset token
-    this.passwordResetTokens.set(resetToken, {
-      userId: user.id,
-      token: resetToken,
-      expiresAt,
+    // Gera novo token
+    const resetToken = uuidv4();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1h
+
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        token: resetToken,
+        expiresAt,
+      },
     });
 
-    // In production, send email with reset link
-    console.log(`Password reset token for ${email}: ${resetToken}`);
+    const frontendUrl = env.FRONTEND_URL || "http://localhost:5173";
+    const resetUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(resetToken)}`;
+
+    await emailService.sendEmail({
+      to: user.email,
+      subject: "Recuperação de senha - MembrosFlix",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #3177fa;">Recuperar senha</h2>
+          <p>Olá ${user.name},</p>
+          <p>Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para continuar:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #3177fa; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Redefinir senha</a>
+          </div>
+          <p>Se você não solicitou, ignore este e-mail.</p>
+          <p style="color:#6b7280; font-size:12px;">O link expira em 1 hora.</p>
+        </div>
+      `,
+      text: `Olá ${user.name},\n\nAcesse o link para redefinir sua senha: ${resetUrl}\n\nO link expira em 1 hora. Se não foi você, ignore este e-mail.`,
+    });
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    const resetData = this.passwordResetTokens.get(token);
-
-    if (!resetData || resetData.expiresAt < new Date()) {
+    const record = await prisma.passwordResetToken.findUnique({ where: { token } });
+    if (!record || record.expiresAt < new Date() || record.usedAt) {
       throw AppError.badRequest("Token inválido ou expirado");
     }
 
-    // Hash new password
     const passwordHash = await bcrypt.hash(newPassword, 12);
 
-    // Update user password
-    await this.userService.update(resetData.userId, { passwordHash } as any);
-
-    // Remove reset token
-    this.passwordResetTokens.delete(token);
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: record.userId }, data: { passwordHash } }),
+      prisma.passwordResetToken.update({ where: { token }, data: { usedAt: new Date() } }),
+    ]);
   }
 
   async validateToken(token: string): Promise<JwtPayload> {

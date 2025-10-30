@@ -47,7 +47,7 @@ export abstract class BaseLikeRepository {
    * - DEVE lançar erro quando dados inválidos são fornecidos
    * - NÃO DEVE criar like duplicado (mesmo usuário, mesmo conteúdo)
    */
-  abstract create(data: CreateLikeDto): Promise<Like>;
+  abstract create(data: CreateLikeDto): Promise<LikeResponseDto>;
 
   /**
    * Busca like por ID
@@ -131,28 +131,12 @@ export abstract class BaseLikeRepository {
    * - DEVE ser consistente com count methods
    */
   async getStats(aulaId?: number, commentId?: number): Promise<LikeStatsDto> {
-    const [totalLikes, likes] = await Promise.all([
-      this.countByContent(aulaId, commentId),
-      this.findByContent(aulaId, commentId)
-    ]);
-
-    // Estatísticas por período
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-    const likesToday = likes.filter(like => like.createdAt >= oneDayAgo).length;
-    const likesThisWeek = likes.filter(like => like.createdAt >= oneWeekAgo).length;
-    const likesThisMonth = likes.filter(like => like.createdAt >= oneMonthAgo).length;
+    const totalLikes = await this.countByContent(aulaId, commentId);
 
     return {
       totalLikes,
-      likesToday,
-      likesThisWeek,
-      likesThisMonth,
-      aulaId,
-      commentId,
+      userHasLiked: false, // Será definido pela implementação específica
+      likeId: null,
     };
   }
 
@@ -569,9 +553,8 @@ export abstract class BaseLikeService {
       userId: like.userId,
       aulaId: like.aulaId ?? undefined,
       commentId: like.commentId ?? undefined,
-      liked: true, // Se o like existe, então está ativo
-      likeCount: await this.repository.countByContent(like.aulaId, like.commentId),
       createdAt: like.createdAt,
+      updatedAt: like.updatedAt,
     };
   }
 
@@ -628,11 +611,12 @@ export abstract class BaseLikeService {
     return {
       id: 0, // Será definido pela implementação específica
       userId,
-      aulaId,
-      commentId,
-      liked,
-      likeCount,
+      aulaId: aulaId || null,
+      commentId: commentId || null,
+      cursoId: null,
       createdAt: new Date(),
+      updatedAt: new Date(),
+      user: null,
     };
   }
 }

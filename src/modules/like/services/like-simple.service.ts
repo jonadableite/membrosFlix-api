@@ -4,7 +4,6 @@
  */
 
 import { prisma } from "../../../shared/database/prisma";
-import { AppEventEmitter } from "../../../shared/events/event.emitter";
 
 export class LikeSimpleService {
   async toggleLessonLike(
@@ -52,15 +51,23 @@ export class LikeSimpleService {
             select: { name: true },
           });
 
-          if (aula?.curso?.instructorId && aula.curso.instructorId !== userId) {
+          if (aula?.curso?.instructorId && aula.curso.instructorId.toString() !== userId) {
+            // 🔔 DEBUG: Verificar dados da aula
+            console.log("🔔 [LIKE LESSON] Dados da aula:", {
+              aulaId,
+              courseId: aula.courseId,
+              instructorId: aula.curso.instructorId,
+            });
+
             // Criar notificação para o instrutor
             await prisma.notification.create({
               data: {
-                userId: aula.curso.instructorId,
+                userId: aula.curso.instructorId.toString(),
                 tipo: "NOVA_CURTIDA",
                 mensagem: `${liker?.name || "Alguém"} curtiu sua aula "${aula.name}"`,
                 dados: {
-                  aulaId,
+                  aulaId: aulaId.toString(),
+                  courseId: aula.courseId, // ✅ Incluir courseId para redirecionamento
                   userId,
                   aulaName: aula.name,
                 },
@@ -68,18 +75,12 @@ export class LikeSimpleService {
               },
             });
 
-            // Emitir evento para notificação em tempo real
-            const event = AppEventEmitter.createEvent(
-              "like.created",
-              process.env.DEFAULT_TENANT_ID || "",
-              aula.curso.instructorId,
-              {
-                aulaId,
-                userId,
-                userName: liker?.name,
-              }
-            );
-            await AppEventEmitter.getInstance().emit(event);
+            console.log("🔔 [LIKE LESSON] Notificação criada com dados:", {
+              aulaId,
+              courseId: aula.courseId,
+            });
+
+            // TODO: Implementar evento específico para likes quando necessário
           }
         } catch (notificationError) {
           // Ignorar erro de notificação para não bloquear o like
@@ -138,6 +139,8 @@ export class LikeSimpleService {
             select: {
               userId: true,
               content: true,
+              aulaId: true, // ✅ Incluir aulaId
+              cursoId: true, // ✅ Incluir cursoId
             },
           });
 
@@ -147,6 +150,14 @@ export class LikeSimpleService {
           });
 
           if (comment && comment.userId !== userId) {
+            // 🔔 DEBUG: Verificar dados do comentário
+            console.log("🔔 [LIKE COMMENT] Dados do comentário:", {
+              commentId,
+              aulaId: comment.aulaId,
+              cursoId: comment.cursoId,
+              userId: comment.userId,
+            });
+
             // Criar notificação para o autor do comentário
             await prisma.notification.create({
               data: {
@@ -157,23 +168,19 @@ export class LikeSimpleService {
                   commentId,
                   userId,
                   commentPreview: comment.content.substring(0, 50),
+                  aulaId: comment.aulaId, // ✅ Incluir para redirecionamento
+                  courseId: comment.cursoId, // ✅ Incluir para redirecionamento
                 },
                 lida: false,
               },
             });
 
-            // Emitir evento para notificação em tempo real
-            const event = AppEventEmitter.createEvent(
-              "comment.liked",
-              process.env.DEFAULT_TENANT_ID || "",
-              comment.userId,
-              {
-                commentId,
-                userId,
-                userName: liker?.name,
-              }
-            );
-            await AppEventEmitter.getInstance().emit(event);
+            console.log("🔔 [LIKE COMMENT] Notificação criada com dados:", {
+              aulaId: comment.aulaId,
+              courseId: comment.cursoId,
+            });
+
+            // TODO: Implementar evento específico para comment likes quando necessário
           }
         } catch (notificationError) {
           // Ignorar erro de notificação para não bloquear o like

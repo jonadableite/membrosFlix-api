@@ -33,7 +33,7 @@ export class LikeService implements ILikeService {
 
         return {
           totalLikes,
-          userLiked: false,
+          userHasLiked: false,
         };
       }
 
@@ -54,7 +54,7 @@ export class LikeService implements ILikeService {
 
       return {
         totalLikes,
-        userLiked: true,
+        userHasLiked: true,
       };
     } catch (error) {
       logger.error("Error toggling lesson like", { error, aulaId, userId });
@@ -92,7 +92,7 @@ export class LikeService implements ILikeService {
 
         return {
           totalLikes,
-          userLiked: false,
+          userHasLiked: false,
         };
       }
 
@@ -113,7 +113,7 @@ export class LikeService implements ILikeService {
 
       return {
         totalLikes,
-        userLiked: true,
+        userHasLiked: true,
       };
     } catch (error) {
       logger.error("Error toggling comment like", { error, commentId, userId });
@@ -138,7 +138,7 @@ export class LikeService implements ILikeService {
       });
 
       return {
-        userLiked: !!existingLike,
+        userHasLiked: !!existingLike,
         totalLikes,
       };
     } catch (error) {
@@ -147,7 +147,7 @@ export class LikeService implements ILikeService {
         aulaId,
         userId,
       });
-      return { userLiked: false, totalLikes: 0 };
+      return { userHasLiked: false, totalLikes: 0 };
     }
   }
 
@@ -168,7 +168,7 @@ export class LikeService implements ILikeService {
       });
 
       return {
-        userLiked: !!existingLike,
+        userHasLiked: !!existingLike,
         totalLikes,
       };
     } catch (error) {
@@ -177,7 +177,7 @@ export class LikeService implements ILikeService {
         commentId,
         userId,
       });
-      return { userLiked: false, totalLikes: 0 };
+      return { userHasLiked: false, totalLikes: 0 };
     }
   }
 }

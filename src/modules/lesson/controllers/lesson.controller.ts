@@ -28,7 +28,7 @@ export class LessonController extends BaseController<Aula> {
     this.uploadService = new UploadService();
   }
 
-  private validateId(id: string | undefined): number {
+  private validateId(id: string | undefined): string {
     if (!id) {
       throw new Error("ID é obrigatório");
     }
@@ -36,7 +36,7 @@ export class LessonController extends BaseController<Aula> {
     if (isNaN(numId)) {
       throw new Error("ID deve ser um número válido");
     }
-    return numId;
+    return id;
   }
 
   /**

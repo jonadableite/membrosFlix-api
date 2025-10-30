@@ -29,22 +29,66 @@ export interface CommentResponseDto {
     email: string;
     profilePicture?: string;
   };
-  likesCount?: number;
-  repliesCount?: number;
-  replies?: CommentResponseDto[]; // ✅ Suporte a respostas aninhadas
-  likes?: any[]; // ✅ Incluir likes para cálculo de userLiked
+  likesCount: number;
+  repliesCount: number;
+  userLiked?: boolean;
+  replies?: CommentResponseDto[];
 }
 
 export class CommentSimpleService {
+  /**
+   * 🔍 Buscar comentário por ID
+   * (Usado para redirecionamento de notificações)
+   */
+  async getCommentById(commentId: number): Promise<CommentResponseDto | null> {
+    try {
+      const comment = await prisma.comment.findUnique({
+        where: { id: commentId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profilePicture: true,
+            },
+          },
+          likes: true,
+        },
+      });
+
+      if (!comment) {
+        return null;
+      }
+
+      return {
+        id: comment.id,
+        content: comment.content,
+        userId: comment.userId,
+        aulaId: comment.aulaId || undefined,
+        cursoId: comment.cursoId || undefined,
+        parentId: comment.parentId || undefined,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        user: comment.user,
+        likesCount: comment.likes?.length || 0,
+        repliesCount: 0,
+      };
+    } catch (error) {
+      console.error("Erro ao buscar comentário por ID:", error);
+      throw new Error(`Erro ao buscar comentário: ${error}`);
+    }
+  }
+
   async createComment(data: CreateCommentDto): Promise<CommentResponseDto> {
     try {
       const comment = await prisma.comment.create({
         data: {
           content: data.content,
           userId: data.userId,
-          aulaId: data.aulaId,
-          cursoId: data.cursoId,
-          parentId: data.parentId,
+          aulaId: data.aulaId || null,
+          cursoId: data.cursoId || null,
+          parentId: data.parentId || null,
         },
         include: {
           user: {
@@ -65,7 +109,11 @@ export class CommentSimpleService {
         if (data.parentId) {
           const parentComment = await prisma.comment.findUnique({
             where: { id: data.parentId },
-            select: { userId: true },
+            select: {
+              userId: true,
+              aulaId: true, // ✅ Buscar aulaId do comentário pai
+              cursoId: true, // ✅ Buscar cursoId do comentário pai
+            },
           });
 
           if (parentComment && parentComment.userId !== data.userId) {
@@ -78,22 +126,15 @@ export class CommentSimpleService {
                   commentId: comment.id,
                   parentId: data.parentId,
                   preview: data.content.substring(0, 50),
+                  aulaId: parentComment.aulaId, // ✅ Incluir para redirecionamento
+                  courseId: parentComment.cursoId, // ✅ Incluir para redirecionamento
                 },
                 lida: false,
               },
             });
 
-            const event = AppEventEmitter.createEvent(
-              "comment.replied",
-              process.env.DEFAULT_TENANT_ID || "",
-              parentComment.userId,
-              {
-                commentId: comment.id,
-                userId: data.userId,
-                userName: comment.user?.name,
-              }
-            );
-            await AppEventEmitter.getInstance().emit(event);
+            // TODO: Implementar evento específico para replies quando necessário
+            console.log("🔔 [REPLY] Resposta criada para comentário do usuário:", parentComment.userId);
           }
         }
 
@@ -117,30 +158,20 @@ export class CommentSimpleService {
             await prisma.notification.create({
               data: {
                 userId: aula.curso.instructorId.toString(),
-                tenantId: process.env.DEFAULT_TENANT_ID || "",
                 tipo: "NOVO_COMENTARIO",
                 mensagem: `${comment.user?.name || "Alguém"} comentou na aula "${aula.name}"`,
                 dados: {
                   aulaId: data.aulaId,
                   commentId: comment.id,
                   preview: data.content.substring(0, 50),
+                  courseId: aula.courseId, // ✅ Incluir para redirecionamento
                 },
                 lida: false,
               },
             });
 
-            const event = AppEventEmitter.createEvent(
-              "comment.created" as any,
-              process.env.DEFAULT_TENANT_ID || "",
-              aula.curso.instructorId.toString(),
-              {
-                commentId: comment.id,
-                aulaId: data.aulaId,
-                userId: data.userId,
-                userName: comment.user?.name,
-              }
-            );
-            await AppEventEmitter.getInstance().emit(event);
+            // TODO: Implementar evento específico para comentários em aulas quando necessário
+            console.log("🔔 [COMMENT] Comentário criado na aula:", data.aulaId);
           }
         }
       } catch (notificationError) {
@@ -162,13 +193,14 @@ export class CommentSimpleService {
         updatedAt: comment.updatedAt,
         user: comment.user
           ? {
-              ...comment.user,
+              id: comment.user.id,
+              name: comment.user.name,
+              email: comment.user.email,
               profilePicture: comment.user.profilePicture ?? undefined,
             }
           : undefined,
         likesCount: comment.likes?.length || 0, // ✅ Contador real
         repliesCount: 0,
-        likes: comment.likes || [], // ✅ Array de likes para frontend calcular userLiked
         replies: [], // Comentário recém-criado não tem replies
       };
     } catch (error) {
@@ -220,10 +252,27 @@ export class CommentSimpleService {
       });
 
       console.log("📊 Comentários encontrados:", comments.length);
-      console.log(
-        "📊 Primeiro comentário:",
-        JSON.stringify(comments[0], null, 2)
-      );
+
+      if (comments[0]) {
+        console.log("📊 Primeiro comentário ID:", comments[0].id);
+        console.log(
+          "📊 Primeiro comentário tem likes?",
+          comments[0].likes?.length || 0
+        );
+        console.log(
+          "📊 Primeiro comentário tem replies?",
+          (comments[0] as any).replies?.length || 0
+        );
+
+        // Log completo do primeiro comentário
+        const firstComment = comments[0] as any;
+        if (firstComment.replies && firstComment.replies.length > 0) {
+          console.log(
+            "📊 Primeira reply:",
+            JSON.stringify(firstComment.replies[0], null, 2)
+          );
+        }
+      }
 
       // Mapear comentários com contadores corretos
       const mappedComments = comments.map((comment) => {
@@ -262,14 +311,13 @@ export class CommentSimpleService {
           createdAt: comment.createdAt,
           updatedAt: comment.updatedAt,
           user: comment.user
-            ? {
-                ...comment.user,
-                profilePicture: comment.user.profilePicture ?? undefined,
-              }
-            : undefined,
+              ? {
+                  ...comment.user,
+                  profilePicture: comment.user.profilePicture ?? undefined,
+                }
+              : undefined,
           likesCount: comment.likes?.length || 0,
           repliesCount: replies.length,
-          likes: comment.likes || [],
           replies: replies,
         };
       });
@@ -320,13 +368,14 @@ export class CommentSimpleService {
         updatedAt: comment.updatedAt,
         user: comment.user
           ? {
-              ...comment.user,
+              id: comment.user.id,
+              name: comment.user.name,
+              email: comment.user.email,
               profilePicture: comment.user.profilePicture ?? undefined,
             }
           : undefined,
         likesCount: comment.likes?.length || 0, // ✅ Contador real
         repliesCount: 0,
-        likes: comment.likes || [], // ✅ Array de likes
         replies: [], // Update não altera replies
       };
     } catch (error) {

@@ -24,13 +24,10 @@
  *    - Mantém comportamento consistente definido na classe base
  */
 
-import { Comment, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { prisma } from "../../../shared/database/prisma";
 import { 
   ICommentRepository, 
-  CreateCommentDto, 
-  UpdateCommentDto, 
-  CommentFilterDto,
   CreateCommentData,
   UpdateCommentData,
   CommentWithRelations

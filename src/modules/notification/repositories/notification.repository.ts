@@ -46,7 +46,7 @@ export class NotificationRepositoryImpl
         ...where,
         userId,
       },
-      orderBy: orderBy || { createdAt: "desc" },
+      orderBy: orderBy || { criadoEm: "desc" },  // ✅ FIX: usar criadoEm ao invés de createdAt
       skip,
       take,
     });

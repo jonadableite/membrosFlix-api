@@ -49,7 +49,18 @@ export class InstructorController {
   ): Promise<Response | void> => {
     try {
       const tenantId = (req as any).tenantId;
-      const id = parseInt(req.params.id);
+      const idParam = req.params.id;
+      
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: "ID é obrigatório",
+          error: "Bad Request",
+          statusCode: 400,
+        });
+      }
+      
+      const id = parseInt(idParam);
 
       if (isNaN(id)) {
         return res.status(400).json({
@@ -106,7 +117,7 @@ export class InstructorController {
           message: "Dados de entrada inválidos",
           error: "Validation Error",
           statusCode: 400,
-          details: error.errors,
+          details: error.issues,
         });
       }
       next(error);
@@ -124,7 +135,18 @@ export class InstructorController {
   ): Promise<Response | void> => {
     try {
       const tenantId = (req as any).tenantId;
-      const id = parseInt(req.params.id);
+      const idParam = req.params.id;
+      
+      if (!idParam) {
+        return res.status(400).json({
+          success: false,
+          message: "ID é obrigatório",
+          error: "Bad Request",
+          statusCode: 400,
+        });
+      }
+      
+      const id = parseInt(idParam);
 
       if (isNaN(id)) {
         return res.status(400).json({
@@ -156,7 +178,7 @@ export class InstructorController {
           message: "Dados de entrada inválidos",
           error: "Validation Error",
           statusCode: 400,
-          details: error.errors,
+          details: error.issues,
         });
       }
       next(error);
@@ -173,13 +195,13 @@ export class InstructorController {
     next: NextFunction
   ): Promise<Response | void> => {
     try {
-      const tenantId = (req as any).tenantId;
+      const tenantId = (req as any).tenantId as string | undefined;
       const id = parseInt(req.params.id);
 
-      if (isNaN(id)) {
+      if (isNaN(id) || !tenantId) {
         return res.status(400).json({
           success: false,
-          message: "ID inválido",
+          message: "ID ou tenant inválido",
           error: "Bad Request",
           statusCode: 400,
         });

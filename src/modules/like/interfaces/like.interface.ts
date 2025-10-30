@@ -17,6 +17,8 @@
  *    - Permite inversão de dependências e facilita testes
  */
 
+import { Like } from '@prisma/client';
+
 /**
  * @interface CreateLikeDto
  * @description DTO para criação de like
@@ -42,14 +44,16 @@ export interface CreateLikeDto {
 export interface LikeResponseDto {
   id: number;
   userId: string;
-  commentId?: number;
-  aulaId?: number;
+  commentId?: number | null;
+  aulaId?: number | null;
+  cursoId?: number | null;
   createdAt: Date;
+  updatedAt: Date;
   user?: {
     id: string;
     name: string;
     email: string;
-  };
+  } | null;
 }
 
 /**
@@ -63,7 +67,7 @@ export interface LikeResponseDto {
 export interface LikeStatsDto {
   totalLikes: number;
   userHasLiked: boolean;
-  likeId?: number;
+  likeId?: number | null;
 }
 
 /**
@@ -92,54 +96,30 @@ export interface ILikeRepository {
   create(data: CreateLikeDto): Promise<LikeResponseDto>;
 
   /**
-   * @method findByUserAndComment
-   * @description Busca like por usuário e comentário
-   * @param {string} userId - ID do usuário
-   * @param {number} commentId - ID do comentário
-   * @returns {Promise<LikeResponseDto | null>} Like encontrado ou null
+   * @method findById
+   * @description Busca like por ID
+   * @param {number} id - ID do like
+   * @returns {Promise<Like | null>} Like encontrado ou null
    */
-  findByUserAndComment(userId: string, commentId: number): Promise<LikeResponseDto | null>;
+  findById(id: number): Promise<Like | null>;
 
   /**
-   * @method findByUserAndLesson
-   * @description Busca like por usuário e aula
+   * @method findByUser
+   * @description Busca like por usuário e conteúdo
    * @param {string} userId - ID do usuário
-   * @param {number} aulaId - ID da aula
-   * @returns {Promise<LikeResponseDto | null>} Like encontrado ou null
+   * @param {number} aulaId - ID da aula (opcional)
+   * @param {number} commentId - ID do comentário (opcional)
+   * @returns {Promise<Like | null>} Like encontrado ou null
    */
-  findByUserAndLesson(userId: string, aulaId: number): Promise<LikeResponseDto | null>;
+  findByUser(userId: string, aulaId?: number, commentId?: number): Promise<Like | null>;
 
   /**
    * @method delete
    * @description Remove um like
    * @param {number} id - ID do like
-   * @returns {Promise<boolean>} True se removido com sucesso
+   * @returns {Promise<void>} Void quando removido com sucesso
    */
-  delete(id: number): Promise<boolean>;
-
-  /**
-   * @method countByComment
-   * @description Conta likes de um comentário
-   * @param {number} commentId - ID do comentário
-   * @returns {Promise<number>} Número de likes
-   */
-  countByComment(commentId: number): Promise<number>;
-
-  /**
-   * @method countByLesson
-   * @description Conta likes de uma aula
-   * @param {number} aulaId - ID da aula
-   * @returns {Promise<number>} Número de likes
-   */
-  countByLesson(aulaId: number): Promise<number>;
-
-  /**
-   * @method findById
-   * @description Busca like por ID
-   * @param {number} id - ID do like
-   * @returns {Promise<LikeResponseDto | null>} Like encontrado ou null
-   */
-  findById(id: number): Promise<LikeResponseDto | null>;
+  delete(id: number): Promise<void>;
 }
 
 /**

@@ -14,7 +14,6 @@ import {
   requestSizeLimiter,
   sqlInjectionProtection,
   xssProtection,
-  requestLogger,
 } from "./shared/middlewares/security.middleware";
 import {
   coloredLogger,
@@ -23,7 +22,6 @@ import {
 import { generalLimiter } from "./shared/middlewares/rate-limit.middleware";
 import {
   tenantContext,
-  validateTenantAccess,
 } from "./shared/middlewares/tenant.middleware";
 
 // Define __dirname for ES modules

@@ -42,7 +42,16 @@ const envSchema = z.object({
 
 const parseEnv = () => {
   try {
-    return envSchema.parse(process.env);
+    // Mapear variáveis SMTP_* para EMAIL_* se presentes
+    const mapped = { ...process.env } as Record<string, string | undefined>;
+    if (mapped.SMTP_HOST) mapped.EMAIL_HOST = mapped.SMTP_HOST;
+    if (mapped.SMTP_PORT) mapped.EMAIL_PORT = mapped.SMTP_PORT;
+    if (mapped.SMTP_USERNAME) mapped.EMAIL_USER = mapped.SMTP_USERNAME;
+    if (mapped.SMTP_PASSWORD) mapped.EMAIL_PASS = mapped.SMTP_PASSWORD;
+    if (mapped.SMTP_SENDER_EMAIL) mapped.EMAIL_FROM = mapped.SMTP_SENDER_EMAIL;
+    if (mapped.SMTP_AUTH_DISABLED) mapped.EMAIL_SECURE = mapped.SMTP_AUTH_DISABLED === "true" ? "false" : (mapped.EMAIL_SECURE || "false");
+
+    return envSchema.parse(mapped);
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errorMessages = error.issues.map(

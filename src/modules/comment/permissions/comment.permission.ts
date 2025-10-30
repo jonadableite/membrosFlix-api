@@ -3,8 +3,8 @@
  * @description Implementação simplificada do verificador de permissões para comentários
  */
 
-import {
-  ICommentPermissionChecker,
+import { 
+  ICommentPermissionChecker, 
   ICommentRepository,
 } from "../interfaces/comment.interface";
 
@@ -14,7 +14,7 @@ import {
  */
 export enum UserRole {
   ADMIN = "ADMIN",
-  MODERATOR = "MODERATOR",
+  MODERATOR = "MODERATOR", 
   INSTRUCTOR = "INSTRUCTOR",
   STUDENT = "STUDENT",
 }

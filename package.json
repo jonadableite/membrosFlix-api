@@ -6,7 +6,7 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "node --import tsx/esm --experimental-specifier-resolution=node src/server.ts",
+    "dev": "node --import tsx/esm --experimental-specifier-resolution=node --watch src/server.ts",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "build:prod": "npm run clean && npm run type-check && npm run build",
