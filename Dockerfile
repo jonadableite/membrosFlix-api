@@ -43,6 +43,9 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/docker-entrypoint.sh ./
 
+# Remover devDependencies do runtime para reduzir o tamanho
+RUN npm prune --omit=dev || true
+
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
