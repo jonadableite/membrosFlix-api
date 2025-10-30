@@ -1,15 +1,15 @@
 import type { Request, Response } from "express";
-import { BaseController } from "../../../core/base/base.controller";
-import { asyncHandler } from "../../../shared/utils/async-handler";
+import { BaseController } from '../../../core/base/base.controller.js';
+import { asyncHandler } from '../../../shared/utils/async-handler.js';
 import type {
   AuthenticatedRequest,
   ApiResponse,
-} from "../../../core/types/common.types";
-import type { PaginatedResponse } from "../../../core/interfaces/base.interface";
+} from '../../../core/types/common.types.js';
+import type { PaginatedResponse } from '../../../core/interfaces/base.interface.js';
 // Corrigido: importação correta do tipo Aula ao invés de tentar importar de prisma
 import type { Aula } from "@prisma/client";
-import type { LessonService } from "../services/lesson.service";
-import { UploadService } from "../../../modules/uploads/services/upload.service";
+import type { LessonService } from '../services/lesson.service.js';
+import { UploadService } from '../../../modules/uploads/services/upload.service.js';
 import {
   createLessonSchema,
   updateLessonSchema,
@@ -19,7 +19,7 @@ import {
   type UpdateLessonDto,
   type LessonQueryDto,
   type ReorderLessonsDto,
-} from "../dtos/lesson.dto";
+} from '../dtos/lesson.dto.js';
 
 export class LessonController extends BaseController<Aula> {
   private uploadService: UploadService;

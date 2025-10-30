@@ -2,20 +2,20 @@ import type { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { AppError } from "../../../shared/errors/app.error";
-import { env } from "../../../config/env";
-import type { UserService } from "../../../modules/user/services/user.service";
+import { AppError } from '../../../shared/errors/app.error.js';
+import { env } from '../../../config/env.js';
+import type { UserService } from '../../../modules/user/services/user.service.js';
 import type {
   LoginDto,
   RegisterDto,
   AuthResponseDto,
   TokenPayload,
   PasswordResetToken,
-} from "../dtos/auth.dto";
-import type { JwtPayload } from "../../../core/types/common.types";
-import { AppEventEmitter } from "../../../shared/events/event.emitter";
-import { prisma } from "../../../shared/database/prisma";
-import { emailService } from "../../../shared/email/email.service";
+} from '../dtos/auth.dto.js';
+import type { JwtPayload } from '../../../core/types/common.types.js';
+import { AppEventEmitter } from '../../../shared/events/event.emitter.js';
+import { prisma } from '../../../shared/database/prisma.js';
+import { emailService } from '../../../shared/email/email.service.js';
 
 export interface AuthService {
   login(data: LoginDto): Promise<AuthResponseDto>;

@@ -1,19 +1,19 @@
 import type { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
-import { BaseService } from "../../../core/base/base.service";
-import { AppError } from "../../../shared/errors/app.error";
-import type { UserRepository } from "../repositories/user.repository";
+import { BaseService } from '../../../core/base/base.service.js';
+import { AppError } from '../../../shared/errors/app.error.js';
+import type { UserRepository } from '../repositories/user.repository.js';
 import type {
   CreateUserDto,
   UserResponseDto,
   UserWithStatsDto,
-} from "../dtos/user.dto";
+} from '../dtos/user.dto.js';
 import type {
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "../../../core/interfaces/base.interface";
+} from '../../../core/interfaces/base.interface.js';
 
 export interface UserService {
   // Base service methods

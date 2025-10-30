@@ -23,7 +23,7 @@ import {
   CreateLikeDto, 
   LikeResponseDto, 
   LikeStatsDto 
-} from "../interfaces/like.interface";
+} from '../interfaces/like.interface.js';
 
 // ============================================================================
 // BASE REPOSITORY (LSP)

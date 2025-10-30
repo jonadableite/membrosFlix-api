@@ -1,9 +1,9 @@
-import { InstructorRepository } from "../repositories/instructor.repository";
+import { InstructorRepository } from '../repositories/instructor.repository.js';
 import type {
   CreateInstructorDTO,
   UpdateInstructorDTO,
-} from "../dtos/instructor.dto";
-import { AppError } from "../../../shared/errors/app.error";
+} from '../dtos/instructor.dto.js';
+import { AppError } from '../../../shared/errors/app.error.js';
 import type { Instructor } from "@prisma/client";
 
 export class InstructorService {

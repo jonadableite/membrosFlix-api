@@ -1,10 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
-import { InstructorService } from "../services/instructor.service";
-import { InstructorRepository } from "../repositories/instructor.repository";
+import { InstructorService } from '../services/instructor.service.js';
+import { InstructorRepository } from '../repositories/instructor.repository.js';
 import {
   createInstructorSchema,
   updateInstructorSchema,
-} from "../dtos/instructor.dto";
+} from '../dtos/instructor.dto.js';
 import { ZodError } from "zod";
 
 export class InstructorController {

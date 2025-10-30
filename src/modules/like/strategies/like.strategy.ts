@@ -20,7 +20,7 @@
  */
 
 import { Like } from "@prisma/client";
-import { CreateLikeDto, LikeStatsDto } from "../interfaces/like.interface";
+import { CreateLikeDto, LikeStatsDto } from '../interfaces/like.interface.js';
 
 // ============================================================================
 // INTERFACES PARA ESTRATÉGIAS (OCP + ISP)

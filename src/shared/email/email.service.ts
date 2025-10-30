@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
-import { env } from "../../config/env";
-import logger from "../../shared/logger/logger";
+import { env } from '../../config/env.js';
+import logger from '../../shared/logger/logger.js';
 
 export interface EmailTemplate {
   subject: string;

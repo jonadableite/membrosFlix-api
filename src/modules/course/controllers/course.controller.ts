@@ -1,15 +1,15 @@
 import type { Request, Response } from "express";
-import { BaseController } from "../../../core/base/base.controller";
-import { AppError } from "../../../shared/errors/app.error";
-import { asyncHandler } from "../../../shared/utils/async-handler";
+import { BaseController } from '../../../core/base/base.controller.js';
+import { AppError } from '../../../shared/errors/app.error.js';
+import { asyncHandler } from '../../../shared/utils/async-handler.js';
 import type {
   AuthenticatedRequest,
   ApiResponse,
-} from "../../../core/types/common.types";
-import type { PaginatedResponse } from "../../../core/interfaces/base.interface";
+} from '../../../core/types/common.types.js';
+import type { PaginatedResponse } from '../../../core/interfaces/base.interface.js';
 import type { Curso } from "@prisma/client";
-import type { CourseService } from "../services/course.service";
-import { UploadService } from "../../../modules/uploads/services/upload.service";
+import type { CourseService } from '../services/course.service.js';
+import { UploadService } from '../../../modules/uploads/services/upload.service.js';
 import {
   createCourseSchema,
   updateCourseSchema,
@@ -19,7 +19,7 @@ import {
   type CourseResponseDto,
   type CourseWithLessonsDto,
   type CourseStatsDto,
-} from "../dtos/course.dto";
+} from '../dtos/course.dto.js';
 
 export class CourseController extends BaseController<Curso> {
   private uploadService: UploadService;

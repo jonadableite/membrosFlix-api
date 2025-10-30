@@ -25,13 +25,13 @@
  */
 
 import { PrismaClient } from "@prisma/client";
-import { prisma } from "../../../shared/database/prisma";
+import { prisma } from '../../../shared/database/prisma.js';
 import { 
   ICommentRepository, 
   CreateCommentData,
   UpdateCommentData,
   CommentWithRelations
-} from "../interfaces/comment.interface";
+} from '../interfaces/comment.interface.js';
 
 /**
  * @class CommentRepository

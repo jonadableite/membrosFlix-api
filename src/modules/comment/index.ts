@@ -4,20 +4,20 @@
  */
 
 // Export apenas o service simples que funciona
-export { CommentSimpleService } from "./services/comment-simple.service";
+export { CommentSimpleService } from './services/comment-simple.service.js';
 
 // Export tipos básicos
 export type {
   CreateCommentDto,
   UpdateCommentDto,
   CommentResponseDto,
-} from "./interfaces/comment.interface";
+} from './interfaces/comment.interface.js';
 
 // Export repository básico
-export { CommentRepository } from "./repositories/comment.repository";
+export { CommentRepository } from './repositories/comment.repository.js';
 
 // Export validator básico
-export { CommentValidator } from "./validators/comment.validator";
+export { CommentValidator } from './validators/comment.validator.js';
 
 // Export permission checker básico
-export { CommentPermissionChecker } from "./permissions/comment.permission";
+export { CommentPermissionChecker } from './permissions/comment.permission.js';

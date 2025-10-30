@@ -15,7 +15,7 @@ import type {
   CreateCommentDto,
   UpdateCommentDto,
   CommentResponseDto
-} from "./comment.interface";
+} from './comment.interface.js';
 
 /**
  * @interface ICommentWriteRepository

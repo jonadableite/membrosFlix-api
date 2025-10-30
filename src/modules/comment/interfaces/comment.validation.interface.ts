@@ -8,7 +8,7 @@
  * - Permite diferentes estratégias de validação
  */
 
-import type { CreateCommentDto, UpdateCommentDto } from "./comment.interface";
+import type { CreateCommentDto, UpdateCommentDto } from './comment.interface.js';
 
 /**
  * @interface ICommentDataValidator

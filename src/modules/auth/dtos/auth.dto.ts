@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { UserRole } from "../../../core/types/common.types";
+import type { UserRole } from '../../../core/types/common.types.js';
 
 export const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),

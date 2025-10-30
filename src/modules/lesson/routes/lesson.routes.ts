@@ -1,17 +1,17 @@
 import { Router } from "express";
-import { LessonController } from "../controllers/lesson.controller";
-import { LessonServiceImpl } from "../services/lesson.service";
-import { LessonRepositoryImpl } from "../repositories/lesson.repository";
-import { CourseRepositoryImpl } from "../../course/repositories/course.repository";
+import { LessonController } from '../controllers/lesson.controller.js';
+import { LessonServiceImpl } from '../services/lesson.service.js';
+import { LessonRepositoryImpl } from '../repositories/lesson.repository.js';
+import { CourseRepositoryImpl } from '../../course/repositories/course.repository.js';
 import {
   authenticate,
   authorize,
-} from "../../../shared/middlewares/auth.middleware";
+} from '../../../shared/middlewares/auth.middleware.js';
 import multer from "multer";
-import multerConfig from "../../../config/multer";
-import { LikeSimpleService } from "../../like/services/like-simple.service";
-import { CommentSimpleService } from "../../comment/services/comment-simple.service";
-import { prisma } from "../../../shared/database/prisma";
+import multerConfig from '../../../config/multer.js';
+import { LikeSimpleService } from '../../like/services/like-simple.service.js';
+import { CommentSimpleService } from '../../comment/services/comment-simple.service.js';
+import { prisma } from '../../../shared/database/prisma.js';
 
 // Initialize dependencies
 const lessonRepository = new LessonRepositoryImpl();

@@ -1,6 +1,6 @@
-import { prisma } from "../../../shared/database/prisma";
-import logger from "../../../shared/logger/logger";
-import { ILikeService, LikeStatsDto } from "../interfaces/like.interface";
+import { prisma } from '../../../shared/database/prisma.js';
+import logger from '../../../shared/logger/logger.js';
+import { ILikeService, LikeStatsDto } from '../interfaces/like.interface.js';
 
 export class LikeService implements ILikeService {
   async toggleLessonLike(

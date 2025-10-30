@@ -20,7 +20,7 @@
  */
 
 import { Comment } from "@prisma/client";
-import { CreateCommentDto, CommentResponseDto } from "../interfaces/comment.interface";
+import { CreateCommentDto, CommentResponseDto } from '../interfaces/comment.interface.js';
 
 // ============================================================================
 // INTERFACES PARA ESTRATÉGIAS (OCP + ISP)

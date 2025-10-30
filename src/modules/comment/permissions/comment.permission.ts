@@ -6,7 +6,7 @@
 import { 
   ICommentPermissionChecker, 
   ICommentRepository,
-} from "../interfaces/comment.interface";
+} from '../interfaces/comment.interface.js';
 
 /**
  * @enum UserRole

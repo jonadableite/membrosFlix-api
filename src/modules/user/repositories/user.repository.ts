@@ -1,7 +1,7 @@
 import type { User } from "@prisma/client";
-import { BaseRepository } from "../../../core/base/base.repository";
-import { prisma } from "../../../shared/database/prisma";
-import type { Repository } from "../../../core/interfaces/base.interface";
+import { BaseRepository } from '../../../core/base/base.repository.js';
+import { prisma } from '../../../shared/database/prisma.js';
+import type { Repository } from '../../../core/interfaces/base.interface.js';
 
 export interface UserRepository extends Repository<User> {
   findByEmail(email: string): Promise<User | null>;

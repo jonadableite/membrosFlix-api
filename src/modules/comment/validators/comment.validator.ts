@@ -24,13 +24,13 @@
  *    - Mantém comportamento consistente definido na classe base
  */
 
-import { AppError } from "../../../shared/errors/app.error";
+import { AppError } from '../../../shared/errors/app.error.js';
 import {
   ICommentValidator,
   ICommentRepository,
   CreateCommentDto,
   UpdateCommentDto,
-} from "../interfaces/comment.interface";
+} from '../interfaces/comment.interface.js';
 
 /**
  * @class CommentValidator

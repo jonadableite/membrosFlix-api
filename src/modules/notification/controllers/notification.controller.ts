@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { NotificationService } from "../services/notification.service";
-import { AppError } from "../../../shared/errors/app.error";
-import { coloredLogger } from "../../../shared/logger/colored.logger";
+import { NotificationService } from '../services/notification.service.js';
+import { AppError } from '../../../shared/errors/app.error.js';
+import { coloredLogger } from '../../../shared/logger/colored.logger.js';
 
 export class NotificationController {
   constructor(private notificationService: NotificationService) {}

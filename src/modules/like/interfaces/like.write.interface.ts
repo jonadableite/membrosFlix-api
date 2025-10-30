@@ -8,7 +8,7 @@
  * - Permite implementações otimizadas para escrita (ex: write-through cache)
  */
 
-import type { CreateLikeDto, LikeResponseDto } from "./like.interface";
+import type { CreateLikeDto, LikeResponseDto } from './like.interface.js';
 
 /**
  * @interface ILikeWriteRepository

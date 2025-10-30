@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { UserRole } from "../../../core/types/common.types";
+import type { UserRole } from '../../../core/types/common.types.js';
 
 export const createUserSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório").max(255, "Nome muito longo"),

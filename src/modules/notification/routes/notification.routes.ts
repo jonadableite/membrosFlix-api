@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { NotificationController } from "../controllers/notification.controller";
-import { NotificationServiceImpl } from "../services/notification.service";
-import { NotificationRepositoryImpl } from "../repositories/notification.repository";
-import { authenticate } from "../../../shared/middlewares/auth.middleware";
-import { prisma } from "../../../shared/database/prisma";
+import { NotificationController } from '../controllers/notification.controller.js';
+import { NotificationServiceImpl } from '../services/notification.service.js';
+import { NotificationRepositoryImpl } from '../repositories/notification.repository.js';
+import { authenticate } from '../../../shared/middlewares/auth.middleware.js';
+import { prisma } from '../../../shared/database/prisma.js';
 
 // Initialize dependencies
 const notificationRepository = new NotificationRepositoryImpl(prisma);

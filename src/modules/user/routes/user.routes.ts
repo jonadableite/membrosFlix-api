@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { UserController } from "../controllers/user.controller";
-import { UserServiceImpl } from "../services/user.service";
-import { UserRepositoryImpl } from "../repositories/user.repository";
+import { UserController } from '../controllers/user.controller.js';
+import { UserServiceImpl } from '../services/user.service.js';
+import { UserRepositoryImpl } from '../repositories/user.repository.js';
 import {
   authenticate,
   authorize,
-} from "../../../shared/middlewares/auth.middleware";
+} from '../../../shared/middlewares/auth.middleware.js';
 
 // Initialize dependencies
 const userRepository = new UserRepositoryImpl();

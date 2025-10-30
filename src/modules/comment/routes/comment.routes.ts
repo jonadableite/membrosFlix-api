@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { CommentSimpleService } from "../services/comment-simple.service";
-import { authenticate } from "../../../shared/middlewares/auth.middleware";
+import { CommentSimpleService } from '../services/comment-simple.service.js';
+import { authenticate } from '../../../shared/middlewares/auth.middleware.js';
 
 const commentRoutes = Router();
 const commentService = new CommentSimpleService();

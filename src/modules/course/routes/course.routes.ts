@@ -1,14 +1,14 @@
 import { Router } from "express";
 import multer from "multer";
 import multerConfig from "../../../config/multer.js";
-import { CourseController } from "../controllers/course.controller";
-import { CourseServiceImpl } from "../services/course.service";
-import { CourseRepositoryImpl } from "../repositories/course.repository";
+import { CourseController } from '../controllers/course.controller.js';
+import { CourseServiceImpl } from '../services/course.service.js';
+import { CourseRepositoryImpl } from '../repositories/course.repository.js';
 import {
   authenticate,
   authorize,
-} from "../../../shared/middlewares/auth.middleware";
-import { courseLessonRoutes } from "../../lesson/routes/lesson.routes";
+} from '../../../shared/middlewares/auth.middleware.js';
+import { courseLessonRoutes } from '../../lesson/routes/lesson.routes.js';
 
 // Initialize dependencies
 const courseRepository = new CourseRepositoryImpl();

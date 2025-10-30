@@ -1,9 +1,9 @@
 import type { Notification, User } from "@prisma/client";
-import { BaseRepository } from "../../../core/base/base.repository";
+import { BaseRepository } from '../../../core/base/base.repository.js';
 import type {
   Repository,
   FindManyOptions,
-} from "../../../core/interfaces/base.interface";
+} from '../../../core/interfaces/base.interface.js';
 
 // Extend Notification to match BaseEntity
 interface NotificationEntity extends Notification {

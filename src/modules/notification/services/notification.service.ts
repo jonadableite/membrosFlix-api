@@ -5,29 +5,29 @@ interface NotificationEntity extends Notification {
   createdAt: Date;
   updatedAt: Date;
 }
-import { BaseService } from "../../../core/base/base.service";
-import { AppError } from "../../../shared/errors/app.error";
+import { BaseService } from '../../../core/base/base.service.js';
+import { AppError } from '../../../shared/errors/app.error.js';
 import type {
   Service,
   FindManyOptions,
-} from "../../../core/interfaces/base.interface";
-import type { NotificationRepository } from "../repositories/notification.repository";
+} from '../../../core/interfaces/base.interface.js';
+import type { NotificationRepository } from '../repositories/notification.repository.js';
 import type {
   NotificationResponseDto,
   CreateNotificationDto,
   UpdateNotificationDto,
-} from "../dtos/notification.dto";
+} from '../dtos/notification.dto.js';
 import {
   createNotificationSchema,
   updateNotificationSchema,
-} from "../dtos/notification.dto";
-import { eventEmitter } from "../../../shared/events/event.emitter";
+} from '../dtos/notification.dto.js';
+import { eventEmitter } from '../../../shared/events/event.emitter.js';
 import type {
   LessonCreatedEvent,
   CoursePublishedEvent,
   UserEnrolledEvent,
-} from "../../../shared/events/event.types";
-import logger from "../../../shared/logger/logger";
+} from '../../../shared/events/event.types.js';
+import logger from '../../../shared/logger/logger.js';
 
 export interface NotificationService extends Service<NotificationEntity> {
   createNotification(

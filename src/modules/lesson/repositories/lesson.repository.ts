@@ -14,7 +14,7 @@ import type {
   LessonStatsDto,
   CourseLessonsDto,
   ReorderLessonsDto,
-} from "../dtos/lesson.dto";
+} from '../dtos/lesson.dto.js';
 
 export interface LessonRepository extends Repository<Aula> {
   findByCourse(

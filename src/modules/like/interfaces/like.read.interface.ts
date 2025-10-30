@@ -8,7 +8,7 @@
  * - Permite implementações otimizadas para leitura (ex: cache, read replicas)
  */
 
-import type { LikeResponseDto, LikeStatsDto } from "./like.interface";
+import type { LikeResponseDto, LikeStatsDto } from './like.interface.js';
 
 /**
  * @interface ILikeReadRepository

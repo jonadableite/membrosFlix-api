@@ -28,8 +28,8 @@ import {
   ILikeValidator, 
   ILikeRepository, 
   CreateLikeDto 
-} from "../interfaces/like.interface";
-import { AppError } from "../../../shared/errors/app.error";
+} from '../interfaces/like.interface.js';
+import { AppError } from '../../../shared/errors/app.error.js';
 
 /**
  * @class LikeValidator

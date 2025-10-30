@@ -8,7 +8,7 @@
  * - Permite implementações otimizadas para leitura (ex: cache, read replicas)
  */
 
-import type { CommentWithRelations, CommentResponseDto } from "./comment.interface";
+import type { CommentWithRelations, CommentResponseDto } from './comment.interface.js';
 
 /**
  * @interface ICommentReadRepository

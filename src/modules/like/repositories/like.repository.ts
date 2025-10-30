@@ -29,8 +29,8 @@ import {
   ILikeRepository,
   CreateLikeDto,
   LikeResponseDto,
-} from "../interfaces/like.interface";
-import { BaseLikeRepository } from "../abstractions/like.base";
+} from '../interfaces/like.interface.js';
+import { BaseLikeRepository } from '../abstractions/like.base.js';
 
 /**
  * @class LikeRepository

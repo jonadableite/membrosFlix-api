@@ -3,8 +3,8 @@
  * @description Implementação simplificada do serviço de comentários
  */
 
-import { prisma } from "../../../shared/database/prisma";
-import { AppEventEmitter } from "../../../shared/events/event.emitter";
+import { prisma } from '../../../shared/database/prisma.js';
+import { AppEventEmitter } from '../../../shared/events/event.emitter.js';
 
 export interface CreateCommentDto {
   content: string;

@@ -1,5 +1,5 @@
 import { EventEmitter as NodeEventEmitter } from "events";
-import type { AppEvent, EventHandler } from "./event.types";
+import type { AppEvent, EventHandler } from './event.types.js';
 import logger from "../logger/logger.js";
 
 export class AppEventEmitter {

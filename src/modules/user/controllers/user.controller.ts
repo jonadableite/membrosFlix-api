@@ -1,17 +1,17 @@
 import type { Request, Response } from "express";
-import { BaseController } from "../../../core/base/base.controller";
+import { BaseController } from '../../../core/base/base.controller.js';
 import type { User } from "@prisma/client";
-import type { UserService } from "../services/user.service";
-import type { AuthenticatedRequest } from "../../../core/types/common.types";
+import type { UserService } from '../services/user.service.js';
+import type { AuthenticatedRequest } from '../../../core/types/common.types.js';
 import {
   createUserSchema,
   updateUserSchema,
   changePasswordSchema,
   type CreateUserDto,
   type UpdateUserDto,
-} from "../dtos/user.dto";
-import { asyncHandler } from "../../../shared/utils/async-handler";
-import { AppError } from "../../../shared/errors/app.error";
+} from '../dtos/user.dto.js';
+import { asyncHandler } from '../../../shared/utils/async-handler.js';
+import { AppError } from '../../../shared/errors/app.error.js';
 
 export class UserController extends BaseController<User> {
   constructor(private userService: UserService) {

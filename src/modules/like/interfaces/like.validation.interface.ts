@@ -8,7 +8,7 @@
  * - Permite diferentes estratégias de validação
  */
 
-import type { CreateLikeDto } from "./like.interface";
+import type { CreateLikeDto } from './like.interface.js';
 
 /**
  * @interface ILikeDataValidator

@@ -1,14 +1,14 @@
 import type { Aula } from "@prisma/client";
-import { BaseService } from "../../../core/base/base.service";
-import { AppError } from "../../../shared/errors/app.error";
+import { BaseService } from '../../../core/base/base.service.js';
+import { AppError } from '../../../shared/errors/app.error.js';
 import type {
   Service,
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "../../../core/interfaces/base.interface";
-import type { LessonRepository } from "../repositories/lesson.repository";
-import type { CourseRepository } from "../../../modules/course/repositories/course.repository";
+} from '../../../core/interfaces/base.interface.js';
+import type { LessonRepository } from '../repositories/lesson.repository.js';
+import type { CourseRepository } from '../../../modules/course/repositories/course.repository.js';
 import type {
   CreateLessonDto,
   UpdateLessonDto,
@@ -18,17 +18,17 @@ import type {
   LessonStatsDto,
   CourseLessonsDto,
   ReorderLessonsDto,
-} from "../dtos/lesson.dto";
+} from '../dtos/lesson.dto.js';
 import {
   createLessonSchema,
   updateLessonSchema,
   reorderLessonsSchema,
-} from "../dtos/lesson.dto";
+} from '../dtos/lesson.dto.js';
 import {
   eventEmitter,
   AppEventEmitter,
-} from "../../../shared/events/event.emitter";
-import logger from "../../../shared/logger/logger";
+} from '../../../shared/events/event.emitter.js';
+import logger from '../../../shared/logger/logger.js';
 
 export interface LessonService extends Service<Aula> {
   createLesson(data: CreateLessonDto): Promise<LessonResponseDto>;

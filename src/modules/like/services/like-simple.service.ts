@@ -3,7 +3,7 @@
  * @description Implementação simplificada do serviço de likes
  */
 
-import { prisma } from "../../../shared/database/prisma";
+import { prisma } from '../../../shared/database/prisma.js';
 
 export class LikeSimpleService {
   async toggleLessonLike(
