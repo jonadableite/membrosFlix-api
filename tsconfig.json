@@ -42,7 +42,11 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "incremental": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+
+    // 🔹 Novas flags recomendadas para evitar erros de tipos implícitos
+    "types": [],
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": ["src/**/*", "types/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
