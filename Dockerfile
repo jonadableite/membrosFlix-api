@@ -13,27 +13,16 @@ RUN apk add --no-cache \
     openssl \
     openssl-dev
 
-# Copiar arquivos de dependências primeiro (cache layer)
+# Copiar package.json e lock para camada de cache e instalar deps
 COPY package*.json ./
-COPY prisma ./prisma
-
-# Instalar todas as dependências (incluindo devDependencies para build)
 RUN npm ci
 
-# Gerar cliente Prisma (necessário antes do build)
-RUN npx prisma generate
+# Copiar todo o código-fonte e configs necessárias para o build
+# Isso garante que nenhum arquivo (ex.: lib/minio.client.ts) fique de fora
+COPY . ./
 
-# Copiar arquivos de configuração necessários para build
-COPY tsconfig.json ./
-COPY src ./src
-COPY docker-entrypoint.sh ./
-
-# Copiar types (removido do .dockerignore - necessário para declarações TypeScript)
-# O diretório types contém env.d.ts com tipos globais do Node.js
-COPY types ./types
-
-# Build TypeScript para JavaScript (gera /app/dist)
-RUN npm run build
+# Gerar Prisma Client e compilar TypeScript
+RUN npx prisma generate && npm run build
 
 # Stage 2: Production
 FROM node:22-alpine AS production
