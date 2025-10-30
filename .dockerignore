@@ -60,7 +60,7 @@ nodemon.json
 .babelrc
 biome.json
 jest.config.js
-tsconfig.json
+# tsconfig.json é necessário para build - NÃO ignorar
 types
 
 # Docker

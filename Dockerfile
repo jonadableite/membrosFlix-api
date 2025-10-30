@@ -9,7 +9,9 @@ RUN apk add --no-cache \
     git \
     python3 \
     make \
-    g++
+    g++ \
+    openssl \
+    openssl-dev
 
 # Copiar arquivos de dependências primeiro (cache layer)
 COPY package*.json ./
@@ -21,8 +23,11 @@ RUN npm ci
 # Gerar cliente Prisma (necessário antes do build)
 RUN npx prisma generate
 
-# Copiar código fonte
-COPY . .
+# Copiar arquivos de configuração necessários para build
+COPY tsconfig.json ./
+COPY src ./src
+COPY types ./types
+COPY docker-entrypoint.sh ./
 
 # Build TypeScript para JavaScript
 RUN npm run build
@@ -44,9 +49,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-
-# Copiar script de entrypoint
-COPY docker-entrypoint.sh ./
+COPY --from=builder /app/docker-entrypoint.sh ./
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
