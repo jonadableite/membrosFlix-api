@@ -47,22 +47,14 @@ build.log
 build-errors.log
 server.log
 
-# Uploads (somente raiz externa)
-uploads/*
-!uploads/.gitkeep
-!src/modules/uploads/**
-
 # Scripts de desenvolvimento
 scripts/*
 !scripts/*.js
 
 # Configs locais
 nodemon.json
-.babelrc
 biome.json
 jest.config.js
 
-# Docker
-Dockerfile
 .dockerignore
 docker-compose.yml

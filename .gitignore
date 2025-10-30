@@ -13,14 +13,9 @@ pnpm-debug.log*
 dist/
 build/
 out/
-lib/
 tmp/
 temp/
 .cache/
-
-# TypeScript
-*.tsbuildinfo
-tsconfig.tsbuildinfo
 
 # Logs
 *.log
