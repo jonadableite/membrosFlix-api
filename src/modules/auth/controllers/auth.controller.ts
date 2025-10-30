@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
-import { AppError } from '@/shared/errors/app.error';
-import { asyncHandler } from '@/shared/utils/async-handler';
-import type { AuthenticatedRequest, ApiResponse } from '@/core/types/common.types';
+import { AppError } from '../../../shared/errors/app.error.js';
+import { asyncHandler } from '../../../shared/utils/async-handler.js';
+import type { AuthenticatedRequest, ApiResponse } from '../../../core/types/common.types.js';
 import type { AuthService } from '../services/auth.service.js';
 import { 
   loginSchema, 

@@ -4,10 +4,10 @@ import type {
   Service,
   ApiResponse,
   PaginatedResponse,
-} from "@/core/interfaces/base.interface";
-import type { PaginationParams } from "@/core/types/common.types";
-import { AppError } from "@/shared/errors/app.error";
-import { asyncHandler } from "@/shared/utils/async-handler";
+} from '../../core/interfaces/base.interface.js';
+import type { PaginationParams } from '../../core/types/common.types.js';
+import { AppError } from '../../shared/errors/app.error.js';
+import { asyncHandler } from '../../shared/utils/async-handler.js';
 
 export abstract class BaseController<T extends BaseEntity> {
   protected service: Service<T>;

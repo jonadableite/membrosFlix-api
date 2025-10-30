@@ -5,8 +5,8 @@ import type {
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "@/core/interfaces/base.interface";
-import { AppError } from "@/shared/errors/app.error";
+} from '../../core/interfaces/base.interface.js';
+import { AppError } from '../../shared/errors/app.error.js';
 
 export abstract class BaseService<T extends BaseEntity> implements Service<T> {
   protected repository: Repository<T>;

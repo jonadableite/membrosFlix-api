@@ -5,7 +5,7 @@ import type {
   FindManyOptions,
   CreateData,
   UpdateData,
-} from "@/core/interfaces/base.interface";
+} from '../../core/interfaces/base.interface.js';
 
 export abstract class BaseRepository<T extends BaseEntity>
   implements Repository<T>
