@@ -1,4 +1,4 @@
-import { minioClient } from "../lib/minio.client";
+import { minioClient } from "../lib/minio.client.js";
 import { v4 as uuidv4 } from "uuid";
 import { AppError } from "@/shared/errors/app.error";
 
