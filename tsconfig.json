@@ -11,7 +11,7 @@
       "@/*": ["*"],
       "@config/*": ["./config/*"],
       "@core/*": ["./core/*"],
-      "@modules/*": ["./modules/*"],
+      "@modules/*": ["modules/*"],
       "@shared/*": ["./shared/*"]
     },
     "strict": false,
