@@ -13,6 +13,7 @@ declare global {
       MINIO_SECRET_KEY: string;
       MINIO_BUCKET_NAME: string;
       MINIO_USE_SSL: string;
+      MINIO_SERVER_URL?: string;
       CORS_ORIGIN: string;
       LOG_LEVEL: string;
     }
