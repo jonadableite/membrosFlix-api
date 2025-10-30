@@ -1,7 +1,7 @@
 import "dotenv/config";
 import http from "http";
 import swaggerUi from "swagger-ui-express";
-import app from "./app";
+import app from "./app.js";
 import swaggerSpec from "./swagger";
 import { coloredLogger } from "./shared/logger/colored.logger";
 // import { SocketService } from "./shared/websocket/socket.service";
