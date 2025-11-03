@@ -53,6 +53,15 @@ export class LessonController extends BaseController<Aula> {
         ...(courseIdFromParams && { courseId: courseIdFromParams }),
       };
 
+      // Convert string values from FormData to appropriate types
+      if (bodyData.duration) {
+        bodyData.duration = Number(bodyData.duration);
+      }
+      if (bodyData.ordemAula) {
+        bodyData.ordemAula = Number(bodyData.ordemAula);
+      }
+      // Force restart
+
       const data = createLessonSchema.parse(bodyData) as CreateLessonDto;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -209,6 +218,14 @@ export class LessonController extends BaseController<Aula> {
         ...req.body,
         ...(courseIdFromParams && { courseId: courseIdFromParams }),
       };
+
+      // Convert string values from FormData to appropriate types
+      if (bodyData.duration) {
+        bodyData.duration = Number(bodyData.duration);
+      }
+      if (bodyData.ordemAula) {
+        bodyData.ordemAula = Number(bodyData.ordemAula);
+      }
 
       const data = updateLessonSchema.parse(bodyData) as UpdateLessonDto;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };

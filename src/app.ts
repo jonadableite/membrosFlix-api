@@ -20,9 +20,7 @@ import {
   httpLoggerMiddleware,
 } from "./shared/logger/colored.logger.js";
 import { generalLimiter } from "./shared/middlewares/rate-limit.middleware.js";
-import {
-  tenantContext,
-} from "./shared/middlewares/tenant.middleware.js";
+import { tenantContext } from "./shared/middlewares/tenant.middleware.js";
 
 // Define __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -56,8 +54,8 @@ class App {
     // XSS protection
     this.app.use(xssProtection);
 
-    // Request size limiting - 100MB for video uploads
-    this.app.use(requestSizeLimiter(100 * 1024 * 1024)); // 100MB
+    // Request size limiting - 500MB for video uploads
+    this.app.use(requestSizeLimiter(500 * 1024 * 1024)); // 500MB
 
     // CORS configuration
     this.app.use(
@@ -70,9 +68,9 @@ class App {
       })
     );
 
-    // Body parsing - 100MB for video uploads
-    this.app.use(express.json({ limit: "100mb" }));
-    this.app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+    // Body parsing - 500MB for video uploads
+    this.app.use(express.json({ limit: "500mb" }));
+    this.app.use(express.urlencoded({ extended: true, limit: "500mb" }));
 
     // Serve uploaded files statically with CORS
     this.app.use(

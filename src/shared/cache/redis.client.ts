@@ -7,20 +7,27 @@ class RedisClient {
   private isConnected = false;
 
   constructor() {
-    this.connect();
+    this.connect().catch((error) => {
+      logger.error("Failed to connect to Redis during initialization:", error);
+    });
   }
 
-  private connect(): void {
+  private async connect(): Promise<void> {
     try {
       if (env.REDIS_URL) {
         this.client = new Redis(env.REDIS_URL, {
           maxRetriesPerRequest: 3,
-          lazyConnect: true,
+          enableReadyCheck: true,
         });
 
         this.client.on("connect", () => {
           this.isConnected = true;
           logger.info("Redis connected successfully");
+        });
+
+        this.client.on("ready", () => {
+          this.isConnected = true;
+          logger.info("Redis ready for commands");
         });
 
         this.client.on("error", (error) => {
@@ -32,6 +39,14 @@ class RedisClient {
           this.isConnected = false;
           logger.warn("Redis connection closed");
         });
+
+        // Force connection
+        try {
+          await this.client.ping();
+          logger.info("Redis ping successful");
+        } catch (error) {
+          logger.error("Redis ping failed:", error);
+        }
       } else {
         logger.warn("Redis URL not provided, caching disabled");
       }

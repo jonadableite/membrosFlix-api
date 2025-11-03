@@ -18,12 +18,13 @@ process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
 });
 
 // Create HTTP server
+// Updated Multer config to 300MB
 const server = http.createServer(app);
 
 // Initialize Socket.io
 // let socketService: SocketService;
 
-const PORT = process.env.PORT || 3007;
+const PORT = process.env.PORT || 3008;
 const HOST = process.env.HOST || "0.0.0.0";
 
 // Swagger UI configuration
@@ -43,6 +44,7 @@ const startServer = async (): Promise<void> => {
       );
     }
 
+    // Trigger restart for Redis connection fix
     server.listen(Number(PORT), HOST, () => {
       // Initialize Socket.io after server starts
       const socketService = new SocketService(server);
