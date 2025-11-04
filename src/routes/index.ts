@@ -10,6 +10,7 @@ import {
 import { notificationRoutes } from "../modules/notification/routes/notification.routes.js";
 import { instructorRoutes } from "../modules/instructor/routes/instructor.routes.js";
 import { commentRoutes } from "../modules/comment/routes/comment.routes.js";
+import { uploadRoutes } from "../modules/uploads/routes/upload.routes.js";
 
 const routes = Router();
 
@@ -36,6 +37,9 @@ routes.use(`${API_VERSION}/notifications`, notificationRoutes);
 
 // Comment routes (standalone)
 routes.use(`${API_VERSION}/comments`, commentRoutes);
+
+// Upload routes (presigned URLs for MinIO)
+routes.use(`${API_VERSION}/uploads`, uploadRoutes);
 
 // Nested routes for course lessons
 routes.use(`${API_VERSION}/courses/:courseId/lessons`, courseLessonRoutes);
